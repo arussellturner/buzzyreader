@@ -76,12 +76,24 @@ function themeStyles(p: ReaderPreferences) {
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
       height: '100% !important',
+      'max-width': 'none !important',
+      margin: '0 !important',
+      padding: '0 !important',
+      'box-sizing': 'border-box !important',
     },
     html: {
       height: '100% !important',
+      'max-width': 'none !important',
+      margin: '0 !important',
+      padding: '0 !important',
+      'box-sizing': 'border-box !important',
+    },
+    'div, section, article': {
+      'max-width': 'none !important',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
+      'max-width': 'none !important',
     },
     'a': {
       color: 'inherit !important',
@@ -139,14 +151,19 @@ export default function ReaderView({
 
       const isVertical = preferences.readingMode === 'vertical';
       
-      const rendition = book.renderTo(containerRef.current, {
+      const renderOptions: any = {
         width: '100%',
         height: '100%',
         spread: 'none',
-        flow: isVertical ? 'scrolled' : 'paginated',
-        manager: isVertical ? 'continuous' : 'default',
         allowScriptedContent: true,
-      });
+      };
+
+      if (isVertical) {
+        renderOptions.flow = 'scrolled';
+        renderOptions.manager = 'continuous';
+      }
+      
+      const rendition = book.renderTo(containerRef.current, renderOptions);
 
       renditionRef.current = rendition;
 
