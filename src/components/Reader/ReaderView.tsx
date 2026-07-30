@@ -30,6 +30,7 @@ interface ReaderViewProps {
   highlights?: Highlight[];
   onLocationChange?: (location: LocationInfo) => void;
   onTextSelected?: (selection: TextSelection) => void;
+  onToggleMenu?: () => void;
   onReady?: () => void;
 }
 
@@ -107,6 +108,7 @@ export default function ReaderView({
   highlights = [],
   onLocationChange,
   onTextSelected,
+  onToggleMenu,
   onReady,
 }: ReaderViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -320,26 +322,30 @@ export default function ReaderView({
     }
 
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyDown); // fallback
 
-    // Also bind inside the epub iframe
+    // Also bind inside the epub iframe using hooks
     if (renditionRef.current && isInitialized) {
       try {
-        renditionRef.current.on('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'ArrowRight' || e.key === ' ') {
-            e.preventDefault();
-            goNext();
-          } else if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            goPrev();
-          }
+        renditionRef.current.hooks.content.register((contents: any) => {
+          contents.document.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+              e.preventDefault();
+              goNext();
+            } else if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              goPrev();
+            }
+          });
         });
       } catch {
-        /* binding may fail during initialization */
+        /* binding may fail */
       }
     }
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyDown);
     };
   }, [goNext, goPrev, isInitialized]);
 
@@ -365,10 +371,32 @@ export default function ReaderView({
   /* ---------------------------------------------------------------- */
 
   return (
-    <div
-      ref={containerRef}
-      className={styles.epubContainer}
-      data-reader-view
-    />
+    <>
+      <div
+        ref={containerRef}
+        className={styles.epubContainer}
+        data-reader-view
+      />
+      
+      {/* Navigation Zones built into ReaderView so they have direct access to goNext/goPrev */}
+      {preferences.readingMode !== 'vertical' && (
+        <>
+          <div 
+            className={`${styles.navZone} ${styles.navZoneLeft}`} 
+            onClick={(e) => { e.stopPropagation(); goPrev(); }} 
+          />
+          <div 
+            className={`${styles.navZone} ${styles.navZoneRight}`} 
+            onClick={(e) => { e.stopPropagation(); goNext(); }} 
+          />
+        </>
+      )}
+      
+      {/* Center Zone toggles the menu in any mode */}
+      <div 
+        className={`${styles.navZone} ${styles.navZoneCenter}`} 
+        onClick={(e) => { e.stopPropagation(); onToggleMenu?.(); }} 
+      />
+    </>
   );
 }
