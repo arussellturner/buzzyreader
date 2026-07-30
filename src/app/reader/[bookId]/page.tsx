@@ -214,7 +214,15 @@ export default function ReaderPage() {
           highlights={highlights}
           bookTitle={book?.title || 'Unknown'}
           onDeleteHighlight={(id) => removeHighlight(id)}
-          onHighlightClick={(h) => {}}
+          onHighlightClick={(cfiRange) => {
+            // Find the epub container and call the attached _goTo method
+            const epubEl = document.querySelector('[data-reader-view]') as any;
+            if (epubEl && typeof epubEl._goTo === 'function') {
+              epubEl._goTo(cfiRange);
+              // Hide the panel so the user can read
+              setHighlightsOpen(false);
+            }
+          }}
         />
       )}
 
