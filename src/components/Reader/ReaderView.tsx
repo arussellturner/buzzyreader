@@ -75,6 +75,12 @@ function themeStyles(p: ReaderPreferences) {
       color: `${colors[p.theme] ?? colors.dark} !important`,
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
+      height: '100% !important',
+      width: '100% !important',
+    },
+    html: {
+      height: '100% !important',
+      width: '100% !important',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
@@ -323,11 +329,27 @@ export default function ReaderView({
   /* ---------------------------------------------------------------- */
 
   const goNext = useCallback(() => {
-    renditionRef.current?.next();
+    console.log("ATTEMPTING goNext()");
+    if (!renditionRef.current) {
+      console.log("goNext failed: renditionRef is null");
+      return;
+    }
+    renditionRef.current.next().then(
+      () => console.log("goNext succeeded"),
+      (err: any) => console.error("goNext failed with error:", err)
+    );
   }, []);
 
   const goPrev = useCallback(() => {
-    renditionRef.current?.prev();
+    console.log("ATTEMPTING goPrev()");
+    if (!renditionRef.current) {
+      console.log("goPrev failed: renditionRef is null");
+      return;
+    }
+    renditionRef.current.prev().then(
+      () => console.log("goPrev succeeded"),
+      (err: any) => console.error("goPrev failed with error:", err)
+    );
   }, []);
 
   // Keyboard navigation
