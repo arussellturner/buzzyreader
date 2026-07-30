@@ -1,68 +1,21 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture: string;
-  accessToken: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isSignedIn: boolean;
-  signIn: () => void;
-  signOut: () => void;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: false,
-  isSignedIn: false,
-  signIn: () => {},
-  signOut: () => {},
-});
+import React, { ReactNode } from 'react';
+import { SessionProvider, useSession, signIn, signOut } from 'next-auth/react';
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const { data: session, status } = useSession();
+  
+  return {
+    user: session?.user || null,
+    accessToken: (session as any)?.accessToken || null,
+    isLoading: status === 'loading',
+    isSignedIn: status === 'authenticated',
+    signIn,
+    signOut,
+  };
 }
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export default function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const signIn = useCallback(() => {
-    // Google Identity Services sign-in will be wired here
-    setIsLoading(true);
-    console.log('Sign in triggered — Google Identity Services will be connected here');
-    setIsLoading(false);
-  }, []);
-
-  const signOut = useCallback(() => {
-    setUser(null);
-  }, []);
-
-  const value = useMemo(
-    () => ({
-      user,
-      isLoading,
-      isSignedIn: !!user,
-      signIn,
-      signOut,
-    }),
-    [user, isLoading, signIn, signOut]
-  );
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+export default function AuthProvider({ children }: { children: ReactNode }) {
+  return <SessionProvider>{children}</SessionProvider>;
 }
