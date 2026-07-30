@@ -161,6 +161,9 @@ export default function ReaderView({
       if (isVertical) {
         renderOptions.flow = 'scrolled';
         renderOptions.manager = 'continuous';
+      } else {
+        renderOptions.flow = 'paginated';
+        renderOptions.manager = 'default';
       }
       
       const rendition = book.renderTo(containerRef.current, renderOptions);
@@ -197,9 +200,6 @@ export default function ReaderView({
 
       if (cancelled) return;
       
-      // Force columns to calculate explicitly after display finishes
-      rendition.resize();
-
       // Location change handler
       rendition.on('locationChanged', (loc: { start: string; end: string }) => {
         if (!book.locations || !loc?.start) return;
@@ -344,28 +344,33 @@ export default function ReaderView({
   /*  Navigation                                                       */
   /* ---------------------------------------------------------------- */
 
-  const goNext = useCallback(() => {
-    console.log("ATTEMPTING goNext()");
-    if (!renditionRef.current) {
-      console.log("goNext failed: renditionRef is null");
-      return;
+  const goNext = useCallback(async () => {
+    if (!renditionRef.current) return;
+    try {
+      const currentCfi = renditionRef.current.currentLocation()?.start?.cfi;
+      console.log('ATTEMPTING goNext(). Current CFI:', currentCfi);
+      await renditionRef.current.next();
+      const newCfi = renditionRef.current.currentLocation()?.start?.cfi;
+      console.log('goNext succeeded. New CFI:', newCfi);
+      if (currentCfi === newCfi) {
+        console.warn('WARNING: goNext resolved but CFI did not change! epub.js thinks it is at the end of the spine, or columns are broken.');
+      }
+    } catch (e) {
+      console.error('goNext failed', e);
     }
-    renditionRef.current.next().then(
-      () => console.log("goNext succeeded"),
-      (err: any) => console.error("goNext failed with error:", err)
-    );
   }, []);
 
-  const goPrev = useCallback(() => {
-    console.log("ATTEMPTING goPrev()");
-    if (!renditionRef.current) {
-      console.log("goPrev failed: renditionRef is null");
-      return;
+  const goPrev = useCallback(async () => {
+    if (!renditionRef.current) return;
+    try {
+      const currentCfi = renditionRef.current.currentLocation()?.start?.cfi;
+      console.log('ATTEMPTING goPrev(). Current CFI:', currentCfi);
+      await renditionRef.current.prev();
+      const newCfi = renditionRef.current.currentLocation()?.start?.cfi;
+      console.log('goPrev succeeded. New CFI:', newCfi);
+    } catch (e) {
+      console.error('goPrev failed', e);
     }
-    renditionRef.current.prev().then(
-      () => console.log("goPrev succeeded"),
-      (err: any) => console.error("goPrev failed with error:", err)
-    );
   }, []);
 
   // Keyboard navigation
