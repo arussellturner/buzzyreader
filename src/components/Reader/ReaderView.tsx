@@ -76,7 +76,7 @@ function themeStyles(p: ReaderPreferences) {
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
     },
-    '*': {
+    'div, p, span, h1, h2, h3, h4, h5, h6, ul, li, blockquote, section, article': {
       'font-family': resolveFontFamily(p.fontFamily) + ' !important',
       color: `${colors[p.theme] ?? colors.dark} !important`,
       background: 'transparent !important',
