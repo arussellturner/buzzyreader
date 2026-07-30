@@ -76,10 +76,15 @@ function themeStyles(p: ReaderPreferences) {
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
     },
+    '*': {
+      'font-family': resolveFontFamily(p.fontFamily) + ' !important',
+      color: `${colors[p.theme] ?? colors.dark} !important`,
+      background: 'transparent !important',
+    },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
     },
-    'a': {
+    a: {
       color: 'inherit !important',
       'text-decoration': 'none !important',
     },

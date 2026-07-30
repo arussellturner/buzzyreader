@@ -24,7 +24,7 @@
   --reader-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.readerRoot[data-theme='light'] {
+:global([data-theme='light']) .readerRoot {
   --reader-bg: #f8f6f2;
   --reader-text: #1a1a1a;
   --reader-muted: #6b6b70;
@@ -35,7 +35,7 @@
   --reader-overlay: rgba(0, 0, 0, 0.25);
 }
 
-.readerRoot[data-theme='sepia'] {
+:global([data-theme='sepia']) .readerRoot {
   --reader-bg: #f4ecd8;
   --reader-text: #3d3229;
   --reader-muted: #7a6e5d;
