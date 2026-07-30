@@ -133,11 +133,13 @@ export default function ReaderView({
     let cancelled = false;
 
     async function init() {
-      if (!containerRef.current) return;
+      if (!containerRef.current || !epubData) return;
 
       const ePub = (await import('epubjs')).default;
+      const blob = new Blob([epubData as ArrayBuffer], { type: 'application/epub+zip' });
+      const url = URL.createObjectURL(blob);
 
-      const book = ePub(epubData as unknown as string);
+      const book = ePub(url);
       bookRef.current = book;
 
       const isVertical = preferences.readingMode === 'vertical';
@@ -183,6 +185,9 @@ export default function ReaderView({
       }
 
       if (cancelled) return;
+      
+      // Force columns to calculate explicitly after display finishes
+      rendition.resize();
 
       // Location change handler
       rendition.on('locationChanged', (loc: { start: string; end: string }) => {
