@@ -140,6 +140,7 @@ export default function ReaderView({
         spread: 'none',
         flow: preferences.readingMode === 'vertical' ? 'scrolled' : 'paginated',
         manager: 'continuous',
+        allowScriptedContent: true,
       });
 
       renditionRef.current = rendition;
