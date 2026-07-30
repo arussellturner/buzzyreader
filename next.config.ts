@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  basePath: '/buzzyreader',
+  images: {
+    unoptimized: true, // Needed if not using Vercel's image optimization
+  },
 };
 
 export default nextConfig;

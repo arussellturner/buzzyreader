@@ -1,0 +1,229 @@
+.card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    border-color 0.3s ease;
+  will-change: transform;
+}
+
+.card:hover {
+  transform: scale(1.03) translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.card:active {
+  transform: scale(1.01) translateY(-2px);
+  transition-duration: 0.1s;
+}
+
+.coverWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--surface-elevated, #1a1a2e);
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .cover {
+  transform: scale(1.05);
+}
+
+.placeholderCover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.placeholderCover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.placeholderIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+.placeholderTitle {
+  font-family: 'Georgia', 'Literata', serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.85);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.info {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.92);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  letter-spacing: -0.01em;
+}
+
+.author {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 12px;
+}
+
+.lastRead {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.progressBarTrack {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #6c63ff, #b06cff);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+}
+
+.progressBarFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3)
+  );
+  border-radius: 0 2px 2px 0;
+}
+
+/* Light theme overrides */
+:global([data-theme='light']) .card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme='light']) .card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+:global([data-theme='light']) .placeholderTitle {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+:global([data-theme='light']) .title {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+:global([data-theme='light']) .author {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+:global([data-theme='light']) .lastRead {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+:global([data-theme='light']) .progressBarTrack {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Sepia theme overrides */
+:global([data-theme='sepia']) .card {
+  background: rgba(244, 236, 220, 0.6);
+  border-color: rgba(139, 115, 85, 0.15);
+}
+
+:global([data-theme='sepia']) .card:hover {
+  box-shadow: 0 20px 40px rgba(80, 60, 30, 0.15),
+    0 0 0 1px rgba(139, 115, 85, 0.2);
+}
+
+:global([data-theme='sepia']) .placeholderTitle {
+  color: rgba(60, 40, 20, 0.85);
+}
+
+:global([data-theme='sepia']) .title {
+  color: rgba(60, 40, 20, 0.9);
+}
+
+:global([data-theme='sepia']) .author {
+  color: rgba(60, 40, 20, 0.5);
+}
+
+:global([data-theme='sepia']) .lastRead {
+  color: rgba(60, 40, 20, 0.35);
+}

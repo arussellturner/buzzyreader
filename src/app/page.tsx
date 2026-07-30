@@ -1,66 +1,99 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import styles from './page.module.css';
+import LandingClient from './LandingClient';
+
+const features = [
+  {
+    icon: '📱',
+    title: 'Cross-Device Sync',
+    description:
+      'Pick up exactly where you left off. Your reading position, bookmarks, and highlights sync seamlessly across every device.',
+  },
+  {
+    icon: '🎨',
+    title: 'Beautiful Reading',
+    description:
+      'A distraction-free reading experience with customizable fonts, themes, and spacing designed for hours of comfortable reading.',
+  },
+  {
+    icon: '🔖',
+    title: 'Smart Highlights',
+    description:
+      'Highlight passages, add notes, and organize your thoughts. Everything is searchable and synced to your Drive.',
+  },
+  {
+    icon: '🔊',
+    title: 'Read to Me',
+    description:
+      'Built-in text-to-speech with natural voices. Listen to your books while cooking, exercising, or on the go.',
+  },
+  {
+    icon: '🔒',
+    title: 'Your Data, Your Drive',
+    description:
+      'Your books live in your own Google Drive. No third-party servers, no tracking. You stay in complete control.',
+  },
+  {
+    icon: '⚡',
+    title: 'Lightning Fast',
+    description:
+      'Built with modern web technology for instant page turns, smooth scrolling, and a snappy interface that never keeps you waiting.',
+  },
+] as const;
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={styles.landing}>
+      {/* Animated background orbs */}
+      <div className={styles.backgroundOrbs} aria-hidden="true">
+        <div className={styles.gradientOrb} />
+        <div className={styles.gradientOrb} />
+        <div className={styles.gradientOrb} />
+        <div className={styles.gradientOrb} />
+        <div className={styles.gradientOrb} />
+      </div>
+
+      {/* Noise texture overlay */}
+      <div className={styles.noiseOverlay} aria-hidden="true" />
+
+      {/* Hero */}
+      <section className={styles.hero}>
+        <span className={styles.beeIcon} role="img" aria-label="Bee">
+          🐝
+        </span>
+        <h1 className={styles.title}>BuzzyReader</h1>
+        <p className={styles.tagline}>Your Books. Everywhere.</p>
+        <p className={styles.description}>
+          A premium ePub reader that syncs across all your devices.
+          Powered by your Google Drive.
+        </p>
+        <LandingClient />
+      </section>
+
+      {/* Divider */}
+      <div className={styles.divider} aria-hidden="true" />
+
+      {/* Features */}
+      <section className={styles.featuresSection}>
+        <p className={styles.featuresLabel}>Why BuzzyReader?</p>
+        <div className={styles.features}>
+          {features.map((feature) => (
+            <article key={feature.title} className={styles.featureCard}>
+              <span className={styles.featureIcon} role="img" aria-label={feature.title}>
+                {feature.icon}
+              </span>
+              <h3 className={styles.featureTitle}>{feature.title}</h3>
+              <p className={styles.featureDescription}>{feature.description}</p>
+            </article>
+          ))}
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <p className={styles.footerText}>
+          Made with <span className={styles.footerHeart}>♥</span> for book lovers everywhere
+        </p>
+      </footer>
     </div>
   );
 }

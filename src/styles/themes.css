@@ -1,0 +1,324 @@
+/* ============================================================
+   BuzzyReader — Theme Definitions
+   Three themes: dark (default), light, sepia
+   Each overrides the full semantic color system
+   ============================================================ */
+
+/* ============================================================
+   DARK THEME (Default)
+   Deep navy/charcoal backgrounds, bright text, amber accents
+   ============================================================ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* ── Backgrounds ────────────────────────────────────────── */
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1a1f2e;
+  --bg-surface: #232a3b;
+  --bg-elevated: #2d3548;
+
+  /* ── Text ───────────────────────────────────────────────── */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+
+  /* ── Accents ────────────────────────────────────────────── */
+  --accent-primary: #f59e0b;
+  --accent-secondary: #8b5cf6;
+  --accent-hover: #fbbf24;
+
+  /* ── Borders ────────────────────────────────────────────── */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+
+  /* ── Shadows ────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+  /* ── Glassmorphism ──────────────────────────────────────── */
+  --glass-bg: rgba(17, 24, 39, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   LIGHT THEME
+   Clean white/gray backgrounds, dark text, amber accents
+   ============================================================ */
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* ── Backgrounds ────────────────────────────────────────── */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f8fafc;
+
+  /* ── Text ───────────────────────────────────────────────── */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+
+  /* ── Accents ────────────────────────────────────────────── */
+  --accent-primary: #d97706;
+  --accent-secondary: #7c3aed;
+  --accent-hover: #b45309;
+
+  /* ── Borders ────────────────────────────────────────────── */
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+
+  /* ── Shadows ────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* ── Glassmorphism ──────────────────────────────────────── */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.06);
+
+  /* ── Scrollbar override ─────────────────────────────────── */
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Light theme selection */
+[data-theme='light'] ::selection {
+  background: rgba(217, 119, 6, 0.2);
+  color: #0f172a;
+}
+
+[data-theme='light'] ::-moz-selection {
+  background: rgba(217, 119, 6, 0.2);
+  color: #0f172a;
+}
+
+/* Light theme focus ring */
+[data-theme='light'] :focus-visible {
+  outline-color: #d97706;
+}
+
+/* Light theme inputs */
+[data-theme='light'] input:focus,
+[data-theme='light'] textarea:focus,
+[data-theme='light'] select:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+}
+
+/* Light theme button overrides */
+[data-theme='light'] .btn-primary {
+  background: #d97706;
+  color: #ffffff;
+}
+
+[data-theme='light'] .btn-primary:hover:not(:disabled) {
+  background: #b45309;
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
+}
+
+[data-theme='light'] .btn-secondary {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme='light'] .btn-secondary:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #d97706;
+}
+
+[data-theme='light'] .btn-ghost:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+/* Light theme glass */
+[data-theme='light'] .glass {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='light'] .glass-elevated {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Light theme shimmer */
+[data-theme='light'] .animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 25%,
+    #e2e8f0 50%,
+    #f1f5f9 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ============================================================
+   SEPIA THEME
+   Warm cream/tan backgrounds, brown text, warm accents
+   ============================================================ */
+[data-theme='sepia'] {
+  color-scheme: light;
+
+  /* ── Backgrounds ────────────────────────────────────────── */
+  --bg-primary: #f5e6c8;
+  --bg-secondary: #ede0c8;
+  --bg-tertiary: #e8d8bc;
+  --bg-surface: #f0dcc0;
+  --bg-elevated: #ede0c8;
+
+  /* ── Text ───────────────────────────────────────────────── */
+  --text-primary: #3d2b1f;
+  --text-secondary: #5c4033;
+  --text-tertiary: #8b7355;
+
+  /* ── Accents ────────────────────────────────────────────── */
+  --accent-primary: #b45309;
+  --accent-secondary: #92400e;
+  --accent-hover: #78350f;
+
+  /* ── Borders ────────────────────────────────────────────── */
+  --border-color: rgba(93, 64, 51, 0.15);
+  --border-subtle: rgba(93, 64, 51, 0.08);
+
+  /* ── Shadows ────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(93, 64, 51, 0.06), 0 1px 2px rgba(93, 64, 51, 0.04);
+  --shadow-md: 0 4px 12px rgba(93, 64, 51, 0.08), 0 2px 4px rgba(93, 64, 51, 0.04);
+  --shadow-lg: 0 12px 40px rgba(93, 64, 51, 0.1), 0 4px 12px rgba(93, 64, 51, 0.06);
+
+  /* ── Glassmorphism ──────────────────────────────────────── */
+  --glass-bg: rgba(245, 230, 200, 0.85);
+  --glass-border: rgba(93, 64, 51, 0.1);
+
+  /* ── Scrollbar override ─────────────────────────────────── */
+  scrollbar-color: #c4a882 transparent;
+}
+
+[data-theme='sepia'] ::-webkit-scrollbar-thumb {
+  background: #c4a882;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+[data-theme='sepia'] ::-webkit-scrollbar-thumb:hover {
+  background: #a68b6b;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Sepia theme selection */
+[data-theme='sepia'] ::selection {
+  background: rgba(180, 83, 9, 0.2);
+  color: #3d2b1f;
+}
+
+[data-theme='sepia'] ::-moz-selection {
+  background: rgba(180, 83, 9, 0.2);
+  color: #3d2b1f;
+}
+
+/* Sepia theme focus ring */
+[data-theme='sepia'] :focus-visible {
+  outline-color: #b45309;
+}
+
+/* Sepia theme inputs */
+[data-theme='sepia'] input,
+[data-theme='sepia'] textarea,
+[data-theme='sepia'] select {
+  background: #f0dcc0;
+}
+
+[data-theme='sepia'] input:focus,
+[data-theme='sepia'] textarea:focus,
+[data-theme='sepia'] select:focus {
+  border-color: #b45309;
+  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.12);
+}
+
+/* Sepia theme button overrides */
+[data-theme='sepia'] .btn-primary {
+  background: #b45309;
+  color: #f5e6c8;
+}
+
+[data-theme='sepia'] .btn-primary:hover:not(:disabled) {
+  background: #92400e;
+  box-shadow: 0 0 20px rgba(180, 83, 9, 0.2);
+}
+
+[data-theme='sepia'] .btn-secondary {
+  background: #f0dcc0;
+  border-color: rgba(93, 64, 51, 0.15);
+}
+
+[data-theme='sepia'] .btn-secondary:hover:not(:disabled) {
+  background: #e8d8bc;
+  border-color: #b45309;
+}
+
+[data-theme='sepia'] .btn-ghost:hover:not(:disabled) {
+  background: #e8d8bc;
+}
+
+/* Sepia theme glass */
+[data-theme='sepia'] .glass {
+  background: rgba(245, 230, 200, 0.85);
+  border-color: rgba(93, 64, 51, 0.1);
+}
+
+[data-theme='sepia'] .glass-elevated {
+  background: rgba(237, 224, 200, 0.9);
+  border-color: rgba(93, 64, 51, 0.12);
+  box-shadow: 0 12px 40px rgba(93, 64, 51, 0.1);
+}
+
+/* Sepia theme shimmer */
+[data-theme='sepia'] .animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e8d8bc 25%,
+    #dccba8 50%,
+    #e8d8bc 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ============================================================
+   Smooth Theme Transition
+   Applied to elements that should animate when switching themes
+   ============================================================ */
+[data-theme] {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+[data-theme] input,
+[data-theme] textarea,
+[data-theme] select,
+[data-theme] button,
+[data-theme] .glass,
+[data-theme] .glass-elevated {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}

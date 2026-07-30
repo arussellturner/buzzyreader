@@ -1,142 +1,439 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
+/* ============================================================
+   Landing Page — BuzzyReader
+   Premium glassmorphism design with animated gradient background
+   ============================================================ */
 
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
+/* --- Main Layout --- */
+.landing {
+  position: relative;
   display: flex;
-  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+/* --- Animated Background Gradient Orbs --- */
+.backgroundOrbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.gradientOrb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform, opacity;
+}
+
+.gradientOrb:nth-child(1) {
+  width: 600px;
+  height: 600px;
+  top: -10%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, transparent 70%);
+  animation: orbDrift1 20s ease-in-out infinite;
+}
+
+.gradientOrb:nth-child(2) {
+  width: 500px;
+  height: 500px;
+  top: 30%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, transparent 70%);
+  animation: orbDrift2 25s ease-in-out infinite;
+}
+
+.gradientOrb:nth-child(3) {
+  width: 450px;
+  height: 450px;
+  bottom: -5%;
+  left: 20%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  animation: orbDrift3 22s ease-in-out infinite;
+}
+
+.gradientOrb:nth-child(4) {
+  width: 350px;
+  height: 350px;
+  top: 60%;
+  right: 25%;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.1) 0%, transparent 70%);
+  animation: orbDrift1 28s ease-in-out infinite reverse;
+}
+
+.gradientOrb:nth-child(5) {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  left: 50%;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%);
+  animation: orbDrift2 30s ease-in-out infinite reverse;
+}
+
+/* --- Noise Texture Overlay --- */
+.noiseOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* --- Hero Section --- */
+.hero {
+  position: relative;
+  z-index: 2;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  text-align: center;
+  padding: var(--space-4xl) var(--space-lg) var(--space-3xl);
+  min-height: 70vh;
+  width: 100%;
+  max-width: 900px;
 }
 
-.main {
-  display: flex;
-  flex: 1;
+/* Bee Emoji */
+.beeIcon {
+  font-size: 56px;
+  margin-bottom: var(--space-lg);
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));
+}
+
+/* Title */
+.title {
+  font-family: var(--font-ui);
+  font-size: clamp(48px, 8vw, 80px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  background: var(--gradient-hero);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInDown 0.8s ease-out both, gradientShift 8s ease-in-out infinite;
+}
+
+/* Tagline */
+.tagline {
+  font-family: var(--font-ui);
+  font-size: clamp(22px, 3.5vw, 32px);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-top: var(--space-md);
+  letter-spacing: -0.5px;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* Description */
+.description {
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  max-width: 560px;
+  margin-top: var(--space-lg);
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* Sign In Button */
+.signInButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: var(--space-2xl);
+  padding: 16px 36px;
+  background: var(--gradient-brand);
+  background-size: 200% 200%;
+  color: white;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(245, 158, 11, 0.2);
+  animation: fadeInUp 0.8s ease-out 0.6s both, gradientShift 6s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.signInButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.signInButton:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-xl), 0 0 60px rgba(245, 158, 11, 0.35);
+}
+
+.signInButton:hover::before {
+  opacity: 1;
+}
+
+.signInButton:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.signInButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Divider */
+.divider {
+  position: relative;
+  z-index: 2;
   width: 100%;
   max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(245, 158, 11, 0.2) 50%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+  margin: 0 auto;
 }
 
-.intro {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
+/* --- Features Section --- */
+.featuresSection {
+  position: relative;
+  z-index: 2;
   width: 100%;
-  max-width: 440px;
-  gap: 16px;
+  max-width: 1100px;
+  padding: var(--space-3xl) var(--space-lg) var(--space-4xl);
+}
+
+.featuresLabel {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-brand-amber);
+  margin-bottom: var(--space-xl);
+  animation: fadeInUp 0.8s ease-out 0.8s both;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+/* Feature Card — Glassmorphism */
+.featureCard {
+  position: relative;
+  padding: var(--space-xl) var(--space-lg);
+  border-radius: var(--border-radius-lg);
+  background: var(--gradient-glass);
+  border: var(--border-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all var(--transition-slow);
+  animation: fadeInUp 0.6s ease-out both;
+  cursor: default;
+  overflow: hidden;
+}
+
+/* Staggered animation delays */
+.featureCard:nth-child(1) { animation-delay: 0.9s; }
+.featureCard:nth-child(2) { animation-delay: 1.0s; }
+.featureCard:nth-child(3) { animation-delay: 1.1s; }
+.featureCard:nth-child(4) { animation-delay: 1.2s; }
+.featureCard:nth-child(5) { animation-delay: 1.3s; }
+.featureCard:nth-child(6) { animation-delay: 1.4s; }
+
+/* Subtle top-edge highlight */
+.featureCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(245, 158, 11, 0.3) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+}
+
+/* Glow on hover */
+.featureCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(245, 158, 11, 0.06) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+  pointer-events: none;
+}
+
+.featureCard:hover {
+  transform: translateY(-6px);
+  border-color: rgba(245, 158, 11, 0.15);
+  box-shadow: var(--shadow-lg), 0 0 50px rgba(245, 158, 11, 0.08);
+}
+
+.featureCard:hover::before {
+  opacity: 1;
+}
+
+.featureCard:hover::after {
+  opacity: 1;
+}
+
+.featureIcon {
+  font-size: 36px;
+  margin-bottom: var(--space-md);
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.featureTitle {
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.3px;
+}
+
+.featureDescription {
   font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
 }
 
-.ctas a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+/* --- Footer --- */
+.footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  width: 100%;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+.footerText {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.5px;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.footerHeart {
+  color: var(--color-accent-rose);
+  display: inline-block;
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
   }
 
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
+  .hero {
+    padding: var(--space-3xl) var(--space-lg) var(--space-2xl);
+    min-height: 60vh;
   }
 }
 
+/* Mobile */
 @media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
+  .features {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
   }
 
-  .intro {
-    gap: 16px;
+  .hero {
+    padding: var(--space-2xl) var(--space-md) var(--space-xl);
+    min-height: auto;
   }
 
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
+  .beeIcon {
+    font-size: 44px;
+  }
+
+  .title {
+    letter-spacing: -1px;
+  }
+
+  .signInButton {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+
+  .featureCard {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .featuresSection {
+    padding: var(--space-2xl) var(--space-md) var(--space-3xl);
+  }
+
+  .gradientOrb:nth-child(1) {
+    width: 350px;
+    height: 350px;
+  }
+
+  .gradientOrb:nth-child(2) {
+    width: 300px;
+    height: 300px;
+  }
+
+  .gradientOrb:nth-child(3) {
+    width: 250px;
+    height: 250px;
+  }
+
+  .gradientOrb:nth-child(4),
+  .gradientOrb:nth-child(5) {
+    display: none;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
+/* Large Screens */
+@media (min-width: 1400px) {
+  .hero {
+    max-width: 1000px;
   }
 
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+  .featuresSection {
+    max-width: 1200px;
   }
 }

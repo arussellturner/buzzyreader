@@ -1,0 +1,1028 @@
+/* ============================================================
+   Reader Components – Shared CSS Module
+   Premium glassmorphism design with smooth micro-animations
+   ============================================================ */
+
+/* ----- Theme tokens (scoped to .readerRoot) ----- */
+.readerRoot {
+  --reader-bg: #0d0d0f;
+  --reader-text: #e8e6e3;
+  --reader-muted: #8a8a8e;
+  --reader-surface: rgba(28, 28, 32, 0.85);
+  --reader-glass: rgba(38, 38, 44, 0.72);
+  --reader-glass-border: rgba(255, 255, 255, 0.08);
+  --reader-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --reader-accent: #6c63ff;
+  --reader-accent-glow: rgba(108, 99, 255, 0.35);
+  --reader-highlight-yellow: rgba(250, 204, 21, 0.35);
+  --reader-highlight-green: rgba(74, 222, 128, 0.30);
+  --reader-highlight-blue: rgba(96, 165, 250, 0.30);
+  --reader-highlight-pink: rgba(244, 114, 182, 0.30);
+  --reader-overlay: rgba(0, 0, 0, 0.5);
+  --reader-radius: 14px;
+  --reader-radius-sm: 8px;
+  --reader-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.readerRoot[data-theme='light'] {
+  --reader-bg: #f8f6f2;
+  --reader-text: #1a1a1a;
+  --reader-muted: #6b6b70;
+  --reader-surface: rgba(255, 255, 255, 0.88);
+  --reader-glass: rgba(255, 255, 255, 0.78);
+  --reader-glass-border: rgba(0, 0, 0, 0.08);
+  --reader-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+  --reader-overlay: rgba(0, 0, 0, 0.25);
+}
+
+.readerRoot[data-theme='sepia'] {
+  --reader-bg: #f4ecd8;
+  --reader-text: #3d3229;
+  --reader-muted: #7a6e5d;
+  --reader-surface: rgba(244, 236, 216, 0.92);
+  --reader-glass: rgba(232, 220, 192, 0.82);
+  --reader-glass-border: rgba(0, 0, 0, 0.07);
+  --reader-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --reader-accent: #b8860b;
+  --reader-accent-glow: rgba(184, 134, 11, 0.30);
+}
+
+/* ============================================================
+   ReaderView – epub container
+   ============================================================ */
+
+.epubContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.epubContainer :global(.epub-container) {
+  overflow: hidden !important;
+}
+
+/* ============================================================
+   ReaderToolbar
+   ============================================================ */
+
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--reader-glass);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid var(--reader-glass-border);
+  box-shadow: var(--reader-glass-shadow);
+  transform: translateY(0);
+  transition: transform var(--reader-transition), opacity var(--reader-transition);
+  opacity: 1;
+}
+
+.toolbarHidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.toolbarTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--reader-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40vw;
+  letter-spacing: -0.01em;
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--reader-text);
+  cursor: pointer;
+  transition: background var(--reader-transition), transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.toolbarBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.toolbarBtn:active {
+  transform: scale(0.92);
+}
+
+.toolbarBtn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.toolbarBtnActive {
+  color: var(--reader-accent);
+  background: var(--reader-accent-glow);
+}
+
+.toolbarBtnActive:hover {
+  background: var(--reader-accent-glow);
+}
+
+/* ============================================================
+   Settings Panel
+   ============================================================ */
+
+.settingsOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--reader-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--reader-transition);
+}
+
+.settingsOverlayOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settingsPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 201;
+  width: 340px;
+  max-width: 90vw;
+  background: var(--reader-glass);
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  border-left: 1px solid var(--reader-glass-border);
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.3);
+  transform: translateX(100%);
+  transition: transform var(--reader-transition);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.settingsPanelOpen {
+  transform: translateX(0);
+}
+
+.settingsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--reader-glass-border);
+}
+
+.settingsTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--reader-text);
+  letter-spacing: -0.02em;
+}
+
+.settingsCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--reader-muted);
+  cursor: pointer;
+  transition: background var(--reader-transition), color var(--reader-transition);
+}
+
+.settingsCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--reader-text);
+}
+
+.settingsCloseBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.settingsBody {
+  padding: 12px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settingsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--reader-muted);
+}
+
+/* Theme selector */
+.themeRow {
+  display: flex;
+  gap: 12px;
+}
+
+.themeCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--reader-transition), transform 0.15s ease, box-shadow var(--reader-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.themeCircle:hover {
+  transform: scale(1.08);
+}
+
+.themeCircle:active {
+  transform: scale(0.96);
+}
+
+.themeCircleDark {
+  background: #1a1a1e;
+  color: #e8e6e3;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.themeCircleLight {
+  background: #f8f6f2;
+  color: #1a1a1a;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.themeCircleSepia {
+  background: #f4ecd8;
+  color: #3d3229;
+  border-color: rgba(0, 0, 0, 0.10);
+}
+
+.themeCircleActive {
+  border-color: var(--reader-accent) !important;
+  box-shadow: 0 0 0 3px var(--reader-accent-glow);
+}
+
+/* Font selector */
+.fontSelect {
+  appearance: none;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--reader-radius-sm);
+  border: 1px solid var(--reader-glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--reader-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color var(--reader-transition);
+  outline: none;
+}
+
+.fontSelect:focus {
+  border-color: var(--reader-accent);
+}
+
+.fontSelect option {
+  background: #1a1a1e;
+  color: #e8e6e3;
+}
+
+/* Slider controls */
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sliderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--reader-glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--reader-text);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background var(--reader-transition), transform 0.12s ease;
+  flex-shrink: 0;
+}
+
+.sliderBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.sliderBtn:active {
+  transform: scale(0.90);
+}
+
+.slider {
+  flex: 1;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.10);
+  outline: none;
+  transition: background var(--reader-transition);
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--reader-accent);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 12px var(--reader-accent-glow);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--reader-accent);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sliderValue {
+  min-width: 36px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--reader-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.fontPreview {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--reader-text);
+  text-align: center;
+  padding: 4px 0;
+  transition: font-size 0.2s ease;
+}
+
+/* ============================================================
+   ProgressBar
+   ============================================================ */
+
+.progressWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  height: 3px;
+  transition: height var(--reader-transition), background var(--reader-transition);
+  cursor: pointer;
+}
+
+.progressWrapperExpanded {
+  height: 32px;
+  background: var(--reader-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--reader-glass-border);
+}
+
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--reader-accent), #a78bfa);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px var(--reader-accent-glow);
+}
+
+.progressWrapperExpanded .progressBar {
+  height: 3px;
+}
+
+.progressInfo {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--reader-muted);
+  letter-spacing: 0.02em;
+  padding-bottom: 3px;
+}
+
+.progressWrapperExpanded .progressInfo {
+  display: flex;
+}
+
+.progressHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   TTS Controls
+   ============================================================ */
+
+.ttsWrapper {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  z-index: 95;
+  min-width: 320px;
+  max-width: 480px;
+  padding: 14px 20px;
+  background: var(--reader-glass);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid var(--reader-glass-border);
+  border-radius: var(--reader-radius);
+  box-shadow: var(--reader-glass-shadow), 0 0 24px var(--reader-accent-glow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--reader-transition), opacity var(--reader-transition);
+}
+
+.ttsWrapperActive {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ttsPlayBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--reader-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ttsPlayBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 20px var(--reader-accent-glow);
+}
+
+.ttsPlayBtn:active {
+  transform: scale(0.95);
+}
+
+.ttsPlayBtn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ttsSecondaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--reader-glass-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--reader-text);
+  cursor: pointer;
+  transition: background var(--reader-transition), transform 0.12s ease;
+  flex-shrink: 0;
+}
+
+.ttsSecondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ttsSecondaryBtn:active {
+  transform: scale(0.90);
+}
+
+.ttsSecondaryBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ttsControls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ttsRateRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ttsRateBtn {
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--reader-glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--reader-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--reader-transition), color var(--reader-transition), border-color var(--reader-transition);
+}
+
+.ttsRateBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--reader-text);
+}
+
+.ttsRateBtnActive {
+  border-color: var(--reader-accent);
+  color: var(--reader-accent);
+  background: var(--reader-accent-glow);
+}
+
+.ttsVoiceSelect {
+  appearance: none;
+  width: 100%;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--reader-glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--reader-text);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--reader-transition);
+}
+
+.ttsVoiceSelect:focus {
+  border-color: var(--reader-accent);
+}
+
+.ttsVoiceSelect option {
+  background: #1a1a1e;
+  color: #e8e6e3;
+}
+
+/* ============================================================
+   Highlight Panel
+   ============================================================ */
+
+.highlightOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--reader-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--reader-transition);
+}
+
+.highlightOverlayOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.highlightPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 201;
+  width: 360px;
+  max-width: 90vw;
+  background: var(--reader-glass);
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  border-left: 1px solid var(--reader-glass-border);
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.3);
+  transform: translateX(100%);
+  transition: transform var(--reader-transition);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.highlightPanelOpen {
+  transform: translateX(0);
+}
+
+.highlightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--reader-glass-border);
+  flex-shrink: 0;
+}
+
+.highlightHeaderTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--reader-text);
+  letter-spacing: -0.02em;
+}
+
+.highlightCount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--reader-muted);
+  margin-left: 8px;
+}
+
+.highlightList {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 0;
+}
+
+.highlightItem {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background var(--reader-transition);
+  position: relative;
+}
+
+.highlightItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.highlightColorBar {
+  width: 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.highlightColorBar[data-color='yellow'] {
+  background: #facc15;
+}
+
+.highlightColorBar[data-color='green'] {
+  background: #4ade80;
+}
+
+.highlightColorBar[data-color='blue'] {
+  background: #60a5fa;
+}
+
+.highlightColorBar[data-color='pink'] {
+  background: #f472b6;
+}
+
+.highlightContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.highlightText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--reader-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-style: italic;
+}
+
+.highlightMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--reader-muted);
+}
+
+.highlightChapter {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.highlightDate {
+  flex-shrink: 0;
+}
+
+.highlightDeleteBtn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--reader-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--reader-transition), background var(--reader-transition), color var(--reader-transition);
+}
+
+.highlightItem:hover .highlightDeleteBtn {
+  opacity: 1;
+}
+
+.highlightDeleteBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.highlightDeleteBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.highlightEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 32px;
+  gap: 16px;
+  text-align: center;
+}
+
+.highlightEmptyIcon {
+  width: 48px;
+  height: 48px;
+  color: var(--reader-muted);
+  opacity: 0.4;
+}
+
+.highlightEmptyText {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--reader-muted);
+}
+
+.highlightEmptyHint {
+  font-size: 13px;
+  color: var(--reader-muted);
+  opacity: 0.7;
+}
+
+/* ============================================================
+   Highlight Popup (context menu on text selection)
+   ============================================================ */
+
+.highlightPopup {
+  position: fixed;
+  z-index: 300;
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--reader-glass);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid var(--reader-glass-border);
+  border-radius: 28px;
+  box-shadow: var(--reader-glass-shadow);
+  opacity: 0;
+  transform: scale(0.85) translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.highlightPopupVisible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.highlightColorBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.highlightColorBtn:hover {
+  transform: scale(1.18);
+}
+
+.highlightColorBtn:active {
+  transform: scale(0.92);
+}
+
+.highlightColorBtnYellow {
+  background: #facc15;
+}
+
+.highlightColorBtnYellow:hover {
+  border-color: #facc15;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.5);
+}
+
+.highlightColorBtnGreen {
+  background: #4ade80;
+}
+
+.highlightColorBtnGreen:hover {
+  border-color: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+}
+
+.highlightColorBtnBlue {
+  background: #60a5fa;
+}
+
+.highlightColorBtnBlue:hover {
+  border-color: #60a5fa;
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
+}
+
+.highlightColorBtnPink {
+  background: #f472b6;
+}
+
+.highlightColorBtnPink:hover {
+  border-color: #f472b6;
+  box-shadow: 0 0 12px rgba(244, 114, 182, 0.5);
+}
+
+/* ============================================================
+   Confirm dialog (used by highlight delete)
+   ============================================================ */
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 310;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.confirmDialog {
+  background: var(--reader-surface);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--reader-glass-border);
+  border-radius: var(--reader-radius);
+  padding: 24px;
+  max-width: 320px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--reader-glass-shadow);
+  animation: scaleIn 0.2s ease;
+}
+
+.confirmTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--reader-text);
+}
+
+.confirmMessage {
+  font-size: 14px;
+  color: var(--reader-muted);
+  line-height: 1.5;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirmCancelBtn {
+  padding: 8px 16px;
+  border-radius: var(--reader-radius-sm);
+  border: 1px solid var(--reader-glass-border);
+  background: transparent;
+  color: var(--reader-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--reader-transition);
+}
+
+.confirmCancelBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.confirmDeleteBtn {
+  padding: 8px 16px;
+  border-radius: var(--reader-radius-sm);
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--reader-transition), transform 0.12s ease;
+}
+
+.confirmDeleteBtn:hover {
+  background: #dc2626;
+}
+
+.confirmDeleteBtn:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
