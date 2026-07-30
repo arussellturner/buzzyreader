@@ -29,7 +29,7 @@ export const authConfig: NextAuthConfig = {
   ],
   callbacks: {
     async signIn({ user }) {
-      if (user.email !== 'arussellturner@gmail.com') {
+      if (user.email?.toLowerCase() !== 'arussellturner@gmail.com') {
         console.warn(`Unauthorized login attempt blocked for: ${user.email}`);
         return false;
       }
