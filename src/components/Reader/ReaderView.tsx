@@ -73,11 +73,23 @@ function themeStyles(p: ReaderPreferences) {
       'line-height': `${p.lineSpacing} !important`,
       'letter-spacing': `${p.charSpacing}em !important`,
       color: `${colors[p.theme] ?? colors.dark} !important`,
-      background: `transparent !important`,
+      background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
+      'max-width': '100% !important',
+      margin: '0 !important',
+      padding: '0 2% !important',
+    },
+    html: {
+      'max-width': '100% !important',
+      margin: '0 !important',
+      padding: '0 !important',
+    },
+    'div, section, article': {
+      'max-width': '100% !important',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
+      'max-width': '100% !important',
     },
     'a': {
       color: 'inherit !important',
