@@ -355,6 +355,30 @@ export default function ReaderView({
               goPrev();
             }
           });
+
+          // Handle clicks for navigation and menu toggling
+          contents.document.addEventListener('click', (e: MouseEvent) => {
+            // Don't trigger if text is selected
+            const selection = contents.window.getSelection();
+            if (selection && selection.toString().length > 0) return;
+
+            const width = contents.window.innerWidth;
+            const x = e.clientX;
+            
+            if (preferences.readingMode !== 'vertical') {
+              if (x < width * 0.25) {
+                goPrev();
+                return;
+              }
+              if (x > width * 0.75) {
+                goNext();
+                return;
+              }
+            }
+            
+            // Center click or vertical mode click toggles menu
+            if (onToggleMenu) onToggleMenu();
+          });
         });
       } catch {
         /* binding may fail */
@@ -394,26 +418,6 @@ export default function ReaderView({
         ref={containerRef}
         className={styles.epubContainer}
         data-reader-view
-      />
-      
-      {/* Navigation Zones built into ReaderView so they have direct access to goNext/goPrev */}
-      {preferences.readingMode !== 'vertical' && (
-        <>
-          <div 
-            className={`${styles.navZone} ${styles.navZoneLeft}`} 
-            onClick={(e) => { e.stopPropagation(); goPrev(); }} 
-          />
-          <div 
-            className={`${styles.navZone} ${styles.navZoneRight}`} 
-            onClick={(e) => { e.stopPropagation(); goNext(); }} 
-          />
-        </>
-      )}
-      
-      {/* Center Zone toggles the menu in any mode */}
-      <div 
-        className={`${styles.navZone} ${styles.navZoneCenter}`} 
-        onClick={(e) => { e.stopPropagation(); onToggleMenu?.(); }} 
       />
     </>
   );
