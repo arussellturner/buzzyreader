@@ -80,7 +80,7 @@ function themeStyles(p: ReaderPreferences): string {
       background: ${background} !important;
       -webkit-font-smoothing: antialiased !important;
     }
-    div, p, span, h1, h2, h3, h4, h5, h6, ul, li, blockquote, section, article {
+    div, p, span, h1, h2, h3, h4, h5, h6, ul, li, blockquote, section, article, table, tr, td, th {
       font-family: ${fontFamily} !important;
       color: ${color} !important;
       background: transparent !important;
@@ -96,9 +96,19 @@ function themeStyles(p: ReaderPreferences): string {
       background: rgba(108, 99, 255, 0.3) !important;
     }
   `;
+  return css;
+}
 
-  const blob = new Blob([css], { type: 'text/css' });
-  return URL.createObjectURL(blob);
+function applyCustomThemeToDocument(doc: Document, css: string) {
+  if (!doc || !doc.head) return;
+  const STYLE_ID = 'buzzyreader-custom-theme';
+  let styleEl = doc.getElementById(STYLE_ID) as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = doc.createElement('style');
+    styleEl.id = STYLE_ID;
+    doc.head.appendChild(styleEl);
+  }
+  styleEl.textContent = css;
 }
 
 /* ------------------------------------------------------------------ */
@@ -176,11 +186,11 @@ export default function ReaderView({
       
       renditionRef.current = rendition;
 
-      // Register and select a custom dynamic theme
-      const initialThemeUrl = themeStyles(preferences);
-      currentThemeUrl.current = initialThemeUrl;
-      rendition.themes.register('custom', initialThemeUrl);
-      rendition.themes.select('custom');
+      // Hook into rendering so every time a view is loaded, we inject our CSS
+      // This completely bypasses epub.js's buggy theme injection system
+      rendition.hooks.content.register((contents: { document: Document }) => {
+        applyCustomThemeToDocument(contents.document, themeStyles(preferences));
+      });
 
       // Display at initial location or start
       if (initialCfi) {
@@ -280,26 +290,14 @@ export default function ReaderView({
   /*  Update theme when preferences change                             */
   /* ---------------------------------------------------------------- */
 
-  // Track the current theme blob URL so we can revoke it when it changes to prevent memory leaks
-  const currentThemeUrl = useRef<string | null>(null);
-
   useEffect(() => {
     if (!renditionRef.current || !isInitialized) return;
-    const themeUrl = themeStyles(preferences);
-    renditionRef.current.themes.register('custom', themeUrl);
-    renditionRef.current.themes.select('custom');
+    const css = themeStyles(preferences);
     
-    // Schedule revocation of the old URL after epub.js has had time to load it
-    const oldUrl = currentThemeUrl.current;
-    if (oldUrl) {
-      setTimeout(() => URL.revokeObjectURL(oldUrl), 5000);
-    }
-    currentThemeUrl.current = themeUrl;
-
-    // Force re-render
+    // Update active views immediately
     try {
-      renditionRef.current.views().forEach((v: { render: () => void }) => {
-        try { v.render(); } catch { /* best effort */ }
+      renditionRef.current.views().forEach((v: { document: Document }) => {
+        applyCustomThemeToDocument(v.document, css);
       });
     } catch {
       /* views() may not be available yet */
