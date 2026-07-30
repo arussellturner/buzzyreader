@@ -11,6 +11,7 @@ export interface ReaderPreferences {
   showProgress: boolean;
   ttsRate: number; // 0.5-2.0
   ttsVoice?: string; // Voice URI
+  readingMode?: 'horizontal' | 'vertical';
 }
 
 export const DEFAULT_PREFERENCES: ReaderPreferences = {
@@ -22,4 +23,5 @@ export const DEFAULT_PREFERENCES: ReaderPreferences = {
   charSpacing: 0,
   showProgress: true,
   ttsRate: 1.0,
+  readingMode: 'horizontal',
 };

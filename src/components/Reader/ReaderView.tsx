@@ -136,7 +136,7 @@ export default function ReaderView({
         width: '100%',
         height: '100%',
         spread: 'none',
-        flow: 'paginated',
+        flow: preferences.readingMode === 'vertical' ? 'scrolled' : 'paginated',
         manager: 'continuous',
       });
 
@@ -238,7 +238,7 @@ export default function ReaderView({
       setIsInitialized(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [epubData]);
+  }, [epubData, preferences.readingMode]);
 
   /* ---------------------------------------------------------------- */
   /*  Update theme when preferences change                             */
