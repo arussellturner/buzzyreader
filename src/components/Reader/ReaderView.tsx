@@ -134,12 +134,13 @@ export default function ReaderView({
       const book = ePub(epubData as unknown as string);
       bookRef.current = book;
 
+      const isVertical = preferences.readingMode === 'vertical';
       const rendition = book.renderTo(containerRef.current, {
         width: '100%',
         height: '100%',
         spread: 'none',
-        flow: preferences.readingMode === 'vertical' ? 'scrolled' : 'paginated',
-        manager: 'continuous',
+        flow: isVertical ? 'scrolled' : 'paginated',
+        manager: isVertical ? 'continuous' : 'default',
         allowScriptedContent: true,
       });
 
