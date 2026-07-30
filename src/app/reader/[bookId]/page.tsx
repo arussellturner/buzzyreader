@@ -175,6 +175,34 @@ export default function ReaderPage() {
         />
       </div>
 
+      {preferences.readingMode !== 'vertical' && (
+        <>
+          <button 
+            className={styles.navButtonLeft} 
+            onClick={(e) => {
+              e.stopPropagation();
+              const epubEl = document.querySelector('[data-reader-view]') as any;
+              epubEl?._goPrev?.();
+            }}
+            aria-label="Previous Page"
+          >
+            &#8249;
+          </button>
+          
+          <button 
+            className={styles.navButtonRight} 
+            onClick={(e) => {
+              e.stopPropagation();
+              const epubEl = document.querySelector('[data-reader-view]') as any;
+              epubEl?._goNext?.();
+            }}
+            aria-label="Next Page"
+          >
+            &#8250;
+          </button>
+        </>
+      )}
+
       {settingsOpen && (
         <ReaderSettings
           isOpen={settingsOpen}
