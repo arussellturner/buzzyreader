@@ -426,12 +426,13 @@ export default function ReaderView({
           if (!x) return;
 
           if (preferences.readingMode !== 'vertical') {
-            if (x < width * 0.25) {
+            // Increase tap zones to 35% of the screen on each side
+            if (x < width * 0.35) {
               console.log("Going Prev");
               goPrev();
               return;
             }
-            if (x > width * 0.75) {
+            if (x > width * 0.65) {
               console.log("Going Next");
               goNext();
               return;
