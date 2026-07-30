@@ -54,7 +54,7 @@ function resolveFontFamily(f: string): string {
 /*  Theme → CSS for epub iframe                                       */
 /* ------------------------------------------------------------------ */
 
-function themeStyles(p: ReaderPreferences) {
+function themeStyles(p: ReaderPreferences): string {
   const backgrounds: Record<string, string> = {
     dark: '#0d0d0f',
     light: '#f8f6f2',
@@ -66,29 +66,39 @@ function themeStyles(p: ReaderPreferences) {
     sepia: '#3d3229',
   };
 
-  return {
-    body: {
-      'font-family': resolveFontFamily(p.fontFamily) + ' !important',
-      'font-size': `${p.fontSize}px !important`,
-      'line-height': `${p.lineSpacing} !important`,
-      'letter-spacing': `${p.charSpacing}em !important`,
-      color: `${colors[p.theme] ?? colors.dark} !important`,
-      background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
-      '-webkit-font-smoothing': 'antialiased',
-    },
-    'div, p, span, h1, h2, h3, h4, h5, h6, ul, li, blockquote, section, article': {
-      'font-family': resolveFontFamily(p.fontFamily) + ' !important',
-      color: `${colors[p.theme] ?? colors.dark} !important`,
-      background: 'transparent !important',
-    },
-    p: {
-      'margin-bottom': `${p.paragraphSpacing}em !important`,
-    },
-    a: {
-      color: 'inherit !important',
-      'text-decoration': 'none !important',
-    },
-  };
+  const fontFamily = resolveFontFamily(p.fontFamily);
+  const color = colors[p.theme] ?? colors.dark;
+  const background = backgrounds[p.theme] ?? backgrounds.dark;
+
+  const css = `
+    body {
+      font-family: ${fontFamily} !important;
+      font-size: ${p.fontSize}px !important;
+      line-height: ${p.lineSpacing} !important;
+      letter-spacing: ${p.charSpacing}em !important;
+      color: ${color} !important;
+      background: ${background} !important;
+      -webkit-font-smoothing: antialiased !important;
+    }
+    div, p, span, h1, h2, h3, h4, h5, h6, ul, li, blockquote, section, article {
+      font-family: ${fontFamily} !important;
+      color: ${color} !important;
+      background: transparent !important;
+    }
+    p {
+      margin-bottom: ${p.paragraphSpacing}em !important;
+    }
+    a {
+      color: inherit !important;
+      text-decoration: none !important;
+    }
+    ::selection {
+      background: rgba(108, 99, 255, 0.3) !important;
+    }
+  `;
+
+  const blob = new Blob([css], { type: 'text/css' });
+  return URL.createObjectURL(blob);
 }
 
 /* ------------------------------------------------------------------ */
@@ -167,8 +177,9 @@ export default function ReaderView({
       renditionRef.current = rendition;
 
       // Register and select a custom dynamic theme
-      const initialTheme = themeStyles(preferences);
-      rendition.themes.register('custom', initialTheme);
+      const initialThemeUrl = themeStyles(preferences);
+      currentThemeUrl.current = initialThemeUrl;
+      rendition.themes.register('custom', initialThemeUrl);
       rendition.themes.select('custom');
 
       // Display at initial location or start
@@ -269,11 +280,22 @@ export default function ReaderView({
   /*  Update theme when preferences change                             */
   /* ---------------------------------------------------------------- */
 
+  // Track the current theme blob URL so we can revoke it when it changes to prevent memory leaks
+  const currentThemeUrl = useRef<string | null>(null);
+
   useEffect(() => {
     if (!renditionRef.current || !isInitialized) return;
-    const theme = themeStyles(preferences);
-    renditionRef.current.themes.register('custom', theme);
+    const themeUrl = themeStyles(preferences);
+    renditionRef.current.themes.register('custom', themeUrl);
     renditionRef.current.themes.select('custom');
+    
+    // Schedule revocation of the old URL after epub.js has had time to load it
+    const oldUrl = currentThemeUrl.current;
+    if (oldUrl) {
+      setTimeout(() => URL.revokeObjectURL(oldUrl), 5000);
+    }
+    currentThemeUrl.current = themeUrl;
+
     // Force re-render
     try {
       renditionRef.current.views().forEach((v: { render: () => void }) => {
