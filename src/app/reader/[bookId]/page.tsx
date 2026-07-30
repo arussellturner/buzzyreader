@@ -147,8 +147,18 @@ export default function ReaderPage() {
     );
   }
 
+  const bgColors: Record<string, string> = {
+    dark: '#0d0d0f',
+    light: '#f8f6f2',
+    sepia: '#f4ecd8',
+  };
+
   return (
-    <div className={`${styles.readerRoot} ${styles.readerPage}`} onClick={handleToggleToolbar}>
+    <div 
+      className={`${styles.readerRoot} ${styles.readerPage}`} 
+      style={{ backgroundColor: bgColors[preferences.theme] || bgColors.dark }}
+      onClick={handleToggleToolbar}
+    >
       <ReaderToolbar
         visible={toolbarVisible && !settingsOpen && !highlightsOpen}
         bookTitle={book?.title || 'Unknown'}

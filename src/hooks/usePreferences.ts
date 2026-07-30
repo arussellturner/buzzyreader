@@ -29,8 +29,8 @@ function applyPreferencesToCSS(prefs: ReaderPreferences): void {
 
   const root = document.documentElement;
 
-  // Theme data attribute (consumed by globals.css theme tokens)
-  root.dataset.theme = prefs.theme;
+  // The app UI is designed to ALWAYS be dark. Only the reader iframe changes themes.
+  // We explicitly do NOT set root.dataset.theme here anymore.
 
   // Reader-specific custom properties
   root.style.setProperty('--reader-font-size', `${prefs.fontSize}px`);
