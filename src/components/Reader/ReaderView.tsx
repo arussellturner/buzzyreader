@@ -76,11 +76,9 @@ function themeStyles(p: ReaderPreferences) {
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
       height: '100% !important',
-      width: '100% !important',
     },
     html: {
       height: '100% !important',
-      width: '100% !important',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
@@ -136,18 +134,14 @@ export default function ReaderView({
       if (!containerRef.current || !epubData) return;
 
       const ePub = (await import('epubjs')).default;
-      const blob = new Blob([epubData as ArrayBuffer], { type: 'application/epub+zip' });
-      const url = URL.createObjectURL(blob);
-
-      const book = ePub(url);
+      const book = ePub(epubData as ArrayBuffer);
       bookRef.current = book;
 
       const isVertical = preferences.readingMode === 'vertical';
-      const rect = containerRef.current.getBoundingClientRect();
       
       const rendition = book.renderTo(containerRef.current, {
-        width: rect.width || window.innerWidth,
-        height: rect.height || window.innerHeight,
+        width: '100%',
+        height: '100%',
         spread: 'none',
         flow: isVertical ? 'scrolled' : 'paginated',
         manager: isVertical ? 'continuous' : 'default',
