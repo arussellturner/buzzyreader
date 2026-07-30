@@ -342,46 +342,52 @@ export default function ReaderView({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyDown); // fallback
 
-    // Also bind inside the epub iframe using hooks
+    // Officially supported epub.js event bindings
     if (renditionRef.current && isInitialized) {
       try {
-        renditionRef.current.hooks.content.register((contents: any) => {
-          contents.document.addEventListener('keydown', (e: KeyboardEvent) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-              e.preventDefault();
-              goNext();
-            } else if (e.key === 'ArrowLeft') {
-              e.preventDefault();
+        const r = renditionRef.current;
+        
+        const handleEpubKey = (e: KeyboardEvent) => {
+          if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            goNext();
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goPrev();
+          }
+        };
+
+        const handleEpubClick = (e: any) => {
+          // Don't trigger if text is selected
+          const selection = r.getContents()[0]?.window?.getSelection();
+          if (selection && selection.toString().length > 0) return;
+
+          const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
+          const x = e.clientX || e.changedTouches?.[0]?.clientX;
+          
+          if (!x) return;
+
+          if (preferences.readingMode !== 'vertical') {
+            if (x < width * 0.25) {
               goPrev();
+              return;
             }
-          });
-
-          // Handle clicks for navigation and menu toggling
-          contents.document.addEventListener('click', (e: MouseEvent) => {
-            // Don't trigger if text is selected
-            const selection = contents.window.getSelection();
-            if (selection && selection.toString().length > 0) return;
-
-            const width = contents.window.innerWidth;
-            const x = e.clientX;
-            
-            if (preferences.readingMode !== 'vertical') {
-              if (x < width * 0.25) {
-                goPrev();
-                return;
-              }
-              if (x > width * 0.75) {
-                goNext();
-                return;
-              }
+            if (x > width * 0.75) {
+              goNext();
+              return;
             }
-            
-            // Center click or vertical mode click toggles menu
-            if (onToggleMenu) onToggleMenu();
-          });
-        });
-      } catch {
-        /* binding may fail */
+          }
+          
+          // Center click toggles menu
+          if (onToggleMenu) onToggleMenu();
+        };
+
+        r.on('keyup', handleEpubKey);
+        r.on('click', handleEpubClick);
+        r.on('touchend', handleEpubClick);
+
+      } catch (err) {
+        console.error("Failed to bind epub events", err);
       }
     }
 
