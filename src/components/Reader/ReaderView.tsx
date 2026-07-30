@@ -74,14 +74,14 @@ function themeStyles(p: ReaderPreferences) {
       'letter-spacing': `${p.charSpacing}em !important`,
       color: `${colors[p.theme] ?? colors.dark} !important`,
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
-      'padding': '0 5% !important',
       '-webkit-font-smoothing': 'antialiased',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
     },
     'a': {
-      color: '#6c63ff !important',
+      color: 'inherit !important',
+      'text-decoration': 'none !important',
     },
   };
 }
