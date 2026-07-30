@@ -75,21 +75,9 @@ function themeStyles(p: ReaderPreferences) {
       color: `${colors[p.theme] ?? colors.dark} !important`,
       background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
       '-webkit-font-smoothing': 'antialiased',
-      'max-width': '100% !important',
-      margin: '0 !important',
-      padding: '0 2% !important',
-    },
-    html: {
-      'max-width': '100% !important',
-      margin: '0 !important',
-      padding: '0 !important',
-    },
-    'div, section, article': {
-      'max-width': '100% !important',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
-      'max-width': '100% !important',
     },
     'a': {
       color: 'inherit !important',
@@ -354,9 +342,13 @@ export default function ReaderView({
   /*  Navigation                                                       */
   /* ---------------------------------------------------------------- */
 
+  // Throttle to prevent double-page turns on accidental double clicks or key down/up events
+  const isTurningPage = useRef(false);
+
   const goNext = useCallback(async () => {
-    if (!renditionRef.current) return;
+    if (!renditionRef.current || isTurningPage.current) return;
     try {
+      isTurningPage.current = true;
       const currentCfi = renditionRef.current.currentLocation()?.start?.cfi;
       console.log('ATTEMPTING goNext(). Current CFI:', currentCfi);
       await renditionRef.current.next();
@@ -367,12 +359,15 @@ export default function ReaderView({
       }
     } catch (e) {
       console.error('goNext failed', e);
+    } finally {
+      setTimeout(() => { isTurningPage.current = false; }, 250);
     }
   }, []);
 
   const goPrev = useCallback(async () => {
-    if (!renditionRef.current) return;
+    if (!renditionRef.current || isTurningPage.current) return;
     try {
+      isTurningPage.current = true;
       const currentCfi = renditionRef.current.currentLocation()?.start?.cfi;
       console.log('ATTEMPTING goPrev(). Current CFI:', currentCfi);
       await renditionRef.current.prev();
@@ -380,6 +375,8 @@ export default function ReaderView({
       console.log('goPrev succeeded. New CFI:', newCfi);
     } catch (e) {
       console.error('goPrev failed', e);
+    } finally {
+      setTimeout(() => { isTurningPage.current = false; }, 250);
     }
   }, []);
 
