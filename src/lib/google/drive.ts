@@ -235,7 +235,9 @@ export class DriveStorage {
     );
 
     if (!response.ok) {
-      throw new DriveError(`Failed to search for file: ${name}`, response.status);
+      const errorText = await response.text();
+      console.error('Google Drive API Error:', errorText);
+      throw new DriveError(`Failed to search for file: ${name} - ${errorText}`, response.status);
     }
 
     const data: DriveFileList = await response.json();
