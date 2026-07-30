@@ -28,6 +28,13 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      if (user.email !== 'arussellturner@gmail.com') {
+        console.warn(`Unauthorized login attempt blocked for: ${user.email}`);
+        return false;
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       // On initial sign-in, persist OAuth tokens into the JWT
       if (account) {
