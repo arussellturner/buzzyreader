@@ -94,8 +94,8 @@ export default function Navbar({ activePage }: NavbarProps) {
             <div className={styles.userMenu} ref={menuRef}>
               <img
                 className={styles.userAvatar}
-                src={user.picture}
-                alt={user.name}
+                src={user.image || ''}
+                alt={user.name || 'User'}
                 width={32}
                 height={32}
                 onClick={() => setMenuOpen((prev) => !prev)}
