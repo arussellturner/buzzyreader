@@ -145,6 +145,23 @@ export default function ReaderView({
 
       renditionRef.current = rendition;
 
+      // Register themes
+      rendition.themes.register('dark', {
+        'body': { background: '#0d0d0f', color: '#e8e6e3' },
+        'a': { color: 'inherit', 'text-decoration': 'none' },
+        '::selection': { background: 'rgba(108, 99, 255, 0.3)' }
+      });
+      rendition.themes.register('light', {
+        'body': { background: '#ffffff', color: '#1a1a1a' },
+        'a': { color: 'inherit', 'text-decoration': 'none' },
+        '::selection': { background: 'rgba(108, 99, 255, 0.2)' }
+      });
+      rendition.themes.register('sepia', {
+        'body': { background: '#f4ecd8', color: '#3d3229' },
+        'a': { color: 'inherit', 'text-decoration': 'none' },
+        '::selection': { background: 'rgba(212, 163, 115, 0.3)' }
+      });
+
       // Apply initial theme
       const theme = themeStyles(preferences);
       rendition.themes.default(theme);
