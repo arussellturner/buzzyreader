@@ -151,7 +151,7 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  margin-top: var(--space-2xl);
+  margin-top: 80px;
   padding: 16px 36px;
   background: var(--gradient-brand);
   background-size: 200% 200%;
