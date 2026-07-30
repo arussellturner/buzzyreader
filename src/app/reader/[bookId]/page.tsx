@@ -149,19 +149,14 @@ export default function ReaderPage() {
 
   return (
     <div className={styles.readerPage} onClick={handleToggleToolbar}>
-      <div className={`${readerStyles.readerToolbar} ${toolbarVisible ? readerStyles.toolbarVisible : readerStyles.toolbarHidden}`} onClick={e => e.stopPropagation()}>
-        <ReaderToolbar
-          visible={toolbarVisible}
-          bookTitle={book?.title || 'Unknown'}
-          onBack={() => router.push('/library')}
-          onToggleSettings={() => setSettingsOpen(!settingsOpen)}
-          onToggleHighlights={() => setHighlightsOpen(!highlightsOpen)}
-          onToggleTTS={() => setTtsOpen(!ttsOpen)}
-        />
-        <div className={readerStyles.toolbarThemeToggle}>
-          <ThemeToggle />
-        </div>
-      </div>
+      <ReaderToolbar
+        visible={toolbarVisible && !settingsOpen && !highlightsOpen}
+        bookTitle={book?.title || 'Unknown'}
+        onBack={() => router.push('/library')}
+        onToggleSettings={() => setSettingsOpen(!settingsOpen)}
+        onToggleHighlights={() => setHighlightsOpen(!highlightsOpen)}
+        onToggleTTS={() => setTtsOpen(!ttsOpen)}
+      />
 
       <div className={styles.epubWrapper}>
         <ReaderView
