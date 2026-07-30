@@ -149,45 +149,22 @@ export default function ReaderView({
 
       const isVertical = preferences.readingMode === 'vertical';
       
-      const renderOptions: any = {
+      const rendition = book.renderTo(containerRef.current, {
         width: '100%',
         height: '100%',
         spread: 'none',
+        manager: 'continuous',
+        flow: preferences.readingMode === 'vertical' ? 'scrolled-doc' : 'paginated',
+        snap: true,
         allowScriptedContent: true,
-      };
-
-      if (isVertical) {
-        renderOptions.flow = 'scrolled';
-        renderOptions.manager = 'continuous';
-      } else {
-        renderOptions.flow = 'paginated';
-        renderOptions.manager = 'default';
-      }
+      });
       
-      const rendition = book.renderTo(containerRef.current, renderOptions);
-
       renditionRef.current = rendition;
 
-      // Register themes
-      rendition.themes.register('dark', {
-        'body': { background: '#0d0d0f', color: '#e8e6e3' },
-        'a': { color: 'inherit', 'text-decoration': 'none' },
-        '::selection': { background: 'rgba(108, 99, 255, 0.3)' }
-      });
-      rendition.themes.register('light', {
-        'body': { background: '#ffffff', color: '#1a1a1a' },
-        'a': { color: 'inherit', 'text-decoration': 'none' },
-        '::selection': { background: 'rgba(108, 99, 255, 0.2)' }
-      });
-      rendition.themes.register('sepia', {
-        'body': { background: '#f4ecd8', color: '#3d3229' },
-        'a': { color: 'inherit', 'text-decoration': 'none' },
-        '::selection': { background: 'rgba(212, 163, 115, 0.3)' }
-      });
-
-      // Apply initial theme
-      const theme = themeStyles(preferences);
-      rendition.themes.default(theme);
+      // Register and select a custom dynamic theme
+      const initialTheme = themeStyles(preferences);
+      rendition.themes.register('custom', initialTheme);
+      rendition.themes.select('custom');
 
       // Display at initial location or start
       if (initialCfi) {
@@ -290,7 +267,8 @@ export default function ReaderView({
   useEffect(() => {
     if (!renditionRef.current || !isInitialized) return;
     const theme = themeStyles(preferences);
-    renditionRef.current.themes.default(theme);
+    renditionRef.current.themes.register('custom', theme);
+    renditionRef.current.themes.select('custom');
     // Force re-render
     try {
       renditionRef.current.views().forEach((v: { render: () => void }) => {
