@@ -172,6 +172,31 @@ export default function ReaderPage() {
           highlights={highlights}
           preferences={preferences}
         />
+        
+        {/* Navigation Zones */}
+        <div 
+          className={`${styles.navZone} ${styles.navZoneLeft}`} 
+          onClick={(e) => {
+            e.stopPropagation();
+            const epubEl = document.querySelector('[data-reader-view]') as any;
+            epubEl?._goPrev?.();
+          }} 
+        />
+        <div 
+          className={`${styles.navZone} ${styles.navZoneCenter}`} 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleToolbar();
+          }} 
+        />
+        <div 
+          className={`${styles.navZone} ${styles.navZoneRight}`} 
+          onClick={(e) => {
+            e.stopPropagation();
+            const epubEl = document.querySelector('[data-reader-view]') as any;
+            epubEl?._goNext?.();
+          }} 
+        />
       </div>
 
       {settingsOpen && (
