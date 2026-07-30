@@ -73,27 +73,11 @@ function themeStyles(p: ReaderPreferences) {
       'line-height': `${p.lineSpacing} !important`,
       'letter-spacing': `${p.charSpacing}em !important`,
       color: `${colors[p.theme] ?? colors.dark} !important`,
-      background: `${backgrounds[p.theme] ?? backgrounds.dark} !important`,
+      background: `transparent !important`,
       '-webkit-font-smoothing': 'antialiased',
-      height: '100% !important',
-      'max-width': 'none !important',
-      margin: '0 !important',
-      padding: '0 !important',
-      'box-sizing': 'border-box !important',
-    },
-    html: {
-      height: '100% !important',
-      'max-width': 'none !important',
-      margin: '0 !important',
-      padding: '0 !important',
-      'box-sizing': 'border-box !important',
-    },
-    'div, section, article': {
-      'max-width': 'none !important',
     },
     p: {
       'margin-bottom': `${p.paragraphSpacing}em !important`,
-      'max-width': 'none !important',
     },
     'a': {
       color: 'inherit !important',
@@ -144,6 +128,12 @@ export default function ReaderView({
 
     async function init() {
       if (!containerRef.current || !epubData) return;
+
+      if (containerRef.current.clientWidth === 0 || containerRef.current.clientHeight === 0) {
+        console.warn('Container dimensions are 0. Waiting for layout...');
+        setTimeout(init, 50);
+        return;
+      }
 
       const ePub = (await import('epubjs')).default;
       const book = ePub(epubData as ArrayBuffer);
