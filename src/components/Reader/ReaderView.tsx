@@ -135,9 +135,11 @@ export default function ReaderView({
       bookRef.current = book;
 
       const isVertical = preferences.readingMode === 'vertical';
+      const rect = containerRef.current.getBoundingClientRect();
+      
       const rendition = book.renderTo(containerRef.current, {
-        width: '100%',
-        height: '100%',
+        width: rect.width || window.innerWidth,
+        height: rect.height || window.innerHeight,
         spread: 'none',
         flow: isVertical ? 'scrolled' : 'paginated',
         manager: isVertical ? 'continuous' : 'default',
@@ -359,27 +361,35 @@ export default function ReaderView({
         };
 
         const handleEpubClick = (e: any) => {
+          console.log("EPUB Clicked:", e);
           // Don't trigger if text is selected
           const selection = r.getContents()[0]?.window?.getSelection();
-          if (selection && selection.toString().length > 0) return;
+          if (selection && selection.toString().length > 0) {
+            console.log("Text selected, ignoring click");
+            return;
+          }
 
           const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
           const x = e.clientX || e.changedTouches?.[0]?.clientX;
           
+          console.log("Click X:", x, "Width:", width, "Mode:", preferences.readingMode);
           if (!x) return;
 
           if (preferences.readingMode !== 'vertical') {
             if (x < width * 0.25) {
+              console.log("Going Prev");
               goPrev();
               return;
             }
             if (x > width * 0.75) {
+              console.log("Going Next");
               goNext();
               return;
             }
           }
           
           // Center click toggles menu
+          console.log("Toggling menu");
           if (onToggleMenu) onToggleMenu();
         };
 
