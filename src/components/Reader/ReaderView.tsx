@@ -136,6 +136,14 @@ export default function ReaderView({
       }
 
       const ePub = (await import('epubjs')).default;
+      
+      if (cancelled) return;
+      
+      // Clear out any existing iframes that might have been injected by race conditions
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
+
       const book = ePub(epubData as ArrayBuffer);
       bookRef.current = book;
 
