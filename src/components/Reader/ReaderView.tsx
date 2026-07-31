@@ -73,7 +73,6 @@ function themeStyles(p: ReaderPreferences): string {
   const css = `
     html, body {
       margin: 0 !important;
-      padding: 0 !important;
       padding-bottom: 20px !important;
       padding-top: 20px !important;
       font-family: ${fontFamily} !important;
@@ -182,7 +181,6 @@ export default function ReaderView({
         width: '100%',
         height: '100%',
         spread: 'none',
-        manager: 'continuous',
         flow: 'paginated',
         snap: true,
         allowScriptedContent: true,
