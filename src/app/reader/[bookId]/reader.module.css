@@ -128,42 +128,4 @@
   z-index: 1;
 }
 
-/* Navigation Buttons */
-.navButtonLeft, .navButtonRight {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 50;
-  background: rgba(0, 0, 0, 0.4);
-  color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 2rem;
-  width: 48px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-}
 
-.navButtonLeft:hover, .navButtonRight:hover {
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-50%) scale(1.05);
-}
-
-.navButtonLeft:active, .navButtonRight:active {
-  transform: translateY(-50%) scale(0.95);
-}
-
-.navButtonLeft {
-  left: 16px;
-}
-
-.navButtonRight {
-  right: 16px;
-}

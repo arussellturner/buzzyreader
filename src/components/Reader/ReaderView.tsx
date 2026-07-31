@@ -431,13 +431,13 @@ export default function ReaderView({
           if (!x) return;
 
           if (preferences.readingMode !== 'vertical') {
-            // Increase tap zones to 35% of the screen on each side
-            if (x < width * 0.35) {
+            // Use 45% tap zones on each side, leaving a 10% strip in the middle for the menu toggle
+            if (x < width * 0.45) {
               console.log("Going Prev");
               goPrev();
               return;
             }
-            if (x > width * 0.65) {
+            if (x > width * 0.55) {
               console.log("Going Next");
               goNext();
               return;
