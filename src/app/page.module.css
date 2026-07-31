@@ -340,20 +340,9 @@
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-xl) var(--space-lg);
   width: 100%;
-}
-
-.footerText {
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  letter-spacing: 0.5px;
-}
-
-.footerHeart {
-  color: var(--color-accent-rose);
-  display: inline-block;
-  animation: pulse-glow 2s ease-in-out infinite;
+  margin-top: auto;
 }
 
 /* ============================================================
@@ -436,4 +425,46 @@
   .featuresSection {
     max-width: 1200px;
   }
+}
+
+/* ── Get Started ── */
+.getStartedContainer {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.getStartedLabel {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* ── Footer Legal Links ── */
+.legalLinks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.legalLink {
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.legalLink:hover {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: underline;
+}
+
+.legalDivider {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
 }

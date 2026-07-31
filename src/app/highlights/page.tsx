@@ -158,7 +158,7 @@ export default function HighlightsPage() {
                     className={libraryStyles.dropdownItem}
                     onClick={() => router.push('/wishlist')}
                   >
-                    Wish list
+                    Wishlist
                   </button>
                   <button 
                     className={libraryStyles.dropdownItemLogout}
@@ -166,6 +166,12 @@ export default function HighlightsPage() {
                   >
                     Log out
                   </button>
+                  <div className={libraryStyles.dropdownDivider} />
+                  <div className={libraryStyles.legalDropdownLinks}>
+                    <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
+                    <span className={libraryStyles.legalDropdownDivider}>•</span>
+                    <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/terms')}>Terms of Service</button>
+                  </div>
                 </div>
               )}
             </div>

@@ -234,7 +234,7 @@ export default function LibraryPage() {
                     className={styles.dropdownItem}
                     onClick={() => router.push('/wishlist')}
                   >
-                    Wish list
+                    Wishlist
                   </button>
                   <button 
                     className={styles.dropdownItemLogout}
@@ -242,6 +242,12 @@ export default function LibraryPage() {
                   >
                     Log out
                   </button>
+                  <div className={styles.dropdownDivider} />
+                  <div className={styles.legalDropdownLinks}>
+                    <button className={styles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
+                    <span className={styles.legalDropdownDivider}>•</span>
+                    <button className={styles.legalDropdownLink} onClick={() => router.push('/terms')}>Terms of Service</button>
+                  </div>
                 </div>
               )}
             </div>

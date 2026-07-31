@@ -399,3 +399,38 @@
     gap: 24px 16px;
   }
 }
+
+.dropdownDivider {
+  height: 1px;
+  background-color: var(--border-subtle);
+  margin: 4px 0;
+}
+
+.legalDropdownLinks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.legalDropdownLink {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+.legalDropdownLink:hover {
+  text-decoration: underline;
+  color: var(--text-secondary);
+}
+
+.legalDropdownDivider {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  opacity: 0.5;
+}

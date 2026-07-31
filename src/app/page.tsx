@@ -35,9 +35,11 @@ export default function Home() {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <p className={styles.footerText}>
-          Made with <span className={styles.footerHeart}>♥</span> for book lovers everywhere
-        </p>
+        <div className={styles.legalLinks}>
+          <a href="/privacy" className={styles.legalLink}>Privacy Policy</a>
+          <span className={styles.legalDivider}>•</span>
+          <a href="/terms" className={styles.legalLink}>Terms of Service</a>
+        </div>
       </footer>
     </div>
   );
