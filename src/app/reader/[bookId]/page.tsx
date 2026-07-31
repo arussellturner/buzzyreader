@@ -32,7 +32,7 @@ export default function ReaderPage() {
 
   const { library, driveStorage } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
-  const { highlights, addHighlight, loadHighlights } = useHighlights();
+  const { highlights, addHighlight, updateHighlight, loadHighlights } = useHighlights();
   
   const [epubData, setEpubData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +40,7 @@ export default function ReaderPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Highlight state
-  const [activeSelection, setActiveSelection] = useState<{ cfiRange: string, text: string } | null>(null);
+  const [activeSelection, setActiveSelection] = useState<{ id?: string, cfiRange: string, text: string, color?: HighlightColor, note?: string } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const renditionRef = useRef<any>(null);
@@ -154,8 +154,21 @@ export default function ReaderPage() {
       };
 
       highlights.forEach(h => {
+        // First, clear any existing annotation for this range to prevent duplicates/stacking
+        try {
+          rendition.annotations.remove(h.cfiRange, "highlight");
+        } catch (e) {
+          // Ignore if it doesn't exist
+        }
+        
         rendition.annotations.highlight(h.cfiRange, {}, (e: Event) => {
-          console.log("Clicked highlight", h);
+          setActiveSelection({
+            id: h.id,
+            cfiRange: h.cfiRange,
+            text: h.text,
+            color: h.color,
+            note: h.note
+          });
         }, undefined, {
           "fill": colorMap[h.color],
           "fill-opacity": "1"
@@ -263,26 +276,40 @@ export default function ReaderPage() {
 
       <HighlightMenu
         show={activeSelection !== null}
+        initialNote={activeSelection?.note}
+        initialColor={activeSelection?.color}
         onSelectColor={(color, note) => {
           if (activeSelection) {
-            addHighlight({
-              id: crypto.randomUUID(),
-              bookId,
-              cfiRange: activeSelection.cfiRange,
-              text: activeSelection.text,
-              color,
-              note,
-              createdAt: new Date().toISOString()
-            });
-            // Clear selection
-            const selection = renditionRef.current.getContents()[0].window.getSelection();
-            if (selection) selection.removeAllRanges();
+            if (activeSelection.id) {
+              // Edit existing highlight
+              updateHighlight(activeSelection.id, { color, note });
+            } else {
+              // Create new highlight
+              addHighlight({
+                id: crypto.randomUUID(),
+                bookId,
+                cfiRange: activeSelection.cfiRange,
+                text: activeSelection.text,
+                color,
+                note,
+                createdAt: new Date().toISOString()
+              });
+            }
+            
+            // Clear selection in epubjs if it was a new highlight
+            if (!activeSelection.id) {
+              const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+              if (selection) selection.removeAllRanges();
+            }
+            
             setActiveSelection(null);
           }
         }}
         onCancel={() => {
-          const selection = renditionRef.current.getContents()[0].window.getSelection();
-          if (selection) selection.removeAllRanges();
+          if (activeSelection && !activeSelection.id) {
+            const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+            if (selection) selection.removeAllRanges();
+          }
           setActiveSelection(null);
         }}
       />

@@ -16,7 +16,7 @@ export interface UseHighlightsReturn {
   loading: boolean;
   addHighlight: (highlight: Highlight) => void;
   removeHighlight: (highlightId: string) => void;
-  updateHighlightColor: (id: string, color: HighlightColor) => void;
+  updateHighlight: (id: string, updates: Partial<Highlight>) => void;
   loadHighlights: (accessToken: string, bookId: string) => Promise<void>;
 }
 
@@ -126,12 +126,12 @@ export function useHighlights(): UseHighlightsReturn {
     [persistToDrive],
   );
 
-  // ── Update highlight color ───────────────────────────────────────
-  const updateHighlightColor = useCallback(
-    (id: string, color: HighlightColor): void => {
+  // ── Update highlight ───────────────────────────────────────
+  const updateHighlight = useCallback(
+    (id: string, updates: Partial<Highlight>): void => {
       setHighlights((prev) => {
         const updated = prev.map((h) =>
-          h.id === id ? { ...h, color } : h,
+          h.id === id ? { ...h, ...updates } : h,
         );
         persistToDrive(updated);
         return updated;
@@ -145,7 +145,7 @@ export function useHighlights(): UseHighlightsReturn {
     loading,
     addHighlight,
     removeHighlight,
-    updateHighlightColor,
+    updateHighlight,
     loadHighlights,
   };
 }

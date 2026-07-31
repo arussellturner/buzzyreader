@@ -5,13 +5,24 @@ import type { HighlightColor } from '@/types/highlight';
 
 interface Props {
   show: boolean;
+  initialNote?: string;
+  initialColor?: HighlightColor;
   onSelectColor: (color: HighlightColor, note?: string) => void;
   onCancel: () => void;
 }
 
-export default function HighlightMenu({ show, onSelectColor, onCancel }: Props) {
+export default function HighlightMenu({ show, initialNote, initialColor, onSelectColor, onCancel }: Props) {
   const [isAddingNote, setIsAddingNote] = useState(false);
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(initialNote || '');
+
+  // Reset internal state when `show` or `initialNote` changes
+  React.useEffect(() => {
+    if (show) {
+      setNote(initialNote || '');
+    } else {
+      setIsAddingNote(false);
+    }
+  }, [show, initialNote]);
 
   if (!show) {
     if (isAddingNote) setIsAddingNote(false);
@@ -83,22 +94,22 @@ export default function HighlightMenu({ show, onSelectColor, onCancel }: Props) 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <button
               onClick={() => handleColorClick('yellow')}
-              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#fbbf24', border: 'none', cursor: 'pointer' }}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#fbbf24', border: initialColor === 'yellow' ? '2px solid var(--text-primary)' : 'none', cursor: 'pointer' }}
               aria-label="Yellow"
             />
             <button
               onClick={() => handleColorClick('green')}
-              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#34d399', border: 'none', cursor: 'pointer' }}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#34d399', border: initialColor === 'green' ? '2px solid var(--text-primary)' : 'none', cursor: 'pointer' }}
               aria-label="Green"
             />
             <button
               onClick={() => handleColorClick('blue')}
-              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#60a5fa', border: 'none', cursor: 'pointer' }}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#60a5fa', border: initialColor === 'blue' ? '2px solid var(--text-primary)' : 'none', cursor: 'pointer' }}
               aria-label="Blue"
             />
             <button
               onClick={() => handleColorClick('pink')}
-              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f472b6', border: 'none', cursor: 'pointer' }}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f472b6', border: initialColor === 'pink' ? '2px solid var(--text-primary)' : 'none', cursor: 'pointer' }}
               aria-label="Pink"
             />
           </div>
@@ -107,7 +118,7 @@ export default function HighlightMenu({ show, onSelectColor, onCancel }: Props) 
               onClick={() => setIsAddingNote(true)}
               style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
             >
-              Add note
+              {initialNote || note ? 'Edit note' : 'Add note'}
             </button>
             <button
               onClick={handleCancel}
