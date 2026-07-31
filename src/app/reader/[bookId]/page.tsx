@@ -168,8 +168,7 @@ export default function ReaderPage() {
                 renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
                   const h = { ...currentActive, cfiRange, text };
                   setActiveSelection(h);
-                  const selection = renditionRef.current?.getContents()[0].window.getSelection();
-                  if (selection) selection.removeAllRanges();
+                  // Do NOT clear selection — leave native drag handles visible
                 });
               } catch (e) {}
               
@@ -191,8 +190,7 @@ export default function ReaderPage() {
               try {
                 renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
                   setActiveSelection(newHighlight);
-                  const selection = renditionRef.current?.getContents()[0].window.getSelection();
-                  if (selection) selection.removeAllRanges();
+                  // Do NOT clear selection — leave native drag handles visible
                 });
               } catch (e) {}
               
@@ -283,8 +281,21 @@ export default function ReaderPage() {
       try {
         renditionRef.current?.annotations.highlight(h.cfiRange, {}, (e: any) => {
           setActiveSelection(h);
-          const selection = renditionRef.current?.getContents()[0].window.getSelection();
-          if (selection) selection.removeAllRanges();
+          // Programmatically select the highlight range so native drag handles appear
+          try {
+            const contents = renditionRef.current?.getContents()?.[0];
+            if (contents) {
+              renditionRef.current?.book?.getRange(h.cfiRange).then((range: any) => {
+                if (range) {
+                  const sel = contents.window.getSelection();
+                  if (sel) {
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                  }
+                }
+              });
+            }
+          } catch (err) {}
         }, undefined, {
           "fill": colorMap[h.color || 'yellow'],
           "fill-opacity": "1"
@@ -368,7 +379,7 @@ export default function ReaderPage() {
       overflow: 'hidden' 
     }}>
       <div 
-        style={{ flex: 1, position: 'relative', overflow: 'hidden' }}
+        style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: '12px' }}
         onClick={() => {
           if (activeSelection) {
             setActiveSelection(null);
@@ -377,7 +388,7 @@ export default function ReaderPage() {
           }
         }}
       >
-        <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+        <div ref={containerRef} style={{ position: 'absolute', inset: '12px' }} />
       </div>
 
       <div style={{ display: 'flex', width: '100%', height: '50px', borderTop: `1px solid ${borderColor}`, zIndex: 10, background: 'transparent' }}>

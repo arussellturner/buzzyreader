@@ -408,10 +408,10 @@
 
 .legalDropdownLinks {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 4px 12px 8px;
+  gap: 2px;
 }
 
 .legalDropdownLink {
@@ -420,7 +420,7 @@
   color: var(--text-tertiary);
   font-size: 0.75rem;
   cursor: pointer;
-  padding: 0;
+  padding: 4px 0;
   text-decoration: none;
 }
 
@@ -430,7 +430,5 @@
 }
 
 .legalDropdownDivider {
-  color: var(--text-tertiary);
-  font-size: 0.75rem;
-  opacity: 0.5;
+  display: none;
 }
