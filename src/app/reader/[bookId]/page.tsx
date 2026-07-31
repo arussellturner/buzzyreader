@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useGoogleDrive } from '@/hooks/useGoogleDrive';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useHighlights } from '@/hooks/useHighlights';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
 import ReaderSettingsOverlay from '@/components/Reader/ReaderSettingsOverlay';
 import HighlightMenu from '@/components/Reader/HighlightMenu';
 import type { HighlightColor } from '@/types/highlight';
@@ -35,6 +36,7 @@ export default function ReaderPage() {
   const { library, driveStorage } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
   const { highlights, addHighlight, updateHighlight, removeHighlight, loadHighlights } = useHighlights();
+  const { progress, updateProgress, loadProgress } = useReadingProgress();
   
   const [epubData, setEpubData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,9 +66,10 @@ export default function ReaderPage() {
       }
       try {
         setLoading(true);
-        // Load highlights in parallel
+        // Load highlights and progress in parallel
         if (sessionObj.data?.accessToken) {
           loadHighlights(sessionObj.data.accessToken as string, bookId);
+          loadProgress(sessionObj.data.accessToken as string, bookId);
         }
         const data = await driveStorage.getEpubFileContent(book.driveFileId);
         setEpubData(data);
@@ -159,8 +162,28 @@ export default function ReaderPage() {
         });
       });
       
+      rendition.on('relocated', (location: any) => {
+        const percentage = book.locations.percentageFromCfi(location.start.cfi);
+        updateProgress(location.start.cfi, percentage);
+      });
+      
+      // Wait for book to be ready before displaying
+      book.ready.then(() => {
+        // Generate locations for percentage calculation
+        return book.locations.generate(1600); 
+      }).then((locations: string[]) => {
+        // After generating, update current location's percentage if any
+        if (renditionRef.current && renditionRef.current.location) {
+           const cfi = renditionRef.current.location.start.cfi;
+           const percentage = book.locations.percentageFromCfi(cfi);
+           updateProgress(cfi, percentage);
+        }
+      });
+      
       if (initialCfi) {
         rendition.display(initialCfi);
+      } else if (progress?.cfi) {
+        rendition.display(progress.cfi);
       } else {
         rendition.display();
       }
@@ -172,7 +195,7 @@ export default function ReaderPage() {
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
     };
-  }, [epubData, initialCfi]); // Re-run when epubData loads
+  }, [epubData, initialCfi]); // Removed progress from dependency to avoid re-mounting epub on progress change
 
   // Render highlights
   useEffect(() => {

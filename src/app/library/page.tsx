@@ -8,13 +8,14 @@ import { usePreferences } from '@/hooks/usePreferences';
 import BookCard from '@/components/Library/BookCard';
 import AddBookModal from '@/components/Library/AddBookModal';
 import BookDetailsModal from '@/components/Library/BookDetailsModal';
-import { saveReadingProgress } from '@/lib/storage/driveStorage';
+import { getReadingProgress, saveReadingProgress } from '@/lib/storage/driveStorage';
 import type { Book } from '@/types/book';
+import type { ReadingProgress } from '@/types/progress';
 import styles from './library.module.css';
 
 const SKELETON_COUNT = 8;
 
-type SortOption = 'title' | 'author' | 'recentRead' | 'recentAdded';
+type SortOption = 'title' | 'authorFirst' | 'authorLast' | 'recentRead' | 'recentAdded';
 
 export default function LibraryPage() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function LibraryPage() {
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recentRead');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [progressMap, setProgressMap] = useState<Record<string, ReadingProgress>>({});
 
   const books = useMemo(() => {
     const libraryBooks = library?.books || [];
@@ -34,8 +36,11 @@ export default function LibraryPage() {
       switch (sortOption) {
         case 'title':
           return (a.title || '').localeCompare(b.title || '');
-        case 'author':
+        case 'authorFirst':
           return (a.author || '').localeCompare(b.author || '');
+        case 'authorLast':
+          const getLastWord = (str: string) => str.trim().split(' ').pop() || '';
+          return getLastWord(a.author || '').localeCompare(getLastWord(b.author || ''));
         case 'recentRead':
           const aRead = a.lastReadAt ? new Date(a.lastReadAt).getTime() : 0;
           const bRead = b.lastReadAt ? new Date(b.lastReadAt).getTime() : 0;
@@ -60,6 +65,35 @@ export default function LibraryPage() {
     () => new Set(books.map((b) => b.driveFileId)),
     [books]
   );
+
+  useEffect(() => {
+    if (!driveStorage || books.length === 0) return;
+    
+    let isMounted = true;
+    
+    const fetchProgresses = async () => {
+      try {
+        const promises = books.map(book => getReadingProgress(driveStorage, book.id));
+        const results = await Promise.allSettled(promises);
+        
+        if (!isMounted) return;
+        
+        const newMap: Record<string, ReadingProgress> = {};
+        results.forEach((res, i) => {
+          if (res.status === 'fulfilled' && res.value) {
+            newMap[books[i].id] = res.value;
+          }
+        });
+        setProgressMap(newMap);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    
+    fetchProgresses();
+    
+    return () => { isMounted = false; };
+  }, [driveStorage, books]);
 
   const handleBookAdded = useCallback(
     (_book: Book) => {
@@ -228,9 +262,10 @@ export default function LibraryPage() {
               onChange={(e) => setSortOption(e.target.value as SortOption)}
             >
               <option value="title">Title</option>
-              <option value="author">Author</option>
-              <option value="recentRead">Recently read</option>
-              <option value="recentAdded">Recently added</option>
+              <option value="authorFirst">Author (First name)</option>
+              <option value="authorLast">Author (Last name)</option>
+              <option value="recentRead">Last opened</option>
+              <option value="recentAdded">Date added</option>
             </select>
           </div>
           <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
@@ -287,6 +322,7 @@ export default function LibraryPage() {
               <BookCard
                 key={book.id}
                 book={book}
+                progress={progressMap[book.id]}
                 onOpenDetails={handleOpenDetails}
               />
             ))}
