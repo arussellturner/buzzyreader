@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useGoogleDrive } from '@/hooks/useGoogleDrive';
 import { usePreferences } from '@/hooks/usePreferences';
 import BookCard from '@/components/Library/BookCard';
@@ -26,6 +26,7 @@ export default function LibraryPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recentAdded');
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const books = useMemo(() => {
     const libraryBooks = library?.books || [];
@@ -160,11 +161,6 @@ export default function LibraryPage() {
           </a>
 
           <div className={styles.headerRight}>
-            <div className={styles.segmentedControl}>
-              <button className={`${styles.segment} ${styles.segmentActive}`}>Books</button>
-              <button className={styles.segment}>Highlights</button>
-            </div>
-            
             <button className={styles.addBookIconBtn} onClick={handleOpenModal} aria-label="Add Book" title="Add Book">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -172,18 +168,43 @@ export default function LibraryPage() {
               </svg>
             </button>
 
-            {session?.user?.image ? (
-              <img
-                className={styles.userAvatar}
-                src={session.user.image}
-                alt="User avatar"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className={styles.userAvatarPlaceholder} aria-hidden="true">
-                {userInitials}
-              </div>
-            )}
+            <div className={styles.userMenuContainer}>
+              <button 
+                className={styles.avatarButton} 
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                aria-label="User Menu"
+              >
+                {session?.user?.image ? (
+                  <img
+                    className={styles.userAvatar}
+                    src={session.user.image}
+                    alt="User avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className={styles.userAvatarPlaceholder} aria-hidden="true">
+                    {userInitials}
+                  </div>
+                )}
+              </button>
+
+              {isUserMenuOpen && (
+                <div className={styles.userMenuDropdown}>
+                  <button 
+                    className={styles.dropdownItem}
+                    onClick={() => router.push('/highlights')}
+                  >
+                    See all highlights
+                  </button>
+                  <button 
+                    className={styles.dropdownItem}
+                    onClick={() => signOut()}
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -193,31 +214,18 @@ export default function LibraryPage() {
         {/* Sub Nav / Toolbar */}
         <div className={styles.toolbar}>
           <div className={styles.sortOptions}>
-            <span className={styles.sortLabel}>Sort by:</span>
-            <button
-              className={`${styles.sortBtn} ${sortOption === 'title' ? styles.sortBtnActive : ''}`}
-              onClick={() => setSortOption('title')}
+            <label htmlFor="sort-select" className={styles.sortLabel}>Sort by:</label>
+            <select
+              id="sort-select"
+              className={styles.sortSelect}
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value as SortOption)}
             >
-              Title
-            </button>
-            <button
-              className={`${styles.sortBtn} ${sortOption === 'author' ? styles.sortBtnActive : ''}`}
-              onClick={() => setSortOption('author')}
-            >
-              Author
-            </button>
-            <button
-              className={`${styles.sortBtn} ${sortOption === 'recentRead' ? styles.sortBtnActive : ''}`}
-              onClick={() => setSortOption('recentRead')}
-            >
-              Recently read
-            </button>
-            <button
-              className={`${styles.sortBtn} ${sortOption === 'recentAdded' ? styles.sortBtnActive : ''}`}
-              onClick={() => setSortOption('recentAdded')}
-            >
-              Recently added
-            </button>
+              <option value="title">Title</option>
+              <option value="author">Author</option>
+              <option value="recentRead">Recently read</option>
+              <option value="recentAdded">Recently added</option>
+            </select>
           </div>
           <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
             {preferences.theme === 'dark' ? (
