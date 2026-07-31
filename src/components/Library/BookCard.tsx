@@ -36,25 +36,10 @@ const COVER_GRADIENTS = [
 
 const BOOK_ICONS = ['📖', '📚', '📕', '📗', '📘', '📙', '📓', '📔'];
 
-function formatRelativeDate(dateStr: string): string {
+function formatDetailedDate(dateStr: string): string {
   const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-  const diffWeeks = Math.floor(diffDays / 7);
-  const diffMonths = Math.floor(diffDays / 30);
-
-  if (diffSecs < 60) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffWeeks < 4) return `${diffWeeks}w ago`;
-  if (diffMonths < 12) return `${diffMonths}mo ago`;
-  return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + 
+         date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
 export default function BookCard({ book, progress, onClick }: BookCardProps) {
@@ -62,7 +47,7 @@ export default function BookCard({ book, progress, onClick }: BookCardProps) {
   const hash = useMemo(() => hashCode(book.id + book.title), [book.id, book.title]);
   const gradient = COVER_GRADIENTS[hash % COVER_GRADIENTS.length];
   const icon = BOOK_ICONS[hash % BOOK_ICONS.length];
-  const progressPercent = progress?.percentage ?? 0;
+  const progressPercent = Math.round((progress?.percentage ?? 0) * 100);
 
   const handleClick = useCallback(() => {
     if (onClick) {
@@ -114,28 +99,38 @@ export default function BookCard({ book, progress, onClick }: BookCardProps) {
       <div className={styles.info}>
         <h3 className={styles.title}>{book.title}</h3>
         <p className={styles.author}>{book.author}</p>
-      </div>
-
-      {/* Meta row */}
-      {book.lastReadAt && (
-        <div className={styles.meta}>
-          <span className={styles.lastRead}>
-            Read {formatRelativeDate(book.lastReadAt)}
-          </span>
+        
+        {/* Progress percent above bar */}
+        <div className={styles.progressTextContainer}>
+           <span className={styles.progressPercent}>{progressPercent}%</span>
         </div>
-      )}
 
-      {/* Progress bar */}
-      <div className={styles.progressBarTrack}>
-        <div
-          className={styles.progressBarFill}
-          style={{ width: `${Math.round(progressPercent * 100)}%` }}
-          role="progressbar"
-          aria-valuenow={Math.round(progressPercent * 100)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`${Math.round(progressPercent * 100)}% read`}
-        />
+        {/* Progress bar */}
+        <div className={styles.progressBarTrack}>
+          <div
+            className={styles.progressBarFill}
+            style={{ width: `${progressPercent}%` }}
+            role="progressbar"
+            aria-valuenow={progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${progressPercent}% read`}
+          />
+        </div>
+
+        {/* Meta row */}
+        {book.lastReadAt && (
+          <div className={styles.lastRead}>
+            Last opened: {formatDetailedDate(book.lastReadAt)}
+          </div>
+        )}
+
+        {/* Details Link */}
+        <div className={styles.detailsLinkWrapper}>
+          <button className={styles.detailsLink} onClick={(e) => { e.stopPropagation(); /* TODO: show details */ }}>
+            DETAILS
+          </button>
+        </div>
       </div>
     </div>
   );

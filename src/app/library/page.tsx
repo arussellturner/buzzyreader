@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useGoogleDrive } from '@/hooks/useGoogleDrive';
+import { usePreferences } from '@/hooks/usePreferences';
 import BookCard from '@/components/Library/BookCard';
 import AddBookModal from '@/components/Library/AddBookModal';
 import type { Book } from '@/types/book';
@@ -17,6 +18,7 @@ export default function LibraryPage() {
   const session = sessionObj.data;
   const status = sessionObj.status || 'unauthenticated';
   const { library, loading: libraryLoading, refreshLibrary } = useGoogleDrive();
+  const { preferences, updatePreferences } = usePreferences();
   const books = library?.books || [];
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -46,6 +48,10 @@ export default function LibraryPage() {
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
   }, []);
+
+  const toggleTheme = useCallback(() => {
+    updatePreferences({ theme: preferences.theme === 'dark' ? 'light' : 'dark' });
+  }, [preferences.theme, updatePreferences]);
 
   // Get user initials for avatar placeholder
   const userInitials = useMemo(() => {
@@ -99,51 +105,51 @@ export default function LibraryPage() {
           </a>
 
           <div className={styles.headerRight}>
-            <div className={styles.userMenu}>
-              {session?.user?.image ? (
-                <img
-                  className={styles.userAvatar}
-                  src={session.user.image}
-                  alt={session.user.name || 'User avatar'}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className={styles.userAvatarPlaceholder} aria-hidden="true">
-                  {userInitials}
-                </div>
-              )}
-              <span className={styles.userName}>{session?.user?.name}</span>
-              <button
-                className={styles.signOutButton}
-                onClick={() => signOut()}
-                type="button"
-              >
-                Sign out
-              </button>
+            <div className={styles.segmentedControl}>
+              <button className={`${styles.segment} ${styles.segmentActive}`}>Books</button>
+              <button className={styles.segment}>Highlights</button>
             </div>
+            
+            <button className={styles.addBookIconBtn} onClick={handleOpenModal} aria-label="Add Book" title="Add Book">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+
+            {session?.user?.image ? (
+              <img
+                className={styles.userAvatar}
+                src={session.user.image}
+                alt="User avatar"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className={styles.userAvatarPlaceholder} aria-hidden="true">
+                {userInitials}
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* ── Main content ── */}
       <main className={styles.content}>
-        {/* Toolbar */}
+        {/* Sub Nav / Toolbar */}
         <div className={styles.toolbar}>
-          <h1 className={styles.pageTitle}>
-            My Library
-            {!isLoading && books.length > 0 && (
-              <span className={styles.bookCount}>{books.length} book{books.length !== 1 ? 's' : ''}</span>
+          <div className={styles.sortOptions}>
+            <span className={styles.sortLabel}>Sort by:</span>
+            <button className={`${styles.sortBtn} ${styles.sortBtnActive}`}>Title</button>
+            <button className={styles.sortBtn}>Author</button>
+            <button className={styles.sortBtn}>Recently read</button>
+            <button className={styles.sortBtn}>Recently added</button>
+          </div>
+          <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
+            {preferences.theme === 'dark' ? (
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            ) : (
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             )}
-          </h1>
-          <button
-            className={styles.addButton}
-            onClick={handleOpenModal}
-            type="button"
-          >
-            <span className={styles.addButtonIcon} aria-hidden="true">
-              +
-            </span>
-            Add Book
           </button>
         </div>
 
@@ -171,7 +177,6 @@ export default function LibraryPage() {
             <h2 className={styles.emptyTitle}>Your library is empty</h2>
             <p className={styles.emptyText}>
               Add your first book from Google Drive and start reading!
-              Your ePub files will appear here as beautiful book cards.
             </p>
             <button
               className={styles.emptyAddButton}
