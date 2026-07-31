@@ -126,7 +126,7 @@ export default function WishlistPage() {
 
       <main className={libraryStyles.content}>
         <div className={styles.wishlistHeader}>
-          <h1 className={styles.pageTitle}>Wishlist</h1>
+          <h1 className={styles.pageTitle}>Wish list</h1>
           <button 
             className={styles.addButton} 
             onClick={() => {
