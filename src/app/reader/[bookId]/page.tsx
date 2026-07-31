@@ -144,6 +144,10 @@ export default function ReaderPage() {
           body {
             background-color: ${bg} !important;
             background: ${bg} !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           ::selection {
             background: rgba(255, 255, 0, 0.3) !important;
@@ -213,7 +217,11 @@ export default function ReaderPage() {
             'text-align': `${textAlign} !important`,
             'background-color': bgColor,
             'background': bgColor,
-            'color': textColor
+            'color': textColor,
+            'max-width': '100% !important',
+            'width': '100% !important',
+            'margin': '0 !important',
+            'padding': '0 !important'
           },
           'p': {
             'margin-bottom': `${preferences.paragraphSpacing}em !important`,
@@ -444,6 +452,10 @@ export default function ReaderPage() {
             body {
               background-color: ${bgRaw} !important;
               background: ${bgRaw} !important;
+              max-width: 100% !important;
+              width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
             }
           `;
           doc.head.appendChild(style);
@@ -525,7 +537,7 @@ export default function ReaderPage() {
       overflow: 'hidden' 
     }}>
       <div 
-        style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: '12px' }}
+        style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: '12px', width: '100%', maxWidth: '1000px', margin: '0 auto' }}
         onClick={() => {
           if (activeSelection) {
             setActiveSelection(null);
