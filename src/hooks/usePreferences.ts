@@ -51,6 +51,10 @@ function applyPreferencesToCSS(prefs: ReaderPreferences): void {
     '--reader-char-spacing',
     `${prefs.charSpacing}em`,
   );
+  root.style.setProperty(
+    '--reader-text-align',
+    prefs.textAlign ?? 'left'
+  );
 }
 
 // ---------------------------------------------------------------------------
