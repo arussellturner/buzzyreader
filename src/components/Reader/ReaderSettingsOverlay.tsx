@@ -137,7 +137,7 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
 
         {/* Line Spacing */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Line Spacing</label>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Line spacing</label>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', width: '120px' }}>
             <button 
               onClick={() => updatePreferences({ lineSpacing: Math.max(1.0, Number((preferences.lineSpacing - 0.1).toFixed(1))) })}
@@ -159,7 +159,7 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
 
         {/* Paragraph Spacing */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Par. Spacing</label>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Paragraph</label>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', width: '120px' }}>
             <button 
               onClick={() => updatePreferences({ paragraphSpacing: Math.max(0.5, Number((preferences.paragraphSpacing - 0.1).toFixed(1))) })}

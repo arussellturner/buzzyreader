@@ -106,23 +106,36 @@ export default function ReaderPage() {
         const textAlign = preferences.textAlign || 'left';
         const textColor = preferences.theme === 'light' ? '#000000 !important' : 
                           preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+        const fontStack = `${getFontStack(preferences.fontFamily)} !important`;
+        const lineHeight = `${preferences.lineSpacing} !important`;
         
         rendition.themes.default({
+          'html': {
+            'background-color': 'transparent !important',
+            'background': 'none !important'
+          },
           'body': {
-            'font-family': `${getFontStack(preferences.fontFamily)} !important`,
+            'font-family': fontStack,
             'font-size': `${preferences.fontSize}px !important`,
-            'line-height': `${preferences.lineSpacing} !important`,
+            'line-height': lineHeight,
             'text-align': `${textAlign} !important`,
             'background-color': 'transparent !important',
+            'background': 'none !important',
             'color': textColor
           },
           'p': {
             'margin-bottom': `${preferences.paragraphSpacing}em !important`,
             'text-align': `${textAlign} !important`,
+            'line-height': lineHeight,
+            'font-family': fontStack,
             'color': textColor
           },
           'div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote': {
-            'color': textColor
+            'color': textColor,
+            'font-family': fontStack,
+            'line-height': lineHeight,
+            'background-color': 'transparent !important',
+            'background': 'none !important'
           },
           'div': {
             'text-align': `${textAlign} !important`
@@ -204,23 +217,36 @@ export default function ReaderPage() {
       const textAlign = preferences.textAlign || 'left';
       const textColor = preferences.theme === 'light' ? '#000000 !important' : 
                         preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+      const fontStack = `${getFontStack(preferences.fontFamily)} !important`;
+      const lineHeight = `${preferences.lineSpacing} !important`;
       
       renditionRef.current.themes.default({
+        'html': {
+          'background-color': 'transparent !important',
+          'background': 'none !important'
+        },
         'body': {
-          'font-family': `${getFontStack(preferences.fontFamily)} !important`,
+          'font-family': fontStack,
           'font-size': `${preferences.fontSize}px !important`,
-          'line-height': `${preferences.lineSpacing} !important`,
+          'line-height': lineHeight,
           'text-align': `${textAlign} !important`,
           'background-color': 'transparent !important',
+          'background': 'none !important',
           'color': textColor
         },
         'p': {
           'margin-bottom': `${preferences.paragraphSpacing}em !important`,
           'text-align': `${textAlign} !important`,
+          'line-height': lineHeight,
+          'font-family': fontStack,
           'color': textColor
         },
         'div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote': {
-          'color': textColor
+          'color': textColor,
+          'font-family': fontStack,
+          'line-height': lineHeight,
+          'background-color': 'transparent !important',
+          'background': 'none !important'
         },
         'div': {
           'text-align': `${textAlign} !important`
