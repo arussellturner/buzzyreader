@@ -8,6 +8,7 @@ interface HighlightCardProps {
   highlight: Highlight;
   bookTitle?: string;
   onNavigate?: (highlight: Highlight) => void;
+  onEdit?: (highlight: Highlight) => void;
   onDelete?: (highlightId: string) => void;
 }
 
@@ -49,6 +50,7 @@ export default function HighlightCard({
   highlight,
   bookTitle,
   onNavigate,
+  onEdit,
   onDelete,
 }: HighlightCardProps) {
   const [showMenu, setShowMenu] = useState(false);
@@ -78,6 +80,20 @@ export default function HighlightCard({
   const handleNavigate = (e: React.MouseEvent) => {
     e.stopPropagation();
     onNavigate?.(highlight);
+    setShowMenu(false);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(highlight);
+    setShowMenu(false);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this highlight?')) {
+      onDelete?.(highlight.id);
+    }
     setShowMenu(false);
   };
 
@@ -111,6 +127,16 @@ export default function HighlightCard({
           </button>
           <button className={styles.menuItem} onClick={handleNavigate}>
             See in book
+          </button>
+          <button className={styles.menuItem} onClick={handleEdit}>
+            Edit
+          </button>
+          <button 
+            className={styles.menuItem} 
+            onClick={handleDelete}
+            style={{ color: '#ef4444' }}
+          >
+            Delete
           </button>
         </div>
       )}

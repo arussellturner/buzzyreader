@@ -5,8 +5,8 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import HighlightCard from '@/components/Highlights/HighlightCard';
 import { useGoogleDrive } from '@/hooks/useGoogleDrive';
-import { BookHighlights } from '@/types/highlight';
-import { getAllHighlights } from '@/lib/storage/driveStorage';
+import { BookHighlights, Highlight } from '@/types/highlight';
+import { getAllHighlights, saveHighlights } from '@/lib/storage/driveStorage';
 import styles from './highlights.module.css';
 import libraryStyles from '../library/library.module.css';
 
@@ -21,6 +21,8 @@ export default function HighlightsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [editingHighlight, setEditingHighlight] = useState<Highlight | null>(null);
+  const [editNote, setEditNote] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -71,6 +73,44 @@ export default function HighlightsPage() {
 
   const getBookTitle = (bookId: string) => {
     return library?.books.find(b => b.id === bookId)?.title || 'Unknown Book';
+  };
+
+  const saveEdit = async () => {
+    if (!editingHighlight || !driveStorage) return;
+    try {
+      const group = allHighlights.find(g => g.bookId === editingHighlight.bookId);
+      if (!group) return;
+      
+      const updatedHighlights = group.highlights.map(h => 
+        h.id === editingHighlight.id ? { ...h, note: editNote } : h
+      );
+      
+      const updatedGroup = { ...group, highlights: updatedHighlights };
+      
+      await saveHighlights(driveStorage, group.bookId, updatedGroup);
+      
+      setAllHighlights(prev => prev.map(g => g.bookId === group.bookId ? updatedGroup : g));
+      setEditingHighlight(null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (highlightId: string, bookId: string) => {
+    if (!driveStorage) return;
+    try {
+      const group = allHighlights.find(g => g.bookId === bookId);
+      if (!group) return;
+      
+      const updatedHighlights = group.highlights.filter(h => h.id !== highlightId);
+      const updatedGroup = { ...group, highlights: updatedHighlights };
+      
+      await saveHighlights(driveStorage, bookId, updatedGroup);
+      
+      setAllHighlights(prev => prev.map(g => g.bookId === bookId ? updatedGroup : g));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -180,6 +220,11 @@ export default function HighlightsPage() {
                       highlight={highlight}
                       bookTitle={getBookTitle(bookGroup.bookId)}
                       onNavigate={() => router.push(`/reader/${bookGroup.bookId}?cfi=${encodeURIComponent(highlight.cfiRange)}`)}
+                      onEdit={(h) => {
+                        setEditingHighlight(h);
+                        setEditNote(h.note || '');
+                      }}
+                      onDelete={(id) => handleDelete(id, bookGroup.bookId)}
                     />
                   ))}
                 </div>
@@ -188,6 +233,44 @@ export default function HighlightsPage() {
           </div>
         )}
       </main>
+
+      {editingHighlight && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 }}>
+          <div style={{ background: 'var(--bg-surface)', padding: 24, borderRadius: 12, width: '100%', maxWidth: 500, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: 0, fontSize: 20 }}>Edit Note</h2>
+              <button onClick={() => setEditingHighlight(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: 24, cursor: 'pointer' }}>&times;</button>
+            </div>
+            
+            <blockquote style={{ margin: 0, paddingLeft: 12, borderLeft: '4px solid var(--accent-primary)', fontStyle: 'italic', color: 'var(--text-secondary)', fontSize: 14 }}>
+              {editingHighlight.text}
+            </blockquote>
+
+            <textarea
+              value={editNote}
+              onChange={e => setEditNote(e.target.value)}
+              placeholder="Add your note here..."
+              rows={4}
+              style={{ width: '100%', padding: 12, borderRadius: 8, background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontFamily: 'inherit', resize: 'none' }}
+            />
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button 
+                onClick={() => setEditingHighlight(null)} 
+                style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 500 }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={saveEdit} 
+                style={{ padding: '8px 16px', background: 'var(--accent-primary)', border: 'none', color: '#fff', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
