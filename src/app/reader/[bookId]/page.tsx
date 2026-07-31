@@ -515,7 +515,7 @@ export default function ReaderPage() {
           onClick={() => router.push('/library')} 
           style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', borderRight: `1px solid ${borderColor}`, cursor: 'pointer', color: textColor, fontSize: '18px' }}
         >
-          🐝
+          <img src="/logo.png" alt="Back to library" width={22} height={22} style={{ filter: preferences.theme === 'dark' ? 'invert(1)' : 'none' }} />
         </button>
         <button 
           onClick={() => {

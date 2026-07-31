@@ -19,9 +19,7 @@ export default function Home() {
 
       {/* Hero */}
       <section className={styles.hero}>
-        <span className={styles.beeIcon} role="img" aria-label="Bee">
-          🐝
-        </span>
+        <img src="/logo.png" alt="BuzzyReader" className={styles.beeIcon} width={80} height={80} />
         <h1 className={styles.title}>BuzzyReader</h1>
         <p className={styles.tagline}>Your Books. Everywhere.</p>
         <p className={styles.description}>

@@ -55,7 +55,7 @@ export default function Navbar({ activePage }: NavbarProps) {
       <nav className={styles.navbar}>
         {/* Logo */}
         <Link href="/library" className={styles.logo}>
-          <span className={styles.logoEmoji} aria-hidden="true">🐝</span>
+          <img src="/logo.png" alt="" className={styles.logoEmoji} width={28} height={28} />
           <span className={styles.logoText}>BuzzyReader</span>
         </Link>
 

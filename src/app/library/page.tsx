@@ -188,9 +188,7 @@ export default function LibraryPage() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <a href="/library" className={styles.logoSection}>
-            <span className={styles.logoIcon} aria-hidden="true">
-              🐝
-            </span>
+            <img src="/logo.png" alt="" className={styles.logoIcon} width={28} height={28} />
             <span className={styles.logoText}>BuzzyReader</span>
           </a>
 

@@ -70,9 +70,7 @@ export default function WishlistPage() {
       <header className={libraryStyles.header}>
         <div className={libraryStyles.headerContent}>
           <a href="/library" className={libraryStyles.logoSection}>
-            <span className={libraryStyles.logoIcon} aria-hidden="true">
-              🐝
-            </span>
+            <img src="/logo.png" alt="" className={libraryStyles.logoIcon} width={28} height={28} />
             <span className={libraryStyles.logoText}>BuzzyReader</span>
           </a>
 
