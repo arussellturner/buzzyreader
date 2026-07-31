@@ -101,31 +101,79 @@ export default function ReaderPage() {
       });
       
       renditionRef.current = rendition;
+
+      // Determine theme colors once for initial load
+      const getThemeColors = () => {
+        const bg = preferences.theme === 'light' ? '#ffffff' : 
+                   preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+        const textColor = preferences.theme === 'light' ? '#000000' : 
+                          preferences.theme === 'sepia' ? '#5c4033' : '#ffffff';
+        return { bg, textColor };
+      };
       
       rendition.hooks.content.register((contents: any) => {
         contents.addStylesheet("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+        
+        // Inject a style tag directly into the epub iframe to force background/text colors
+        // This fires on every page turn and is the most reliable way to override epub styles
+        const { bg, textColor } = getThemeColors();
+        const doc = contents.document;
+        const existingStyle = doc.getElementById('buzzyreader-theme');
+        if (existingStyle) existingStyle.remove();
+        
+        const style = doc.createElement('style');
+        style.id = 'buzzyreader-theme';
+        style.textContent = `
+          html, body {
+            background-color: ${bg} !important;
+            background: ${bg} !important;
+            color: ${textColor} !important;
+          }
+          body, p, div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote, td, th, dt, dd, figcaption, cite, em, strong, b, i, section, article, aside, nav, header, footer, main {
+            color: ${textColor} !important;
+            background-color: transparent !important;
+          }
+          html {
+            background-color: ${bg} !important;
+          }
+          ::selection {
+            background: rgba(255, 255, 0, 0.3) !important;
+          }
+        `;
+        doc.head.appendChild(style);
       });
       
-      // Apply user preferences to the epub iframe
+      // Also style the iframe element itself so it never flashes white
+      rendition.on('started', () => {
+        const iframe = containerRef.current?.querySelector('iframe');
+        if (iframe) {
+          const { bg } = getThemeColors();
+          iframe.style.background = bg;
+        }
+      });
+      
+      // Apply user preferences to the epub iframe via themes API (for font, spacing, alignment)
       const applyTheme = () => {
         const textAlign = preferences.textAlign || 'left';
         const textColor = preferences.theme === 'light' ? '#000000 !important' : 
                           preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+        const bgColor = preferences.theme === 'light' ? '#ffffff !important' : 
+                        preferences.theme === 'sepia' ? '#f4ecd8 !important' : '#0a0e1a !important';
         const fontStack = `${getFontStack(preferences.fontFamily)} !important`;
         const lineHeight = `${preferences.lineSpacing} !important`;
         
         rendition.themes.default({
           'html': {
-            'background-color': 'transparent !important',
-            'background': 'none !important'
+            'background-color': bgColor,
+            'background': bgColor
           },
           'body': {
             'font-family': fontStack,
             'font-size': `${preferences.fontSize}px !important`,
             'line-height': lineHeight,
             'text-align': `${textAlign} !important`,
-            'background-color': 'transparent !important',
-            'background': 'none !important',
+            'background-color': bgColor,
+            'background': bgColor,
             'color': textColor
           },
           'p': {
@@ -310,21 +358,61 @@ export default function ReaderPage() {
       const textAlign = preferences.textAlign || 'left';
       const textColor = preferences.theme === 'light' ? '#000000 !important' : 
                         preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+      const bgColor = preferences.theme === 'light' ? '#ffffff !important' : 
+                      preferences.theme === 'sepia' ? '#f4ecd8 !important' : '#0a0e1a !important';
+      const bgRaw = preferences.theme === 'light' ? '#ffffff' : 
+                    preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+      const textRaw = preferences.theme === 'light' ? '#000000' : 
+                      preferences.theme === 'sepia' ? '#5c4033' : '#ffffff';
       const fontStack = `${getFontStack(preferences.fontFamily)} !important`;
       const lineHeight = `${preferences.lineSpacing} !important`;
       
+      // Update iframe element background
+      const iframe = containerRef.current?.querySelector('iframe');
+      if (iframe) {
+        iframe.style.background = bgRaw;
+      }
+      
+      // Inject style tag into the current epub content
+      try {
+        const contents = renditionRef.current.getContents()?.[0];
+        if (contents) {
+          const doc = contents.document;
+          const existingStyle = doc.getElementById('buzzyreader-theme');
+          if (existingStyle) existingStyle.remove();
+          
+          const style = doc.createElement('style');
+          style.id = 'buzzyreader-theme';
+          style.textContent = `
+            html, body {
+              background-color: ${bgRaw} !important;
+              background: ${bgRaw} !important;
+              color: ${textRaw} !important;
+            }
+            body, p, div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote, td, th, dt, dd, figcaption, cite, em, strong, b, i, section, article, aside, nav, header, footer, main {
+              color: ${textRaw} !important;
+              background-color: transparent !important;
+            }
+            html {
+              background-color: ${bgRaw} !important;
+            }
+          `;
+          doc.head.appendChild(style);
+        }
+      } catch (e) {}
+      
       renditionRef.current.themes.default({
         'html': {
-          'background-color': 'transparent !important',
-          'background': 'none !important'
+          'background-color': bgColor,
+          'background': bgColor
         },
         'body': {
           'font-family': fontStack,
           'font-size': `${preferences.fontSize}px !important`,
           'line-height': lineHeight,
           'text-align': `${textAlign} !important`,
-          'background-color': 'transparent !important',
-          'background': 'none !important',
+          'background-color': bgColor,
+          'background': bgColor,
           'color': textColor
         },
         'p': {
