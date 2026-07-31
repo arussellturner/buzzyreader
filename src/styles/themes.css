@@ -43,7 +43,8 @@
 }
 
 /* Invert the black logo to white in dark mode */
-[data-theme='dark'] img[src*="logo"] {
+[data-theme='dark'] img[src*="logo"],
+[data-theme='black'] img[src*="logo"] {
   filter: invert(1);
 }
 

@@ -333,7 +333,15 @@ export default function ReaderPage() {
          setActiveSelection(null);
       });
       
-      rendition.on('relocated', (location: any) => {
+      rendition.on('keyup', (e: KeyboardEvent) => {
+         if (e.key === 'ArrowLeft') {
+           renditionRef.current?.prev();
+         } else if (e.key === 'ArrowRight' || e.key === ' ') {
+           renditionRef.current?.next();
+         }
+       });
+       
+       rendition.on('relocated', (location: any) => {
         const percentage = book.locations.percentageFromCfi(location.start.cfi);
         updateProgress(location.start.cfi, percentage);
       });
@@ -527,6 +535,23 @@ export default function ReaderPage() {
     }
   }, [preferences]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      if (e.key === 'ArrowLeft') {
+        renditionRef.current?.prev();
+      } else if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault(); // prevent spacebar scroll
+        renditionRef.current?.next();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (loading) {
     return <div style={{ padding: 40, textAlign: 'center' }}>Loading your book...</div>;
   }
@@ -596,7 +621,7 @@ export default function ReaderPage() {
           onClick={() => router.push('/library')} 
           style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', borderRight: `1px solid ${borderColor}`, cursor: 'pointer', color: textColor, fontSize: '18px' }}
         >
-          <img src="/logo.png" alt="Back to library" width={22} height={22} style={{ filter: preferences.theme === 'dark' ? 'invert(1)' : 'none' }} />
+          <img src="/logo.png" alt="Back to library" width={22} height={22} style={{ filter: (preferences.theme === 'dark' || preferences.theme === 'black') ? 'invert(1)' : 'none' }} />
         </button>
         <button 
           onClick={() => {
