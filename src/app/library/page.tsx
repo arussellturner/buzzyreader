@@ -7,6 +7,8 @@ import { useGoogleDrive } from '@/hooks/useGoogleDrive';
 import { usePreferences } from '@/hooks/usePreferences';
 import BookCard from '@/components/Library/BookCard';
 import AddBookModal from '@/components/Library/AddBookModal';
+import BookDetailsModal from '@/components/Library/BookDetailsModal';
+import { saveReadingProgress } from '@/lib/storage/driveStorage';
 import type { Book } from '@/types/book';
 import styles from './library.module.css';
 
@@ -17,10 +19,11 @@ export default function LibraryPage() {
   const sessionObj = useSession() || {};
   const session = sessionObj.data;
   const status = sessionObj.status || 'unauthenticated';
-  const { library, loading: libraryLoading, refreshLibrary } = useGoogleDrive();
+  const { library, loading: libraryLoading, refreshLibrary, updateBook, removeBook, driveStorage } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
   const books = library?.books || [];
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailsBook, setDetailsBook] = useState<Book | null>(null);
 
   // Protected route: redirect to / if not signed in
   useEffect(() => {
@@ -48,6 +51,35 @@ export default function LibraryPage() {
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
   }, []);
+
+  const handleOpenDetails = useCallback((book: Book) => {
+    setDetailsBook(book);
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailsBook(null);
+  }, []);
+
+  const handleSaveBookDetails = useCallback(async (updatedBook: Book) => {
+    await updateBook(updatedBook);
+  }, [updateBook]);
+
+  const handleDeleteBook = useCallback(async (bookId: string) => {
+    await removeBook(bookId);
+    setDetailsBook(null);
+  }, [removeBook]);
+
+  const handleResetProgress = useCallback(async (bookId: string) => {
+    if (!driveStorage) return;
+    await saveReadingProgress(driveStorage, bookId, {
+      bookId,
+      cfi: '',
+      percentage: 0,
+      lastRead: new Date().toISOString()
+    });
+    // Trigger refresh to update "Recently read" if we fetched progress.
+    // Actually progress doesn't update the book object, but it's good enough.
+  }, [driveStorage]);
 
   const toggleTheme = useCallback(() => {
     updatePreferences({ theme: preferences.theme === 'dark' ? 'light' : 'dark' });
@@ -198,6 +230,7 @@ export default function LibraryPage() {
               <BookCard
                 key={book.id}
                 book={book}
+                onOpenDetails={handleOpenDetails}
               />
             ))}
           </div>
@@ -210,6 +243,15 @@ export default function LibraryPage() {
         onClose={handleCloseModal}
         onBookAdded={handleBookAdded}
         existingDriveFileIds={existingDriveFileIds}
+      />
+
+      <BookDetailsModal
+        isOpen={!!detailsBook}
+        onClose={handleCloseDetails}
+        book={detailsBook}
+        onSave={handleSaveBookDetails}
+        onDelete={handleDeleteBook}
+        onResetProgress={handleResetProgress}
       />
     </div>
   );

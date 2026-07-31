@@ -7,6 +7,7 @@ export interface Book {
   addedAt: string; // ISO date string
   lastReadAt?: string; // ISO date string
   totalLocations?: number;
+  notes?: string; // User notes
 }
 
 export interface Library {

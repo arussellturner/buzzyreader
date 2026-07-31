@@ -10,6 +10,7 @@ interface BookCardProps {
   book: Book;
   progress?: ReadingProgress;
   onClick?: (book: Book) => void;
+  onOpenDetails?: (book: Book) => void;
 }
 
 /** Hashing function to deterministically pick a gradient for a book cover */
@@ -42,7 +43,7 @@ function formatDetailedDate(dateStr: string): string {
          date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
-export default function BookCard({ book, progress, onClick }: BookCardProps) {
+export default function BookCard({ book, progress, onClick, onOpenDetails }: BookCardProps) {
   const router = useRouter();
   const hash = useMemo(() => hashCode(book.id + book.title), [book.id, book.title]);
   const gradient = COVER_GRADIENTS[hash % COVER_GRADIENTS.length];
@@ -127,7 +128,7 @@ export default function BookCard({ book, progress, onClick }: BookCardProps) {
 
         {/* Details Link */}
         <div className={styles.detailsLinkWrapper}>
-          <button className={styles.detailsLink} onClick={(e) => { e.stopPropagation(); /* TODO: show details */ }}>
+          <button className={styles.detailsLink} onClick={(e) => { e.stopPropagation(); if (onOpenDetails) onOpenDetails(book); }}>
             DETAILS
           </button>
         </div>

@@ -18,6 +18,7 @@ export interface UseGoogleDriveReturn {
   error: string | null;
   addBook: (file: { id: string; name: string }) => Promise<Book>;
   removeBook: (bookId: string) => Promise<void>;
+  updateBook: (updatedBook: Book) => Promise<void>;
   loadEpub: (driveFileId: string) => Promise<ArrayBuffer>;
   refreshLibrary: () => Promise<void>;
   driveStorage: DriveStorage | null;
@@ -200,12 +201,47 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
     [drive],
   );
 
+  // ── Update book ──────────────────────────────────────────────────
+  const updateBook = useCallback(
+    async (updatedBook: Book): Promise<void> => {
+      if (!drive) throw new Error('Not authenticated');
+
+      const previousLibrary = libraryRef.current;
+
+      // Optimistic update
+      setLibrary((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          books: prev.books.map((b) => b.id === updatedBook.id ? updatedBook : b),
+          lastSynced: new Date().toISOString(),
+        };
+      });
+
+      try {
+        const updatedLib: Library = {
+          books: (previousLibrary?.books ?? []).map((b) => b.id === updatedBook.id ? updatedBook : b),
+          lastSynced: new Date().toISOString(),
+        };
+        await saveLibrary(drive, updatedLib);
+      } catch (err) {
+        // Rollback on failure
+        setLibrary(previousLibrary);
+        const msg = err instanceof Error ? err.message : 'Failed to update book';
+        setError(msg);
+        throw err;
+      }
+    },
+    [drive],
+  );
+
   return {
     library,
     loading,
     error,
     addBook,
     removeBook,
+    updateBook,
     loadEpub,
     refreshLibrary,
     driveStorage: drive,
