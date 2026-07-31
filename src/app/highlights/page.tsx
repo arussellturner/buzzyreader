@@ -112,7 +112,7 @@ export default function HighlightsPage() {
                     className={libraryStyles.dropdownItem}
                     onClick={() => router.push('/highlights')}
                   >
-                    See all highlights
+                    Highlights
                   </button>
                   <button 
                     className={libraryStyles.dropdownItem}
