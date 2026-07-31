@@ -110,47 +110,68 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
 
         {/* Font Size */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Font Size</label>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{preferences.fontSize}px</span>
+          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Font Size</label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px' }}>
+            <button 
+              onClick={() => updatePreferences({ fontSize: Math.max(12, preferences.fontSize - 1) })}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              disabled={preferences.fontSize <= 12}
+            >
+              &minus;
+            </button>
+            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.fontSize}px</span>
+            <button 
+              onClick={() => updatePreferences({ fontSize: Math.min(32, preferences.fontSize + 1) })}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              disabled={preferences.fontSize >= 32}
+            >
+              +
+            </button>
           </div>
-          <input 
-            type="range" 
-            min="12" max="32" step="1" 
-            value={preferences.fontSize}
-            onChange={e => updatePreferences({ fontSize: parseInt(e.target.value, 10) })}
-            style={{ width: '100%' }}
-          />
         </div>
 
         {/* Line Spacing */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Line Spacing</label>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{preferences.lineSpacing}x</span>
+          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Line Spacing</label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px' }}>
+            <button 
+              onClick={() => updatePreferences({ lineSpacing: Math.max(1.0, Number((preferences.lineSpacing - 0.1).toFixed(1))) })}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              disabled={preferences.lineSpacing <= 1.0}
+            >
+              &minus;
+            </button>
+            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.lineSpacing.toFixed(1)}x</span>
+            <button 
+              onClick={() => updatePreferences({ lineSpacing: Math.min(2.5, Number((preferences.lineSpacing + 0.1).toFixed(1))) })}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              disabled={preferences.lineSpacing >= 2.5}
+            >
+              +
+            </button>
           </div>
-          <input 
-            type="range" 
-            min="1.0" max="2.5" step="0.1" 
-            value={preferences.lineSpacing}
-            onChange={e => updatePreferences({ lineSpacing: parseFloat(e.target.value) })}
-            style={{ width: '100%' }}
-          />
         </div>
 
         {/* Paragraph Spacing */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Paragraph Spacing</label>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{preferences.paragraphSpacing}em</span>
+          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Paragraph Spacing</label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px' }}>
+            <button 
+              onClick={() => updatePreferences({ paragraphSpacing: Math.max(0.5, Number((preferences.paragraphSpacing - 0.1).toFixed(1))) })}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              disabled={preferences.paragraphSpacing <= 0.5}
+            >
+              &minus;
+            </button>
+            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.paragraphSpacing.toFixed(1)}em</span>
+            <button 
+              onClick={() => updatePreferences({ paragraphSpacing: Math.min(3.0, Number((preferences.paragraphSpacing + 0.1).toFixed(1))) })}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              disabled={preferences.paragraphSpacing >= 3.0}
+            >
+              +
+            </button>
           </div>
-          <input 
-            type="range" 
-            min="0.5" max="3.0" step="0.1" 
-            value={preferences.paragraphSpacing}
-            onChange={e => updatePreferences({ paragraphSpacing: parseFloat(e.target.value) })}
-            style={{ width: '100%' }}
-          />
         </div>
 
       </div>

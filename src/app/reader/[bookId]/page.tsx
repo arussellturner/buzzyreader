@@ -97,20 +97,29 @@ export default function ReaderPage() {
       
       renditionRef.current = rendition;
       
+      rendition.hooks.content.register((contents: any) => {
+        contents.addStylesheet("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+      });
+      
       // Apply user preferences to the epub iframe
       const applyTheme = () => {
+        const textAlign = preferences.textAlign || 'left';
         rendition.themes.default({
           'body': {
             'font-family': `${getFontStack(preferences.fontFamily)} !important`,
             'font-size': `${preferences.fontSize}px !important`,
             'line-height': `${preferences.lineSpacing} !important`,
-            'text-align': `${preferences.textAlign || 'left'} !important`,
+            'text-align': `${textAlign} !important`,
             'background-color': 'transparent !important',
             'color': preferences.theme === 'light' ? '#000000 !important' : 
                      preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important'
           },
           'p': {
-            'margin-bottom': `${preferences.paragraphSpacing}em !important`
+            'margin-bottom': `${preferences.paragraphSpacing}em !important`,
+            'text-align': `${textAlign} !important`
+          },
+          'div': {
+            'text-align': `${textAlign} !important`
           },
           '::selection': {
             'background': 'rgba(255, 255, 0, 0.3) !important'
@@ -186,18 +195,23 @@ export default function ReaderPage() {
   // Listen for preference changes and apply them dynamically if epub is already loaded
   useEffect(() => {
     if (renditionRef.current) {
+      const textAlign = preferences.textAlign || 'left';
       renditionRef.current.themes.default({
         'body': {
           'font-family': `${getFontStack(preferences.fontFamily)} !important`,
           'font-size': `${preferences.fontSize}px !important`,
           'line-height': `${preferences.lineSpacing} !important`,
-          'text-align': `${preferences.textAlign || 'left'} !important`,
+          'text-align': `${textAlign} !important`,
           'background-color': 'transparent !important',
           'color': preferences.theme === 'light' ? '#000000 !important' : 
                    preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important'
         },
         'p': {
-          'margin-bottom': `${preferences.paragraphSpacing}em !important`
+          'margin-bottom': `${preferences.paragraphSpacing}em !important`,
+          'text-align': `${textAlign} !important`
+        },
+        'div': {
+          'text-align': `${textAlign} !important`
         }
       });
     }
