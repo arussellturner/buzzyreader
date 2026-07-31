@@ -14,6 +14,8 @@ import styles from './library.module.css';
 
 const SKELETON_COUNT = 8;
 
+type SortOption = 'title' | 'author' | 'recentRead' | 'recentAdded';
+
 export default function LibraryPage() {
   const router = useRouter();
   const sessionObj = useSession() || {};
@@ -21,9 +23,30 @@ export default function LibraryPage() {
   const status = sessionObj.status || 'unauthenticated';
   const { library, loading: libraryLoading, refreshLibrary, updateBook, removeBook, driveStorage } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
-  const books = library?.books || [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
+  const [sortOption, setSortOption] = useState<SortOption>('recentAdded');
+
+  const books = useMemo(() => {
+    const libraryBooks = library?.books || [];
+    return [...libraryBooks].sort((a, b) => {
+      switch (sortOption) {
+        case 'title':
+          return (a.title || '').localeCompare(b.title || '');
+        case 'author':
+          return (a.author || '').localeCompare(b.author || '');
+        case 'recentRead':
+          const aRead = a.lastReadAt ? new Date(a.lastReadAt).getTime() : 0;
+          const bRead = b.lastReadAt ? new Date(b.lastReadAt).getTime() : 0;
+          return bRead - aRead; // Descending
+        case 'recentAdded':
+        default:
+          const aAdded = a.addedAt ? new Date(a.addedAt).getTime() : 0;
+          const bAdded = b.addedAt ? new Date(b.addedAt).getTime() : 0;
+          return bAdded - aAdded; // Descending
+      }
+    });
+  }, [library?.books, sortOption]);
 
   // Protected route: redirect to / if not signed in
   useEffect(() => {
@@ -171,10 +194,30 @@ export default function LibraryPage() {
         <div className={styles.toolbar}>
           <div className={styles.sortOptions}>
             <span className={styles.sortLabel}>Sort by:</span>
-            <button className={`${styles.sortBtn} ${styles.sortBtnActive}`}>Title</button>
-            <button className={styles.sortBtn}>Author</button>
-            <button className={styles.sortBtn}>Recently read</button>
-            <button className={styles.sortBtn}>Recently added</button>
+            <button
+              className={`${styles.sortBtn} ${sortOption === 'title' ? styles.sortBtnActive : ''}`}
+              onClick={() => setSortOption('title')}
+            >
+              Title
+            </button>
+            <button
+              className={`${styles.sortBtn} ${sortOption === 'author' ? styles.sortBtnActive : ''}`}
+              onClick={() => setSortOption('author')}
+            >
+              Author
+            </button>
+            <button
+              className={`${styles.sortBtn} ${sortOption === 'recentRead' ? styles.sortBtnActive : ''}`}
+              onClick={() => setSortOption('recentRead')}
+            >
+              Recently read
+            </button>
+            <button
+              className={`${styles.sortBtn} ${sortOption === 'recentAdded' ? styles.sortBtnActive : ''}`}
+              onClick={() => setSortOption('recentAdded')}
+            >
+              Recently added
+            </button>
           </div>
           <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
             {preferences.theme === 'dark' ? (
