@@ -8,8 +8,8 @@
   --reader-bg: #0d0d0f;
   --reader-text: #e8e6e3;
   --reader-muted: #8a8a8e;
-  --reader-surface: rgba(28, 28, 32, 0.85);
-  --reader-glass: rgba(38, 38, 44, 0.72);
+  --reader-surface: rgba(28, 28, 32, 0.95);
+  --reader-glass: rgba(20, 20, 24, 0.92);
   --reader-glass-border: rgba(255, 255, 255, 0.08);
   --reader-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   --reader-accent: #6c63ff;
@@ -18,7 +18,7 @@
   --reader-highlight-green: rgba(74, 222, 128, 0.30);
   --reader-highlight-blue: rgba(96, 165, 250, 0.30);
   --reader-highlight-pink: rgba(244, 114, 182, 0.30);
-  --reader-overlay: rgba(0, 0, 0, 0.5);
+  --reader-overlay: rgba(0, 0, 0, 0.6);
   --reader-radius: 14px;
   --reader-radius-sm: 8px;
   --reader-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);

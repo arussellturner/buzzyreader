@@ -156,7 +156,6 @@ export default function ReaderPage() {
   return (
     <div 
       className={`${styles.readerRoot} ${styles.readerPage}`} 
-      style={{ backgroundColor: bgColors[preferences.theme] || bgColors.dark }}
       onClick={handleToggleToolbar}
     >
       <ReaderToolbar
@@ -168,7 +167,10 @@ export default function ReaderPage() {
         onToggleTTS={() => setTtsOpen(!ttsOpen)}
       />
 
-      <div className={styles.epubWrapper}>
+      <div 
+        className={styles.epubWrapper} 
+        style={{ backgroundColor: bgColors[preferences.theme] || bgColors.dark }}
+      >
         <ReaderView
           epubData={epubData}
           initialCfi={initialCfi || progress?.cfi}

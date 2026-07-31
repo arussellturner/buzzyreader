@@ -84,6 +84,8 @@ function themeStyles(p: ReaderPreferences): string {
       font-family: ${fontFamily} !important;
       color: ${color} !important;
       background: transparent !important;
+      line-height: ${p.lineSpacing} !important;
+      letter-spacing: ${p.charSpacing}em !important;
     }
     p {
       margin-bottom: ${p.paragraphSpacing}em !important;
