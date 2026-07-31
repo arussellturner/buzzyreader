@@ -42,6 +42,11 @@
   --glass-border: rgba(255, 255, 255, 0.08);
 }
 
+/* Invert the black logo to white in dark mode */
+[data-theme='dark'] img[src*="logo"] {
+  filter: invert(1);
+}
+
 /* ============================================================
    LIGHT THEME
    Clean white/gray backgrounds, dark text, amber accents
