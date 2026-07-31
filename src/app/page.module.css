@@ -98,6 +98,7 @@
   text-align: center;
   padding: var(--space-4xl) var(--space-lg) var(--space-3xl);
   min-height: 70vh;
+  flex: 1;
   width: 100%;
   max-width: 900px;
 }
@@ -142,7 +143,7 @@
   color: var(--color-text-secondary);
   line-height: 1.7;
   max-width: 560px;
-  margin-top: var(--space-lg);
+  margin-top: 32px;
   animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
@@ -372,7 +373,8 @@
 
   .hero {
     padding: var(--space-2xl) var(--space-md) var(--space-xl);
-    min-height: auto;
+    flex: 1;
+    min-height: 70vh;
   }
 
   .beeIcon {
@@ -386,6 +388,7 @@
   .signInButton {
     padding: 14px 28px;
     font-size: 16px;
+    margin-top: 48px;
   }
 
   .featureCard {
