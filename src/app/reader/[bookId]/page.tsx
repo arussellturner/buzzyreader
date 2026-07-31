@@ -156,7 +156,6 @@ export default function ReaderPage() {
   return (
     <div 
       className={`${readerStyles.readerRoot} ${styles.readerPage}`} 
-      onClick={handleToggleToolbar}
     >
       <ReaderToolbar
         visible={toolbarVisible && !settingsOpen && !highlightsOpen}

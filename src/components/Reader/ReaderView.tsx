@@ -416,66 +416,8 @@ export default function ReaderView({
           }
         };
 
-        // Reliable tap detection using touchstart/touchend
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let lastTouchTime = 0;
-
-        r.on('touchstart', (e: any) => {
-          if (e.changedTouches && e.changedTouches.length > 0) {
-            touchStartX = e.changedTouches[0].clientX;
-            touchStartY = e.changedTouches[0].clientY;
-          }
-        });
-
-        r.on('touchend', (e: any) => {
-          if (e.changedTouches && e.changedTouches.length > 0) {
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            
-            const deltaX = Math.abs(touchEndX - touchStartX);
-            const deltaY = Math.abs(touchEndY - touchStartY);
-
-            // If movement is less than 15 pixels, it's a tap, not a swipe
-            if (deltaX < 15 && deltaY < 15) {
-              lastTouchTime = Date.now();
-              
-              // We MUST use the parent window.innerWidth. 
-              // The iframe's innerWidth can expand massively to hold epub columns,
-              // and screen.width can cause physical vs logical pixel mismatches.
-              const safeWidth = window.innerWidth;
-              
-              if (touchEndX < safeWidth * 0.45) {
-                goPrev();
-              } else if (touchEndX > safeWidth * 0.55) {
-                goNext();
-              } else {
-                if (onToggleMenu) onToggleMenu();
-              }
-            }
-          }
-        });
-
-        // Desktop click fallback (only needed if not a touch device)
-        r.on('click', (e: any) => {
-          // If we just processed a touch tap, skip the click to avoid double-firing
-          if (e.pointerType === 'touch' || Date.now() - lastTouchTime < 500) return;
-          
-          const selection = r.getContents()[0]?.window?.getSelection();
-          if (selection && selection.toString().length > 0) return;
-
-          const safeWidth = window.innerWidth;
-          const x = e.clientX;
-          if (x === undefined) return;
-          
-          if (x < safeWidth * 0.45) {
-            goPrev();
-          } else if (x > safeWidth * 0.55) {
-            goNext();
-          } else {
-            if (onToggleMenu) onToggleMenu();
-          }
-        });
+        // Touch/click handling is done via the overlay div, not inside the iframe.
+        // See the tapOverlayRef useEffect below.
 
       } catch (err) {
         console.error("Failed to bind epub events", err);
@@ -509,12 +451,89 @@ export default function ReaderView({
   /*  Render                                                           */
   /* ---------------------------------------------------------------- */
 
+  /* ---------------------------------------------------------------- */
+  /*  Tap overlay – captures taps in parent DOM coordinate space       */
+  /* ---------------------------------------------------------------- */
+  const tapOverlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const overlay = tapOverlayRef.current;
+    if (!overlay || !isInitialized) return;
+
+    let startX = 0;
+    let startY = 0;
+    let lastTouchTs = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.changedTouches.length > 0) {
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const dx = Math.abs(endX - startX);
+        const dy = Math.abs(endY - startY);
+
+        if (dx < 15 && dy < 15) {
+          lastTouchTs = Date.now();
+          const w = window.innerWidth;
+          if (endX < w * 0.45) {
+            goPrev();
+          } else if (endX > w * 0.55) {
+            goNext();
+          } else {
+            if (onToggleMenu) onToggleMenu();
+          }
+        }
+      }
+    };
+
+    const onClick = (e: MouseEvent) => {
+      // Skip if this click was generated from a touch (already handled)
+      if (Date.now() - lastTouchTs < 500) return;
+      const w = window.innerWidth;
+      const x = e.clientX;
+      if (x < w * 0.45) {
+        goPrev();
+      } else if (x > w * 0.55) {
+        goNext();
+      } else {
+        if (onToggleMenu) onToggleMenu();
+      }
+    };
+
+    overlay.addEventListener('touchstart', onTouchStart, { passive: true });
+    overlay.addEventListener('touchend', onTouchEnd, { passive: true });
+    overlay.addEventListener('click', onClick);
+
+    return () => {
+      overlay.removeEventListener('touchstart', onTouchStart);
+      overlay.removeEventListener('touchend', onTouchEnd);
+      overlay.removeEventListener('click', onClick);
+    };
+  }, [goNext, goPrev, onToggleMenu, isInitialized]);
+
   return (
     <>
       <div
         ref={containerRef}
         className={styles.epubContainer}
         data-reader-view
+      />
+      {/* Invisible overlay that captures taps in the PARENT coordinate space,
+          completely bypassing epub.js iframe coordinate corruption */}
+      <div
+        ref={tapOverlayRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 2,
+          background: 'transparent',
+        }}
       />
     </>
   );
