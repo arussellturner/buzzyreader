@@ -224,6 +224,20 @@ export default function ReaderPage() {
             const text = range.toString();
             const currentActive = activeSelectionRef.current;
             
+            // Monkey patch to prevent epub.js from clearing native selection
+            let win: any;
+            let originalRemove: any;
+            try {
+              win = renditionRef.current?.getContents()?.[0]?.window;
+              if (win) {
+                const sel = win.getSelection();
+                if (sel) {
+                  originalRemove = sel.removeAllRanges;
+                  sel.removeAllRanges = () => {};
+                }
+              }
+            } catch(e) {}
+            
             if (currentActive && currentActive.id) {
               // Adjusting existing active highlight
               updateHighlight(currentActive.id, { cfiRange, text });
@@ -233,7 +247,6 @@ export default function ReaderPage() {
                 renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
                   const h = { ...currentActive, cfiRange, text };
                   setActiveSelection(h);
-                  // Do NOT clear selection — leave native drag handles visible
                 });
               } catch (e) {}
               
@@ -255,12 +268,18 @@ export default function ReaderPage() {
               try {
                 renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
                   setActiveSelection(newHighlight);
-                  // Do NOT clear selection — leave native drag handles visible
                 });
               } catch (e) {}
               
               setActiveSelection(newHighlight);
             }
+            
+            // Restore monkey patch
+            try {
+              if (win && originalRemove) {
+                win.getSelection().removeAllRanges = originalRemove;
+              }
+            } catch(e) {}
           }
         });
       });
@@ -327,6 +346,20 @@ export default function ReaderPage() {
   useEffect(() => {
     if (!renditionRef.current || !highlights) return;
     
+    // Monkey patch to prevent epub.js from clearing native selection during redraw
+    let win: any;
+    let originalRemove: any;
+    try {
+      win = renditionRef.current?.getContents()?.[0]?.window;
+      if (win) {
+        const sel = win.getSelection();
+        if (sel) {
+          originalRemove = sel.removeAllRanges;
+          sel.removeAllRanges = () => {};
+        }
+      }
+    } catch(e) {}
+    
     // Clear all existing highlights before re-rendering
     highlights.forEach(h => {
       try {
@@ -367,6 +400,13 @@ export default function ReaderPage() {
         });
       } catch (e) {}
     });
+    
+    // Restore monkey patch
+    try {
+      if (win && originalRemove) {
+        win.getSelection().removeAllRanges = originalRemove;
+      }
+    } catch(e) {}
   }, [highlights, epubData]);
 
   // Listen for preference changes and apply them dynamically if epub is already loaded
