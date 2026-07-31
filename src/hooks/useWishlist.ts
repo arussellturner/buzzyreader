@@ -100,11 +100,43 @@ export function useWishlist() {
     [driveStorage]
   );
 
+  const updateItem = useCallback(
+    async (id: string, updates: Partial<Omit<WishlistItem, 'id' | 'addedAt'>>): Promise<WishlistItem> => {
+      if (!driveStorage) throw new Error('Not authenticated');
+
+      const previousWishlist = wishlistRef.current;
+      const currentItem = previousWishlist?.items.find((i) => i.id === id);
+      if (!currentItem) throw new Error('Item not found');
+
+      const updatedItem = { ...currentItem, ...updates };
+
+      setWishlist((prev) => {
+        if (!prev) return prev;
+        return {
+          items: prev.items.map((item) => (item.id === id ? updatedItem : item)),
+        };
+      });
+
+      try {
+        const updatedList: Wishlist = {
+          items: (previousWishlist?.items ?? []).map((item) => (item.id === id ? updatedItem : item)),
+        };
+        await saveWishlist(driveStorage, updatedList);
+        return updatedItem;
+      } catch (err) {
+        setWishlist(previousWishlist);
+        throw err;
+      }
+    },
+    [driveStorage]
+  );
+
   return {
     wishlist,
     loading: loading || driveLoading,
     error,
     addItem,
     removeItem,
+    updateItem,
   };
 }

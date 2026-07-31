@@ -1,20 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { WishlistItem } from '@/types/wishlist';
-import styles from '../Library/BookDetailsModal.module.css'; // Re-use styling
+import styles from './WishlistModal.module.css';
 
 interface WishlistModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (item: Omit<WishlistItem, 'id' | 'addedAt'>) => Promise<any>;
+  onDelete?: (id: string) => Promise<any>;
+  initialItem?: WishlistItem | null;
 }
 
-export default function WishlistModal({ isOpen, onClose, onSave }: WishlistModalProps) {
+export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initialItem }: WishlistModalProps) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [sourceNotes, setSourceNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialItem) {
+        setTitle(initialItem.title);
+        setAuthor(initialItem.author);
+        setSourceNotes(initialItem.sourceNotes || '');
+      } else {
+        setTitle('');
+        setAuthor('');
+        setSourceNotes('');
+      }
+    }
+  }, [isOpen, initialItem]);
 
   if (!isOpen) return null;
 
@@ -85,17 +102,34 @@ export default function WishlistModal({ isOpen, onClose, onSave }: WishlistModal
         </div>
 
         <footer className={styles.footer}>
-          <div className={styles.footerLeft}></div>
+          <div className={styles.footerLeft}>
+            {initialItem && onDelete && (
+              <button 
+                className={styles.deleteBtn} 
+                onClick={async () => {
+                  setIsDeleting(true);
+                  try {
+                    await onDelete(initialItem.id);
+                    onClose();
+                  } catch (e) {
+                    console.error(e);
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                disabled={isDeleting || isSaving}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            )}
+          </div>
           <div className={styles.footerRight}>
-            <button className={styles.cancelBtn} onClick={onClose}>
-              Cancel
-            </button>
             <button 
               className={styles.saveBtn} 
               onClick={handleSave} 
-              disabled={isSaving || !title.trim()}
+              disabled={isSaving || isDeleting || !title.trim()}
             >
-              {isSaving ? 'Saving...' : 'Add Book'}
+              {isSaving ? 'Saving...' : (initialItem ? 'Save' : 'Add Book')}
             </button>
           </div>
         </footer>

@@ -27,11 +27,12 @@ export default function WishlistPage() {
   const status = sessionObj?.status || 'unauthenticated';
   const router = useRouter();
   
-  const { wishlist, loading, addItem } = useWishlist();
+  const { wishlist, loading, addItem, removeItem, updateItem } = useWishlist();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -128,7 +129,10 @@ export default function WishlistPage() {
           <h1 className={styles.pageTitle}>Wishlist</h1>
           <button 
             className={styles.addButton} 
-            onClick={() => setIsModalOpen(true)} 
+            onClick={() => {
+              setSelectedItem(null);
+              setIsModalOpen(true);
+            }} 
             aria-label="Add to Wishlist" 
             title="Add to Wishlist"
           >
@@ -166,7 +170,17 @@ export default function WishlistPage() {
         ) : (
           <div className={styles.wishlistGrid}>
             {filteredItems.map((item) => (
-              <div key={item.id} className={styles.card}>
+              <div 
+                key={item.id} 
+                className={styles.card}
+                onClick={() => {
+                  setSelectedItem(item);
+                  setIsModalOpen(true);
+                }}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardTitle}>{item.title}</div>
                 <div className={styles.cardAuthor}>{item.author}</div>
                 {item.sourceNotes && (
@@ -185,8 +199,19 @@ export default function WishlistPage() {
 
       <WishlistModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        onSave={addItem}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedItem(null);
+        }}
+        onSave={(item) => {
+          if (selectedItem) {
+            return updateItem(selectedItem.id, item);
+          } else {
+            return addItem(item);
+          }
+        }}
+        onDelete={removeItem}
+        initialItem={selectedItem}
       />
     </div>
   );
