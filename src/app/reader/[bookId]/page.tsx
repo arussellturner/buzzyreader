@@ -158,6 +158,28 @@ export default function ReaderPage() {
           if (el.style.backgroundColor) el.style.backgroundColor = '';
           if (el.style.background) el.style.background = '';
         });
+
+        // Custom iOS/mobile text selection handling fallback
+        let selectionTimeout: NodeJS.Timeout;
+        doc.addEventListener('selectionchange', () => {
+          clearTimeout(selectionTimeout);
+          selectionTimeout = setTimeout(async () => {
+            const sel = contents.window.getSelection();
+            if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
+              const range = sel.getRangeAt(0);
+              const text = range.toString().trim();
+              if (!text) return;
+              try {
+                const { EpubCFI } = await import('epubjs');
+                const cfi = new EpubCFI(range, contents.cfiBase).toString();
+                if (cfi) {
+                  // Fire the selected event manually (epub.js normally fires this on touchend/mouseup)
+                  renditionRef.current?.emit('selected', cfi, contents);
+                }
+              } catch(e) {}
+            }
+          }, 300);
+        });
       });
       
       // Also style the iframe element itself so it never flashes white
@@ -218,7 +240,12 @@ export default function ReaderPage() {
       applyTheme();
       
       // Handle text selection
+      let lastSelectedCfi = '';
       rendition.on('selected', (cfiRange: string, contents: any) => {
+        if (lastSelectedCfi === cfiRange) return;
+        lastSelectedCfi = cfiRange;
+        setTimeout(() => { lastSelectedCfi = ''; }, 1000);
+        
         book.getRange(cfiRange).then((range: any) => {
           if (range) {
             const text = range.toString();
