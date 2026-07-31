@@ -426,10 +426,15 @@ export default function ReaderView({
           if (selection && selection.toString().length > 0) return;
 
           const w = window.innerWidth;
+          const h = window.innerHeight;
           const x = e.clientX;
+          const y = e.clientY;
           if (x === undefined) return;
 
-          if (x < w * 0.3) {
+          // Top 20% of screen = toggle menu
+          if (y < h * 0.2) {
+            if (onToggleMenu) onToggleMenu();
+          } else if (x < w * 0.3) {
             goPrev();
           } else if (x > w * 0.7) {
             goNext();
