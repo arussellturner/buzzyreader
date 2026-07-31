@@ -28,17 +28,7 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
-      const allowedEmailsEnv = process.env.ALLOWED_EMAILS;
-      // Default to just your email if the env var isn't set
-      const allowedEmails = allowedEmailsEnv 
-        ? allowedEmailsEnv.split(',').map(e => e.trim().toLowerCase()) 
-        : ['arussellturner@gmail.com'];
-      
-      if (user.email && !allowedEmails.includes(user.email.toLowerCase())) {
-        console.warn(`Unauthorized login attempt blocked for: ${user.email}`);
-        return false; // Blocks sign-in
-      }
+    async signIn() {
       return true;
     },
     async jwt({ token, account }) {
