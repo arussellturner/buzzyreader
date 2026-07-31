@@ -12,6 +12,26 @@
   letter-spacing: -0.02em;
 }
 
+.addButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.addButton:hover {
+  background: var(--bg-elevated);
+  transform: scale(1.05);
+}
+
 .searchContainer {
   margin-bottom: 32px;
 }
