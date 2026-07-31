@@ -415,37 +415,61 @@ export default function ReaderView({
           }
         };
 
-        const handleEpubClick = (e: any) => {
-          console.log("EPUB Clicked:", e);
-          // Don't trigger if text is selected
-          const selection = r.getContents()[0]?.window?.getSelection();
-          if (selection && selection.toString().length > 0) {
-            console.log("Text selected, ignoring click");
-            return;
+        // Reliable tap detection using touchstart/touchend
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let lastTouchTime = 0;
+
+        r.on('touchstart', (e: any) => {
+          if (e.changedTouches && e.changedTouches.length > 0) {
+            touchStartX = e.changedTouches[0].clientX;
+            touchStartY = e.changedTouches[0].clientY;
           }
+        });
+
+        r.on('touchend', (e: any) => {
+          if (e.changedTouches && e.changedTouches.length > 0) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = Math.abs(touchEndX - touchStartX);
+            const deltaY = Math.abs(touchEndY - touchStartY);
+
+            // If movement is less than 15 pixels, it's a tap, not a swipe
+            if (deltaX < 15 && deltaY < 15) {
+              lastTouchTime = Date.now();
+              const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
+              
+              if (touchEndX < width * 0.45) {
+                goPrev();
+              } else if (touchEndX > width * 0.55) {
+                goNext();
+              } else {
+                if (onToggleMenu) onToggleMenu();
+              }
+            }
+          }
+        });
+
+        // Desktop click fallback (only needed if not a touch device)
+        r.on('click', (e: any) => {
+          // If we just processed a touch tap, skip the click to avoid double-firing
+          if (e.pointerType === 'touch' || Date.now() - lastTouchTime < 500) return;
+          
+          const selection = r.getContents()[0]?.window?.getSelection();
+          if (selection && selection.toString().length > 0) return;
 
           const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
-          const x = e.clientX || e.changedTouches?.[0]?.clientX;
-          
-          // Use 45% tap zones on each side, leaving a 10% strip in the middle for the menu toggle
-          if (x < width * 0.45) {
-            console.log("Going Prev");
-            goPrev();
-            return;
-          }
-          if (x > width * 0.55) {
-            console.log("Going Next");
-            goNext();
-            return;
-          }
-          
-          // Center click toggles menu
-          console.log("Toggling menu");
-          if (onToggleMenu) onToggleMenu();
-        };
+          const x = e.clientX;
+          if (x === undefined) return;
 
-        r.on('keyup', handleEpubKey);
-        r.on('click', handleEpubClick);
+          if (x < width * 0.45) {
+            goPrev();
+          } else if (x > width * 0.55) {
+            goNext();
+          } else {
+            if (onToggleMenu) onToggleMenu();
+          }
+        });
 
       } catch (err) {
         console.error("Failed to bind epub events", err);
