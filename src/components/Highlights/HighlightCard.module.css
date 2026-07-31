@@ -66,3 +66,36 @@
 .actions {
   display: none;
 }
+
+.menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 4px;
+  z-index: 10;
+  min-width: 150px;
+}
+
+.menuItem {
+  background: transparent;
+  border: none;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: var(--bg-elevated);
+}

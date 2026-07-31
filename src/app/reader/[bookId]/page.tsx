@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useGoogleDrive } from '@/hooks/useGoogleDrive';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -28,7 +28,9 @@ export default function ReaderPage() {
   const status = sessionObj.status || 'unauthenticated';
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const bookId = params.bookId as string;
+  const initialCfi = searchParams.get('cfi');
 
   const { library, driveStorage } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
@@ -129,7 +131,11 @@ export default function ReaderPage() {
         });
       });
       
-      rendition.display();
+      if (initialCfi) {
+        rendition.display(initialCfi);
+      } else {
+        rendition.display();
+      }
     }
 
     initEpub();
@@ -138,7 +144,7 @@ export default function ReaderPage() {
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
     };
-  }, [epubData]); // Re-run when epubData loads
+  }, [epubData, initialCfi]); // Re-run when epubData loads
 
   // Render highlights
   useEffect(() => {

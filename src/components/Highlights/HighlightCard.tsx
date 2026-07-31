@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Highlight, HighlightColor } from '@/types/highlight';
 import styles from './HighlightCard.module.css';
 
@@ -51,16 +51,42 @@ export default function HighlightCard({
   onNavigate,
   onDelete,
 }: HighlightCardProps) {
-  const handleClick = useCallback(() => {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(highlight.text);
+    setShowMenu(false);
+  };
+
+  const handleNavigate = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onNavigate?.(highlight);
-  }, [onNavigate, highlight]);
+    setShowMenu(false);
+  };
 
   const colorClass = COLOR_CLASS[highlight.color] ?? COLOR_CLASS.yellow;
 
   return (
     <div
       className={`${styles.card} ${colorClass}`}
-      onClick={handleClick}
+      onClick={() => setShowMenu(true)}
       role="button"
       tabIndex={0}
       aria-label={`Highlight: ${highlight.text.slice(0, 60)}…`}
@@ -77,6 +103,17 @@ export default function HighlightCard({
         )}
         <span>{formatDateTime(highlight.createdAt)}</span>
       </div>
+
+      {showMenu && (
+        <div ref={menuRef} className={styles.menu}>
+          <button className={styles.menuItem} onClick={handleCopy}>
+            Copy
+          </button>
+          <button className={styles.menuItem} onClick={handleNavigate}>
+            See in book
+          </button>
+        </div>
+      )}
     </div>
   );
 }
