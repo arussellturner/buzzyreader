@@ -9,7 +9,7 @@ interface ThemeToggleProps {
 
 type ThemeMode = 'dark' | 'light' | 'sepia' | 'black';
 
-const THEME_CYCLE: ThemeMode[] = ['dark', 'light', 'sepia', 'black'];
+const THEME_CYCLE: ThemeMode[] = ['dark', 'light', 'black'];
 
 const THEME_ICONS: Record<ThemeMode, React.ReactNode> = {
   dark: (
@@ -38,7 +38,7 @@ const THEME_ICONS: Record<ThemeMode, React.ReactNode> = {
   ),
   black: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   ),
 };
