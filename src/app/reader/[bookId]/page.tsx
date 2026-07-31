@@ -203,14 +203,24 @@ export default function ReaderPage() {
       });
       
       // Clear selection on click elsewhere
-      rendition.on('click', () => {
+      rendition.on('click', (e: any) => {
+         const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+         
+         // If there is an active text selection, they might be dragging handles. Do not close.
+         if (selection && !selection.isCollapsed) return;
+         
+         // If they clicked on an epub.js SVG annotation, let the annotation's own callback handle it.
+         if (e.target && (e.target.tagName?.toLowerCase() === 'svg' || e.target.closest?.('svg') || e.target.classList?.contains('epubjs-hl'))) {
+           return;
+         }
+         
          if (activeSelectionRef.current && !activeSelectionRef.current.id) {
             // If it was just a temp selection we didn't save, remove the highlight
             try {
               renditionRef.current?.annotations.remove(activeSelectionRef.current.cfiRange, "highlight");
-            } catch (e) {}
+            } catch (err) {}
          }
-         const selection = renditionRef.current?.getContents()[0].window.getSelection();
+         
          if (selection) selection.removeAllRanges();
          setActiveSelection(null);
       });
@@ -357,7 +367,16 @@ export default function ReaderPage() {
       background: pageBg, 
       overflow: 'hidden' 
     }}>
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <div 
+        style={{ flex: 1, position: 'relative', overflow: 'hidden' }}
+        onClick={() => {
+          if (activeSelection) {
+            setActiveSelection(null);
+            const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+            if (selection) selection.removeAllRanges();
+          }
+        }}
+      >
         <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
       </div>
 

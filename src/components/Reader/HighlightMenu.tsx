@@ -16,6 +16,7 @@ interface Props {
 export default function HighlightMenu({ show, isExisting, initialNote, initialColor, onSelectColor, onDelete, onCancel }: Props) {
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [note, setNote] = useState(initialNote || '');
+  const [showSaved, setShowSaved] = useState(false);
 
   // Reset internal state when `show` or `initialNote` changes
   React.useEffect(() => {
@@ -23,6 +24,7 @@ export default function HighlightMenu({ show, isExisting, initialNote, initialCo
       setNote(initialNote || '');
     } else {
       setIsAddingNote(false);
+      setShowSaved(false);
     }
   }, [show, initialNote]);
 
@@ -84,7 +86,12 @@ export default function HighlightMenu({ show, isExisting, initialNote, initialCo
               Cancel
             </button>
             <button 
-              onClick={() => setIsAddingNote(false)}
+              onClick={() => {
+                onSelectColor(initialColor || 'yellow', note.trim() || undefined);
+                setIsAddingNote(false);
+                setShowSaved(true);
+                setTimeout(() => setShowSaved(false), 3000);
+              }}
               style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--accent-primary)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 600 }}
             >
               Done
@@ -115,7 +122,12 @@ export default function HighlightMenu({ show, isExisting, initialNote, initialCo
               aria-label="Pink"
             />
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {showSaved && (
+              <span style={{ color: '#10b981', fontSize: '13px', fontWeight: 600, animation: 'fadeIn 0.2s ease-out' }}>
+                ✓ Note saved
+              </span>
+            )}
             <button
               onClick={() => setIsAddingNote(true)}
               style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
