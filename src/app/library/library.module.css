@@ -226,17 +226,33 @@
   font-weight: 500;
 }
 
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .sortSelect {
   background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 6px 32px 6px 12px;
+  padding: 6px 36px 6px 12px;
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
   outline: none;
   transition: all 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: var(--text-secondary);
 }
 
 .sortSelect:focus {

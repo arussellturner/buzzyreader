@@ -259,18 +259,23 @@ export default function LibraryPage() {
         <div className={styles.toolbar}>
           <div className={styles.sortOptions}>
             <label htmlFor="sort-select" className={styles.sortLabel}>Sort by:</label>
-            <select
-              id="sort-select"
-              className={styles.sortSelect}
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value as SortOption)}
-            >
-              <option value="title">Title</option>
-              <option value="authorFirst">Author (First name)</option>
-              <option value="authorLast">Author (Last name)</option>
-              <option value="recentRead">Last opened</option>
-              <option value="recentAdded">Date added</option>
-            </select>
+            <div className={styles.selectWrapper}>
+              <select
+                id="sort-select"
+                className={styles.sortSelect}
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as SortOption)}
+              >
+                <option value="title">Title</option>
+                <option value="authorFirst">Author (First name)</option>
+                <option value="authorLast">Author (Last name)</option>
+                <option value="recentRead">Last opened</option>
+                <option value="recentAdded">Date added</option>
+              </select>
+              <svg className={styles.selectIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
           </div>
           <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
             {preferences.theme === 'dark' ? (
