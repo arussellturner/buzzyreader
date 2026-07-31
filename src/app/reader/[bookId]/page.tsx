@@ -104,6 +104,9 @@ export default function ReaderPage() {
       // Apply user preferences to the epub iframe
       const applyTheme = () => {
         const textAlign = preferences.textAlign || 'left';
+        const textColor = preferences.theme === 'light' ? '#000000 !important' : 
+                          preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+        
         rendition.themes.default({
           'body': {
             'font-family': `${getFontStack(preferences.fontFamily)} !important`,
@@ -111,12 +114,15 @@ export default function ReaderPage() {
             'line-height': `${preferences.lineSpacing} !important`,
             'text-align': `${textAlign} !important`,
             'background-color': 'transparent !important',
-            'color': preferences.theme === 'light' ? '#000000 !important' : 
-                     preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important'
+            'color': textColor
           },
           'p': {
             'margin-bottom': `${preferences.paragraphSpacing}em !important`,
-            'text-align': `${textAlign} !important`
+            'text-align': `${textAlign} !important`,
+            'color': textColor
+          },
+          'div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote': {
+            'color': textColor
           },
           'div': {
             'text-align': `${textAlign} !important`
@@ -196,6 +202,9 @@ export default function ReaderPage() {
   useEffect(() => {
     if (renditionRef.current) {
       const textAlign = preferences.textAlign || 'left';
+      const textColor = preferences.theme === 'light' ? '#000000 !important' : 
+                        preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+      
       renditionRef.current.themes.default({
         'body': {
           'font-family': `${getFontStack(preferences.fontFamily)} !important`,
@@ -203,12 +212,15 @@ export default function ReaderPage() {
           'line-height': `${preferences.lineSpacing} !important`,
           'text-align': `${textAlign} !important`,
           'background-color': 'transparent !important',
-          'color': preferences.theme === 'light' ? '#000000 !important' : 
-                   preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important'
+          'color': textColor
         },
         'p': {
           'margin-bottom': `${preferences.paragraphSpacing}em !important`,
-          'text-align': `${textAlign} !important`
+          'text-align': `${textAlign} !important`,
+          'color': textColor
+        },
+        'div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote': {
+          'color': textColor
         },
         'div': {
           'text-align': `${textAlign} !important`
