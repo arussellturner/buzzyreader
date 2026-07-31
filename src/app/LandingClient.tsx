@@ -20,10 +20,5 @@ export default function LandingClient() {
     return null;
   }
 
-  return (
-    <div className={styles.getStartedContainer}>
-      <p className={styles.getStartedLabel}>Get started</p>
-      <SignInButton className={styles.signInButton} />
-    </div>
-  );
+  return <SignInButton className={styles.signInButton} />;
 }
