@@ -132,9 +132,9 @@
   position: relative;
   width: 100%;
   height: 100%;
-  max-width: var(--reader-max-width);
-  margin: 0 auto;
-  padding: var(--space-8) var(--reader-margin-x);
+  max-width: none;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
 }
 
@@ -1104,7 +1104,7 @@
   }
 
   .epub-container {
-    padding: var(--space-4) var(--space-3);
+    padding: 0;
   }
 
   .page-nav-zone {
@@ -1155,7 +1155,7 @@
   }
 
   .epub-container {
-    padding: var(--space-12) var(--space-8);
+    padding: 0;
   }
 }
 

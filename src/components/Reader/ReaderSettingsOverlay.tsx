@@ -14,8 +14,20 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'absolute',
+    <>
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 99
+        }}
+        onClick={onClose}
+      />
+      <div style={{
+        position: 'absolute',
       bottom: '50px', // Right above the toolbar
       left: 0,
       right: 0,
@@ -181,5 +193,6 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
 
       </div>
     </div>
+    </>
   );
 }
