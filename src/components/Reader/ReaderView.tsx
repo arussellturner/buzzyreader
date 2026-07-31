@@ -71,7 +71,11 @@ function themeStyles(p: ReaderPreferences): string {
   const background = backgrounds[p.theme] ?? backgrounds.dark;
 
   const css = `
-    body {
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      padding-bottom: 20px !important; /* Safety padding */
+      padding-top: 20px !important;
       font-family: ${fontFamily} !important;
       font-size: ${p.fontSize}px !important;
       line-height: ${p.lineSpacing} !important;
@@ -79,6 +83,8 @@ function themeStyles(p: ReaderPreferences): string {
       color: ${color} !important;
       background: ${background} !important;
       -webkit-font-smoothing: antialiased !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
     }
     div, p, span, h1, h2, h3, h4, h5, h6, ul, li, blockquote, section, article, table, tr, td, th {
       font-family: ${fontFamily} !important;
