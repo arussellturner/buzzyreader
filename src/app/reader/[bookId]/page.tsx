@@ -45,6 +45,8 @@ export default function ReaderPage() {
   
   // Highlight state
   const [activeSelection, setActiveSelection] = useState<{ id?: string, cfiRange: string, text: string, color?: HighlightColor, note?: string } | null>(null);
+  const activeSelectionRef = useRef(activeSelection);
+  activeSelectionRef.current = activeSelection;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const renditionRef = useRef<any>(null);
@@ -154,12 +156,63 @@ export default function ReaderPage() {
       rendition.on('selected', (cfiRange: string, contents: any) => {
         book.getRange(cfiRange).then((range: any) => {
           if (range) {
-            setActiveSelection({
-              cfiRange,
-              text: range.toString()
-            });
+            const text = range.toString();
+            const currentActive = activeSelectionRef.current;
+            
+            if (currentActive && currentActive.id) {
+              // Adjusting existing active highlight
+              updateHighlight(currentActive.id, { cfiRange, text });
+              
+              try {
+                renditionRef.current?.annotations.remove(currentActive.cfiRange, 'highlight');
+                renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
+                  const h = { ...currentActive, cfiRange, text };
+                  setActiveSelection(h);
+                  const selection = renditionRef.current?.getContents()[0].window.getSelection();
+                  if (selection) selection.removeAllRanges();
+                });
+              } catch (e) {}
+              
+              setActiveSelection({ ...currentActive, cfiRange, text });
+            } else {
+              // Create new highlight automatically
+              const id = crypto.randomUUID();
+              const newHighlight = {
+                id,
+                bookId,
+                cfiRange,
+                text,
+                color: 'yellow' as HighlightColor,
+                createdAt: new Date().toISOString()
+              };
+              
+              addHighlight(newHighlight);
+              
+              try {
+                renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
+                  setActiveSelection(newHighlight);
+                  const selection = renditionRef.current?.getContents()[0].window.getSelection();
+                  if (selection) selection.removeAllRanges();
+                });
+              } catch (e) {}
+              
+              setActiveSelection(newHighlight);
+            }
           }
         });
+      });
+      
+      // Clear selection on click elsewhere
+      rendition.on('click', () => {
+         if (activeSelectionRef.current && !activeSelectionRef.current.id) {
+            // If it was just a temp selection we didn't save, remove the highlight
+            try {
+              renditionRef.current?.annotations.remove(activeSelectionRef.current.cfiRange, "highlight");
+            } catch (e) {}
+         }
+         const selection = renditionRef.current?.getContents()[0].window.getSelection();
+         if (selection) selection.removeAllRanges();
+         setActiveSelection(null);
       });
       
       rendition.on('relocated', (location: any) => {
@@ -199,40 +252,36 @@ export default function ReaderPage() {
 
   // Render highlights
   useEffect(() => {
-    if (renditionRef.current && highlights.length > 0) {
-      const rendition = renditionRef.current;
-      
-      // Define styles for our highlight colors
-      const colorMap = {
-        yellow: 'rgba(251, 191, 36, 0.4)',
-        green: 'rgba(52, 211, 153, 0.4)',
-        blue: 'rgba(96, 165, 250, 0.4)',
-        pink: 'rgba(244, 114, 182, 0.4)'
-      };
-
-      highlights.forEach(h => {
-        // First, clear any existing annotation for this range to prevent duplicates/stacking
-        try {
-          rendition.annotations.remove(h.cfiRange, "highlight");
-        } catch (e) {
-          // Ignore if it doesn't exist
-        }
-        
-        rendition.annotations.highlight(h.cfiRange, {}, (e: Event) => {
-          setActiveSelection({
-            id: h.id,
-            cfiRange: h.cfiRange,
-            text: h.text,
-            color: h.color,
-            note: h.note
-          });
+    if (!renditionRef.current || !highlights) return;
+    
+    // Clear all existing highlights before re-rendering
+    highlights.forEach(h => {
+      try {
+        renditionRef.current?.annotations.remove(h.cfiRange, 'highlight');
+      } catch (e) {}
+    });
+    
+    // Render them
+    const colorMap = {
+      yellow: 'rgba(251, 191, 36, 0.4)',
+      green: 'rgba(52, 211, 153, 0.4)',
+      blue: 'rgba(96, 165, 250, 0.4)',
+      pink: 'rgba(244, 114, 182, 0.4)'
+    };
+    
+    highlights.forEach(h => {
+      try {
+        renditionRef.current?.annotations.highlight(h.cfiRange, {}, (e: any) => {
+          setActiveSelection(h);
+          const selection = renditionRef.current?.getContents()[0].window.getSelection();
+          if (selection) selection.removeAllRanges();
         }, undefined, {
-          "fill": colorMap[h.color],
+          "fill": colorMap[h.color || 'yellow'],
           "fill-opacity": "1"
         });
-      });
-    }
-  }, [highlights, epubData]); // Run when highlights load/change, or when epub loads
+      } catch (e) {}
+    });
+  }, [highlights, epubData]);
 
   // Listen for preference changes and apply them dynamically if epub is already loaded
   useEffect(() => {
@@ -369,28 +418,25 @@ export default function ReaderPage() {
         onSelectColor={(color, note) => {
           if (activeSelection) {
             if (activeSelection.id) {
-              // Edit existing highlight
+              // Existing highlight
               updateHighlight(activeSelection.id, { color, note });
+              setActiveSelection({ ...activeSelection, color, note });
             } else {
-              // Create new highlight
-              addHighlight({
+              // Should not happen anymore, but just in case
+              const newHighlight = {
                 id: crypto.randomUUID(),
-                bookId,
+                bookId: bookId,
                 cfiRange: activeSelection.cfiRange,
                 text: activeSelection.text,
                 color,
                 note,
                 createdAt: new Date().toISOString()
-              });
+              };
+              addHighlight(newHighlight);
+              setActiveSelection(null);
             }
-            
-            // Clear selection in epubjs if it was a new highlight
-            if (!activeSelection.id) {
-              const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
-              if (selection) selection.removeAllRanges();
-            }
-            
-            setActiveSelection(null);
+            const selection = renditionRef.current?.getContents()[0].window.getSelection();
+            if (selection) selection.removeAllRanges();
           }
         }}
         onDelete={() => {
@@ -399,15 +445,21 @@ export default function ReaderPage() {
             try {
               renditionRef.current?.annotations.remove(activeSelection.cfiRange, "highlight");
             } catch (e) {}
-            setActiveSelection(null);
           }
+          setActiveSelection(null);
+          const selection = renditionRef.current?.getContents()[0].window.getSelection();
+          if (selection) selection.removeAllRanges();
         }}
         onCancel={() => {
           if (activeSelection && !activeSelection.id) {
-            const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
-            if (selection) selection.removeAllRanges();
+            // Unsaved highlight being cancelled
+            try {
+              renditionRef.current?.annotations.remove(activeSelection.cfiRange, "highlight");
+            } catch (e) {}
           }
           setActiveSelection(null);
+          const selection = renditionRef.current?.getContents()[0].window.getSelection();
+          if (selection) selection.removeAllRanges();
         }}
       />
 
