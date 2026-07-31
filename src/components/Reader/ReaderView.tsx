@@ -89,6 +89,7 @@ function themeStyles(p: ReaderPreferences): string {
       background: transparent !important;
       line-height: ${p.lineSpacing} !important;
       letter-spacing: ${p.charSpacing}em !important;
+      text-align: ${p.textAlign || 'left'} !important;
     }
     p {
       margin-bottom: ${p.paragraphSpacing}em !important;
@@ -422,22 +423,22 @@ export default function ReaderView({
 
         r.on('touchstart', (e: any) => {
           if (e.changedTouches && e.changedTouches.length > 0) {
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
+            touchStartX = e.changedTouches[0].clientX;
+            touchStartY = e.changedTouches[0].clientY;
           }
         });
 
         r.on('touchend', (e: any) => {
           if (e.changedTouches && e.changedTouches.length > 0) {
-            const touchEndX = e.changedTouches[0].screenX;
-            const touchEndY = e.changedTouches[0].screenY;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
             const deltaX = Math.abs(touchEndX - touchStartX);
             const deltaY = Math.abs(touchEndY - touchStartY);
 
             // If movement is less than 15 pixels, it's a tap, not a swipe
             if (deltaX < 15 && deltaY < 15) {
               lastTouchTime = Date.now();
-              const screenWidth = window.screen.width;
+              const screenWidth = window.innerWidth;
               
               if (touchEndX < screenWidth * 0.45) {
                 goPrev();

@@ -126,7 +126,11 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  padding: 0 max(24px, 6vw);
+  padding: 0 max(16px, 4vw);
 }
 
-
+@media (max-width: 768px) {
+  .epubWrapper {
+    padding: 0;
+  }
+}

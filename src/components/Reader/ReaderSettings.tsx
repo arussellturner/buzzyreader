@@ -181,6 +181,29 @@ export default function ReaderSettings({
             </select>
           </section>
 
+          {/* ---- Text Alignment ---- */}
+          <section className={styles.settingsSection}>
+            <span className={styles.settingsLabel}>Alignment</span>
+            <div className={styles.themeRow}>
+              <button
+                className={`${styles.themeCircle} ${preferences.textAlign === 'left' ? styles.themeCircleActive : ''}`}
+                style={{ width: 'auto', padding: '0 12px', borderRadius: '16px' }}
+                onClick={() => onUpdatePreferences({ textAlign: 'left' })}
+                title="Left Align"
+              >
+                Left
+              </button>
+              <button
+                className={`${styles.themeCircle} ${preferences.textAlign === 'justify' ? styles.themeCircleActive : ''}`}
+                style={{ width: 'auto', padding: '0 12px', borderRadius: '16px' }}
+                onClick={() => onUpdatePreferences({ textAlign: 'justify' })}
+                title="Justify"
+              >
+                Justify
+              </button>
+            </div>
+          </section>
+
           {/* ---- Font Size ---- */}
           <section className={styles.settingsSection}>
             <span className={styles.settingsLabel}>Font Size</span>
