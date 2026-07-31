@@ -176,6 +176,24 @@
   background: var(--bg-elevated);
 }
 
+.dropdownItemLogout {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff6b6b; /* light red */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdownItemLogout:hover {
+  background: rgba(255, 107, 107, 0.1);
+}
+
 /* ── Main content area ── */
 .content {
   position: relative;

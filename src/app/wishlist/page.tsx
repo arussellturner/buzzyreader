@@ -3,24 +3,35 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import HighlightCard from '@/components/Highlights/HighlightCard';
-import { useGoogleDrive } from '@/hooks/useGoogleDrive';
-import { BookHighlights } from '@/types/highlight';
-import { getAllHighlights } from '@/lib/storage/driveStorage';
-import styles from './highlights.module.css';
+import { useWishlist } from '@/hooks/useWishlist';
+import WishlistModal from '@/components/Wishlist/WishlistModal';
+import styles from './wishlist.module.css';
 import libraryStyles from '../library/library.module.css';
 
-export default function HighlightsPage() {
+function formatDate(isoDate: string): string {
+  try {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch {
+    return '';
+  }
+}
+
+export default function WishlistPage() {
   const sessionObj = useSession();
   const session = sessionObj?.data;
   const status = sessionObj?.status || 'unauthenticated';
   const router = useRouter();
-  const { library, loading: libraryLoading, driveStorage } = useGoogleDrive();
   
-  const [allHighlights, setAllHighlights] = useState<BookHighlights[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { wishlist, loading, addItem } = useWishlist();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -28,25 +39,6 @@ export default function HighlightsPage() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    async function fetchHighlights() {
-      if (!driveStorage || !library || libraryLoading) return;
-      
-      try {
-        setLoading(true);
-        const highlightsData = await getAllHighlights(driveStorage, library);
-        setAllHighlights(highlightsData);
-      } catch (error) {
-        console.error('Error fetching highlights:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchHighlights();
-  }, [driveStorage, library, libraryLoading]);
-
-  // Get user initials for avatar placeholder
   const userInitials = useMemo(() => {
     if (!session?.user?.name) return '?';
     return session.user.name
@@ -61,21 +53,19 @@ export default function HighlightsPage() {
     return null;
   }
 
-  const filteredHighlights = allHighlights.map(bh => ({
-    ...bh,
-    highlights: bh.highlights.filter(h => 
-      h.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      (h.note && h.note.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-  })).filter(bh => bh.highlights.length > 0);
-
-  const getBookTitle = (bookId: string) => {
-    return library?.books.find(b => b.id === bookId)?.title || 'Unknown Book';
-  };
+  const items = wishlist?.items || [];
+  
+  const filteredItems = items.filter(item => {
+    const query = searchQuery.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(query) ||
+      item.author.toLowerCase().includes(query) ||
+      item.sourceNotes.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className={libraryStyles.libraryPage}>
-      {/* Re-use Library Header */}
       <header className={libraryStyles.header}>
         <div className={libraryStyles.headerContent}>
           <a href="/library" className={libraryStyles.logoSection}>
@@ -86,6 +76,18 @@ export default function HighlightsPage() {
           </a>
 
           <div className={libraryStyles.headerRight}>
+            <button 
+              className={libraryStyles.addBookIconBtn} 
+              onClick={() => setIsModalOpen(true)} 
+              aria-label="Add to Wishlist" 
+              title="Add to Wishlist"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+
             <div className={libraryStyles.userMenuContainer}>
               <button 
                 className={libraryStyles.avatarButton} 
@@ -133,61 +135,60 @@ export default function HighlightsPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className={libraryStyles.content}>
-        <div className={styles.highlightsHeader}>
-          <h1 className={styles.pageTitle}>Your Highlights</h1>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              placeholder="Search highlights..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
+        <div className={styles.wishlistHeader}>
+          <h1 className={styles.pageTitle}>Wishlist</h1>
+        </div>
+
+        <div className={styles.searchContainer}>
+          <input
+            type="text"
+            placeholder="Search wishlist..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+          />
         </div>
 
         {loading ? (
           <div className={libraryStyles.emptyState}>
-            <p>Loading highlights...</p>
+            <p>Loading wishlist...</p>
           </div>
-        ) : allHighlights.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className={libraryStyles.emptyState}>
-            <div className={libraryStyles.emptyIllustration} aria-hidden="true">🖍️</div>
-            <h2 className={libraryStyles.emptyTitle}>No highlights yet</h2>
-            <p className={libraryStyles.emptyText}>Start reading and highlighting passages in your books.</p>
+            <div className={libraryStyles.emptyIllustration} aria-hidden="true">✨</div>
+            <h2 className={libraryStyles.emptyTitle}>Your wishlist is empty</h2>
+            <p className={libraryStyles.emptyText}>Keep track of books you want to read.</p>
           </div>
-        ) : filteredHighlights.length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <div className={libraryStyles.emptyState}>
-            <p className={libraryStyles.emptyText}>No highlights match your search.</p>
+            <p className={libraryStyles.emptyText}>No books match your search.</p>
           </div>
         ) : (
-          <div className={styles.highlightList}>
-            {filteredHighlights.map((bookGroup) => (
-              <div key={bookGroup.bookId} className={styles.bookSection}>
-                <h2 className={styles.bookTitle}>
-                  {getBookTitle(bookGroup.bookId)}
-                  <span className={styles.countBadge}>
-                    {bookGroup.highlights.length}
-                  </span>
-                </h2>
-                
-                <div className={styles.highlightsGrid}>
-                  {bookGroup.highlights.map(highlight => (
-                    <HighlightCard
-                      key={highlight.id}
-                      highlight={highlight}
-                      bookTitle={getBookTitle(bookGroup.bookId)}
-                      onNavigate={() => router.push(`/reader/${bookGroup.bookId}?cfi=${encodeURIComponent(highlight.cfiRange)}`)}
-                    />
-                  ))}
+          <div className={styles.wishlistGrid}>
+            {filteredItems.map((item) => (
+              <div key={item.id} className={styles.card}>
+                <div className={styles.cardTitle}>{item.title}</div>
+                <div className={styles.cardAuthor}>{item.author}</div>
+                {item.sourceNotes && (
+                  <div className={styles.cardNotes}>
+                    <strong>Notes:</strong> {item.sourceNotes}
+                  </div>
+                )}
+                <div className={styles.cardMeta}>
+                  Added on {formatDate(item.addedAt)}
                 </div>
               </div>
             ))}
           </div>
         )}
       </main>
+
+      <WishlistModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        onSave={addItem}
+      />
     </div>
   );
 }

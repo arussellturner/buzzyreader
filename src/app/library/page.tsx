@@ -198,6 +198,12 @@ export default function LibraryPage() {
                   </button>
                   <button 
                     className={styles.dropdownItem}
+                    onClick={() => router.push('/wishlist')}
+                  >
+                    Wish list
+                  </button>
+                  <button 
+                    className={styles.dropdownItemLogout}
                     onClick={() => signOut()}
                   >
                     Log out

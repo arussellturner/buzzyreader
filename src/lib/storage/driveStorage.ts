@@ -5,12 +5,15 @@ import type { ReaderPreferences, } from '@/types/preferences';
 import { DEFAULT_PREFERENCES } from '@/types/preferences';
 import type { ReadingProgress } from '@/types/progress';
 
+import type { Wishlist } from '@/types/wishlist';
+
 // ---------------------------------------------------------------------------
 // File name constants — keep in sync with the Drive folder structure
 // ---------------------------------------------------------------------------
 const FILES = {
   LIBRARY: 'library.json',
   PREFERENCES: 'preferences.json',
+  WISHLIST: 'wishlist.json',
   PROGRESS_PREFIX: 'progress_',
   HIGHLIGHTS_PREFIX: 'highlights_',
 } as const;
@@ -157,4 +160,27 @@ export async function getAllHighlights(
     )
     .map((r) => r.value)
     .filter((bh) => bh.highlights.length > 0);
+}
+
+// ---------------------------------------------------------------------------
+// Wishlist
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch the user's wishlist from Drive app data.
+ * Returns an empty wishlist if no data exists yet.
+ */
+export async function getWishlist(drive: DriveStorage): Promise<Wishlist> {
+  const wishlist = await drive.readJsonFile<Wishlist>(FILES.WISHLIST);
+  return wishlist ?? { items: [] };
+}
+
+/**
+ * Persist the user's wishlist to Drive app data.
+ */
+export async function saveWishlist(
+  drive: DriveStorage,
+  wishlist: Wishlist
+): Promise<void> {
+  await drive.writeJsonFile(FILES.WISHLIST, wishlist);
 }

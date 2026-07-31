@@ -1,0 +1,110 @@
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useGoogleDrive } from '@/hooks/useGoogleDrive';
+import { getWishlist, saveWishlist } from '@/lib/storage/driveStorage';
+import type { Wishlist, WishlistItem } from '@/types/wishlist';
+
+export function useWishlist() {
+  const { driveStorage, loading: driveLoading } = useGoogleDrive();
+  const [wishlist, setWishlist] = useState<Wishlist | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const wishlistRef = useRef(wishlist);
+  wishlistRef.current = wishlist;
+
+  useEffect(() => {
+    if (!driveStorage) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getWishlist(driveStorage);
+        if (!cancelled) setWishlist(data);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load wishlist');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [driveStorage]);
+
+  const addItem = useCallback(
+    async (item: Omit<WishlistItem, 'id' | 'addedAt'>): Promise<WishlistItem> => {
+      if (!driveStorage) throw new Error('Not authenticated');
+
+      const newItem: WishlistItem = {
+        ...item,
+        id: crypto.randomUUID(),
+        addedAt: new Date().toISOString(),
+      };
+
+      const previousWishlist = wishlistRef.current;
+
+      setWishlist((prev) => {
+        return {
+          items: [newItem, ...(prev?.items ?? [])],
+        };
+      });
+
+      try {
+        const updatedList: Wishlist = {
+          items: [newItem, ...(previousWishlist?.items ?? [])],
+        };
+        await saveWishlist(driveStorage, updatedList);
+        return newItem;
+      } catch (err) {
+        setWishlist(previousWishlist);
+        throw err;
+      }
+    },
+    [driveStorage]
+  );
+
+  const removeItem = useCallback(
+    async (id: string): Promise<void> => {
+      if (!driveStorage) throw new Error('Not authenticated');
+
+      const previousWishlist = wishlistRef.current;
+
+      setWishlist((prev) => {
+        if (!prev) return prev;
+        return {
+          items: prev.items.filter((item) => item.id !== id),
+        };
+      });
+
+      try {
+        const updatedList: Wishlist = {
+          items: (previousWishlist?.items ?? []).filter((item) => item.id !== id),
+        };
+        await saveWishlist(driveStorage, updatedList);
+      } catch (err) {
+        setWishlist(previousWishlist);
+        throw err;
+      }
+    },
+    [driveStorage]
+  );
+
+  return {
+    wishlist,
+    loading: loading || driveLoading,
+    error,
+    addItem,
+    removeItem,
+  };
+}
