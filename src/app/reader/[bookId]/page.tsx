@@ -574,7 +574,7 @@ export default function ReaderPage() {
         <div style={{
           height: '100%',
           width: `${(progress?.percentage || 0) * 100}%`,
-          background: '#f59e0b',
+          background: textColor,
           transition: 'width 0.3s ease-out'
         }} />
       </div>
