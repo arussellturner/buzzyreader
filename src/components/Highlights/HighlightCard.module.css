@@ -1,183 +1,68 @@
-/* ============================================================
-   HighlightCard — Styles
-   ============================================================ */
-
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-lg);
-  padding-left: calc(var(--space-lg) + 4px);
-  background: var(--gradient-glass);
-  background-color: var(--color-surface-glass);
-  border: var(--border-glass);
-  border-radius: var(--border-radius-md);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  gap: 4px;
+  padding: 0;
+  padding-left: 12px;
+  background: transparent;
+  border: none;
+  border-left: 4px solid var(--accent-primary);
   cursor: pointer;
-  transition: transform var(--transition-base),
-              box-shadow var(--transition-base),
-              background var(--transition-fast);
-  overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  background-color: var(--color-surface-hover);
-}
-
-.card:active {
-  transform: translateY(0);
-}
-
-/* Left color accent bar */
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: var(--border-radius-full) 0 0 var(--border-radius-full);
+  opacity: 0.8;
 }
 
 /* Color variants */
-.yellow::before {
-  background: linear-gradient(180deg, #fbbf24, #f59e0b);
+.yellow {
+  border-left-color: #fbbf24;
 }
 
-.green::before {
-  background: linear-gradient(180deg, #34d399, #10b981);
+.green {
+  border-left-color: #34d399;
 }
 
-.blue::before {
-  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+.blue {
+  border-left-color: #60a5fa;
 }
 
-.pink::before {
-  background: linear-gradient(180deg, #f472b6, #ec4899);
+.pink {
+  border-left-color: #f472b6;
 }
 
-/* --- Content --- */
 .text {
-  font-family: var(--font-reading);
-  font-size: 0.9375rem;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 16px;
   font-style: italic;
-  line-height: 1.6;
-  color: var(--color-text-primary);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.5;
+  color: var(--text-primary);
 }
 
 .text::before {
   content: '\201C';
-  color: var(--color-text-tertiary);
-  font-size: 1.1em;
 }
 
 .text::after {
   content: '\201D';
-  color: var(--color-text-tertiary);
-  font-size: 1.1em;
 }
 
-/* --- Note --- */
 .note {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
-  padding-left: var(--space-sm);
-  border-left: 2px solid var(--color-surface-glass-border);
-  line-height: 1.5;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: normal;
+  margin-top: 4px;
 }
 
-/* --- Meta row --- */
 .meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
 }
 
-.metaInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  overflow: hidden;
-}
-
-.chapter {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-}
-
-.dot {
-  flex-shrink: 0;
-  color: var(--color-text-tertiary);
-  opacity: 0.5;
-}
-
-.date {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* --- Actions --- */
 .actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.card:hover .actions {
-  opacity: 1;
-}
-
-.deleteBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--border-radius-sm);
-  color: var(--color-text-tertiary);
-  transition: background var(--transition-fast),
-              color var(--transition-fast);
-}
-
-.deleteBtn:hover {
-  background: rgba(244, 63, 94, 0.12);
-  color: var(--color-accent-rose);
-}
-
-.deleteBtn svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* --- Responsive --- */
-@media (max-width: 600px) {
-  .card {
-    padding: var(--space-sm) var(--space-md);
-    padding-left: calc(var(--space-md) + 4px);
-  }
-
-  .actions {
-    opacity: 1;
-  }
-
-  .chapter {
-    max-width: 120px;
-  }
+  display: none;
 }

@@ -25,7 +25,7 @@ export default function LibraryPage() {
   const { preferences, updatePreferences } = usePreferences();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>('recentAdded');
+  const [sortOption, setSortOption] = useState<SortOption>('recentRead');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const books = useMemo(() => {
