@@ -91,23 +91,29 @@ export default function ReaderPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', background: '#fff' }}>
-      <div style={{ padding: '16px', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between' }}>
-        <button onClick={() => router.push('/library')} style={{ padding: '8px 16px', background: '#eee', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer', color: '#000' }}>
-          Back to Library
-        </button>
-      </div>
-      
-      <div style={{ flex: 1, position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100vw', background: '#fff', overflow: 'hidden' }}>
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
       </div>
 
-      <div style={{ padding: '16px', borderTop: '1px solid #ccc', display: 'flex', justifyContent: 'center', gap: '16px' }}>
-        <button onClick={() => renditionRef.current?.prev()} style={{ padding: '8px 16px', background: '#eee', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer', color: '#000' }}>
-          Previous Page
+      <div style={{ display: 'flex', width: '100%', height: '50px', borderTop: '1px solid #ccc' }}>
+        <button 
+          onClick={() => router.push('/library')} 
+          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', borderRight: '1px solid #ccc', cursor: 'pointer', color: '#000', fontSize: '18px' }}
+        >
+          &lt; 🐝
         </button>
-        <button onClick={() => renditionRef.current?.next()} style={{ padding: '8px 16px', background: '#eee', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer', color: '#000' }}>
-          Next Page
+        <button 
+          onClick={() => renditionRef.current?.prev()} 
+          style={{ width: '35%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', borderRight: '1px solid #ccc', cursor: 'pointer', color: '#000', fontSize: '24px' }}
+        >
+          &larr;
+        </button>
+        <button 
+          onClick={() => renditionRef.current?.next()} 
+          style={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', cursor: 'pointer', color: '#000', fontSize: '24px' }}
+        >
+          &rarr;
         </button>
       </div>
     </div>
