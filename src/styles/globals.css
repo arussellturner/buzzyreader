@@ -450,7 +450,7 @@ textarea:hover:not(:focus):not(:disabled) {
 }
 
 select {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) 32px var(--space-2) var(--space-3);
   background: var(--bg-surface);
   color: var(--text-primary);
   border: var(--border-width-thin) solid var(--border-color);
