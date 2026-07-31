@@ -50,6 +50,8 @@ export default function ReaderPage() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const renditionRef = useRef<any>(null);
+  const preferencesRef = useRef(preferences);
+  preferencesRef.current = preferences;
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -102,12 +104,14 @@ export default function ReaderPage() {
       
       renditionRef.current = rendition;
 
-      // Determine theme colors once for initial load
+      // Read theme colors from the ref so we always get the LATEST preferences,
+      // even when this callback fires on page turns long after initEpub ran.
       const getThemeColors = () => {
-        const bg = preferences.theme === 'light' ? '#ffffff' : 
-                   preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
-        const textColor = preferences.theme === 'light' ? '#000000' : 
-                          preferences.theme === 'sepia' ? '#5c4033' : '#ffffff';
+        const theme = preferencesRef.current.theme;
+        const bg = theme === 'light' ? '#ffffff' : 
+                   theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+        const textColor = theme === 'light' ? '#000000' : 
+                          theme === 'sepia' ? '#5c4033' : '#ffffff';
         return { bg, textColor };
       };
       
@@ -129,18 +133,31 @@ export default function ReaderPage() {
             background: ${bg} !important;
             color: ${textColor} !important;
           }
-          body, p, div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote, td, th, dt, dd, figcaption, cite, em, strong, b, i, section, article, aside, nav, header, footer, main {
+          * {
             color: ${textColor} !important;
             background-color: transparent !important;
           }
           html {
             background-color: ${bg} !important;
+            background: ${bg} !important;
+          }
+          body {
+            background-color: ${bg} !important;
+            background: ${bg} !important;
           }
           ::selection {
             background: rgba(255, 255, 0, 0.3) !important;
           }
         `;
         doc.head.appendChild(style);
+        
+        // Strip inline color and background styles from all elements
+        const allElements = doc.body.querySelectorAll('*');
+        allElements.forEach((el: HTMLElement) => {
+          if (el.style.color) el.style.color = '';
+          if (el.style.backgroundColor) el.style.backgroundColor = '';
+          if (el.style.background) el.style.background = '';
+        });
       });
       
       // Also style the iframe element itself so it never flashes white
@@ -373,7 +390,7 @@ export default function ReaderPage() {
         iframe.style.background = bgRaw;
       }
       
-      // Inject style tag into the current epub content
+      // Inject style tag into the current epub content AND strip inline styles
       try {
         const contents = renditionRef.current.getContents()?.[0];
         if (contents) {
@@ -389,15 +406,29 @@ export default function ReaderPage() {
               background: ${bgRaw} !important;
               color: ${textRaw} !important;
             }
-            body, p, div, span, h1, h2, h3, h4, h5, h6, a, li, ul, ol, blockquote, td, th, dt, dd, figcaption, cite, em, strong, b, i, section, article, aside, nav, header, footer, main {
+            * {
               color: ${textRaw} !important;
               background-color: transparent !important;
             }
             html {
               background-color: ${bgRaw} !important;
+              background: ${bgRaw} !important;
+            }
+            body {
+              background-color: ${bgRaw} !important;
+              background: ${bgRaw} !important;
             }
           `;
           doc.head.appendChild(style);
+          
+          // Strip inline color and background styles from all elements
+          // This is the nuclear option for epubs that hardcode styles inline
+          const allElements = doc.body.querySelectorAll('*');
+          allElements.forEach((el: HTMLElement) => {
+            if (el.style.color) el.style.color = '';
+            if (el.style.backgroundColor) el.style.backgroundColor = '';
+            if (el.style.background) el.style.background = '';
+          });
         }
       } catch (e) {}
       
