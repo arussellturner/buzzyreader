@@ -1,4 +1,4 @@
-export type ThemeMode = 'dark' | 'light' | 'sepia';
+export type ThemeMode = 'dark' | 'light' | 'sepia' | 'black';
 export type FontFamily = 'inter' | 'georgia' | 'literata' | 'opendyslexic' | 'system';
 
 export interface ReaderPreferences {

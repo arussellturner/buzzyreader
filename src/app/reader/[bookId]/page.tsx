@@ -109,9 +109,11 @@ export default function ReaderPage() {
       const getThemeColors = () => {
         const theme = preferencesRef.current.theme;
         const bg = theme === 'light' ? '#ffffff' : 
-                   theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+                   theme === 'sepia' ? '#f4ecd8' : 
+                   theme === 'black' ? '#000000' : '#0a0e1a';
         const textColor = theme === 'light' ? '#000000' : 
-                          theme === 'sepia' ? '#5c4033' : '#ffffff';
+                          theme === 'sepia' ? '#5c4033' : 
+                          theme === 'black' ? '#e4e4e4' : '#ffffff';
         return { bg, textColor };
       };
       
@@ -206,9 +208,11 @@ export default function ReaderPage() {
       const applyTheme = () => {
         const textAlign = preferences.textAlign || 'left';
         const textColor = preferences.theme === 'light' ? '#000000 !important' : 
-                          preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+                          preferences.theme === 'sepia' ? '#5c4033 !important' : 
+                          preferences.theme === 'black' ? '#e4e4e4 !important' : '#ffffff !important';
         const bgColor = preferences.theme === 'light' ? '#ffffff !important' : 
-                        preferences.theme === 'sepia' ? '#f4ecd8 !important' : '#0a0e1a !important';
+                        preferences.theme === 'sepia' ? '#f4ecd8 !important' : 
+                        preferences.theme === 'black' ? '#000000 !important' : '#0a0e1a !important';
         const fontStack = `${getFontStack(preferences.fontFamily)} !important`;
         const lineHeight = `${preferences.lineSpacing} !important`;
         
@@ -415,13 +419,17 @@ export default function ReaderPage() {
     if (renditionRef.current) {
       const textAlign = preferences.textAlign || 'left';
       const textColor = preferences.theme === 'light' ? '#000000 !important' : 
-                        preferences.theme === 'sepia' ? '#5c4033 !important' : '#ffffff !important';
+                        preferences.theme === 'sepia' ? '#5c4033 !important' : 
+                        preferences.theme === 'black' ? '#e4e4e4 !important' : '#ffffff !important';
       const bgColor = preferences.theme === 'light' ? '#ffffff !important' : 
-                      preferences.theme === 'sepia' ? '#f4ecd8 !important' : '#0a0e1a !important';
+                      preferences.theme === 'sepia' ? '#f4ecd8 !important' : 
+                      preferences.theme === 'black' ? '#000000 !important' : '#0a0e1a !important';
       const bgRaw = preferences.theme === 'light' ? '#ffffff' : 
-                    preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+                    preferences.theme === 'sepia' ? '#f4ecd8' : 
+                    preferences.theme === 'black' ? '#000000' : '#0a0e1a';
       const textRaw = preferences.theme === 'light' ? '#000000' : 
-                      preferences.theme === 'sepia' ? '#5c4033' : '#ffffff';
+                      preferences.theme === 'sepia' ? '#5c4033' : 
+                      preferences.theme === 'black' ? '#e4e4e4' : '#ffffff';
       const fontStack = `${getFontStack(preferences.fontFamily)} !important`;
       const lineHeight = `${preferences.lineSpacing} !important`;
       
@@ -534,11 +542,14 @@ export default function ReaderPage() {
   }
 
   const pageBg = preferences.theme === 'light' ? '#ffffff' : 
-                 preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+                 preferences.theme === 'sepia' ? '#f4ecd8' : 
+                 preferences.theme === 'black' ? '#000000' : '#0a0e1a';
   const textColor = preferences.theme === 'light' ? '#000000' : 
-                    preferences.theme === 'sepia' ? '#5c4033' : '#ffffff';
+                    preferences.theme === 'sepia' ? '#5c4033' : 
+                    preferences.theme === 'black' ? '#e4e4e4' : '#ffffff';
   const borderColor = preferences.theme === 'dark' ? '#333' : 
-                      preferences.theme === 'sepia' ? '#d3c5a3' : '#ccc';
+                      preferences.theme === 'sepia' ? '#d3c5a3' : 
+                      preferences.theme === 'black' ? '#222' : '#ccc';
 
   return (
     <div style={{ 

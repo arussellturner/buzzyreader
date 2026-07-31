@@ -53,7 +53,7 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Theme</label>
           <div style={{ display: 'flex', gap: '6px' }}>
-            {['light', 'dark', 'sepia'].map(theme => (
+            {['light', 'dark', 'sepia', 'black'].map(theme => (
               <button 
                 key={theme}
                 onClick={() => updatePreferences({ theme: theme as ThemeMode })}
