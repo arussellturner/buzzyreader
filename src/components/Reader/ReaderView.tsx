@@ -446,7 +446,6 @@ export default function ReaderView({
 
         r.on('keyup', handleEpubKey);
         r.on('click', handleEpubClick);
-        r.on('touchend', handleEpubClick);
 
       } catch (err) {
         console.error("Failed to bind epub events", err);
