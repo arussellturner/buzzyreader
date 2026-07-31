@@ -176,20 +176,12 @@ export default function ReaderPage() {
         let selectionTimeout: NodeJS.Timeout;
         doc.addEventListener('selectionchange', () => {
           clearTimeout(selectionTimeout);
-          selectionTimeout = setTimeout(async () => {
+          selectionTimeout = setTimeout(() => {
             const sel = contents.window.getSelection();
             if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-              const range = sel.getRangeAt(0);
-              const text = range.toString().trim();
-              if (!text) return;
-              try {
-                const { EpubCFI } = await import('epubjs');
-                const cfi = new EpubCFI(range, contents.cfiBase).toString();
-                if (cfi) {
-                  // Fire the selected event manually (epub.js normally fires this on touchend/mouseup)
-                  renditionRef.current?.emit('selected', cfi, contents);
-                }
-              } catch(e) {}
+              if (typeof contents.triggerSelectedEvent === 'function') {
+                contents.triggerSelectedEvent(sel);
+              }
             }
           }, 300);
         });
