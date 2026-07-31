@@ -140,6 +140,8 @@ export default function ReaderPage() {
           html {
             background-color: ${bg} !important;
             background: ${bg} !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
           body {
             background-color: ${bg} !important;
@@ -150,6 +152,12 @@ export default function ReaderPage() {
           }
           ::selection {
             background: rgba(255, 255, 0, 0.3) !important;
+          }
+          @page {
+            margin: 0 !important;
+          }
+          div, section, article {
+            max-width: none !important;
           }
         `;
         doc.head.appendChild(style);
@@ -446,6 +454,8 @@ export default function ReaderPage() {
             html {
               background-color: ${bgRaw} !important;
               background: ${bgRaw} !important;
+              padding: 0 !important;
+              margin: 0 !important;
             }
             body {
               background-color: ${bgRaw} !important;
@@ -453,6 +463,12 @@ export default function ReaderPage() {
               max-width: none !important;
               padding: 0 !important;
               margin: 0 !important;
+            }
+            @page {
+              margin: 0 !important;
+            }
+            div, section, article {
+              max-width: none !important;
             }
           `;
           doc.head.appendChild(style);
