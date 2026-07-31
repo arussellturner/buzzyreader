@@ -101,7 +101,7 @@ export default function ReaderPage() {
           onClick={() => router.push('/library')} 
           style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', borderRight: '1px solid #ccc', cursor: 'pointer', color: '#000', fontSize: '18px' }}
         >
-          &lt; 🐝
+          🐝
         </button>
         <button 
           onClick={() => renditionRef.current?.prev()} 
