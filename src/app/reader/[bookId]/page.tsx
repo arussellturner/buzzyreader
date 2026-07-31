@@ -32,7 +32,7 @@ export default function ReaderPage() {
 
   const { library, driveStorage } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
-  const { highlights, addHighlight, updateHighlight, loadHighlights } = useHighlights();
+  const { highlights, addHighlight, updateHighlight, removeHighlight, loadHighlights } = useHighlights();
   
   const [epubData, setEpubData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -276,6 +276,7 @@ export default function ReaderPage() {
 
       <HighlightMenu
         show={activeSelection !== null}
+        isExisting={!!activeSelection?.id}
         initialNote={activeSelection?.note}
         initialColor={activeSelection?.color}
         onSelectColor={(color, note) => {
@@ -302,6 +303,15 @@ export default function ReaderPage() {
               if (selection) selection.removeAllRanges();
             }
             
+            setActiveSelection(null);
+          }
+        }}
+        onDelete={() => {
+          if (activeSelection?.id) {
+            removeHighlight(activeSelection.id);
+            try {
+              renditionRef.current?.annotations.remove(activeSelection.cfiRange, "highlight");
+            } catch (e) {}
             setActiveSelection(null);
           }
         }}

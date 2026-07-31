@@ -5,13 +5,15 @@ import type { HighlightColor } from '@/types/highlight';
 
 interface Props {
   show: boolean;
+  isExisting?: boolean;
   initialNote?: string;
   initialColor?: HighlightColor;
   onSelectColor: (color: HighlightColor, note?: string) => void;
+  onDelete?: () => void;
   onCancel: () => void;
 }
 
-export default function HighlightMenu({ show, initialNote, initialColor, onSelectColor, onCancel }: Props) {
+export default function HighlightMenu({ show, isExisting, initialNote, initialColor, onSelectColor, onDelete, onCancel }: Props) {
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [note, setNote] = useState(initialNote || '');
 
@@ -120,12 +122,29 @@ export default function HighlightMenu({ show, initialNote, initialColor, onSelec
             >
               {initialNote || note ? 'Edit note' : 'Add note'}
             </button>
-            <button
-              onClick={handleCancel}
-              style={{ padding: '6px 12px', borderRadius: '6px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px' }}
-            >
-              Cancel
-            </button>
+            {isExisting ? (
+              <button
+                onClick={() => {
+                  if (onDelete) onDelete();
+                }}
+                style={{ padding: '6px', borderRadius: '6px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-label="Delete highlight"
+                title="Delete highlight"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={handleCancel}
+                style={{ padding: '6px 12px', borderRadius: '6px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px' }}
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       )}
