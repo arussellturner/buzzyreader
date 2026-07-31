@@ -430,19 +430,27 @@ export default function ReaderView({
 
         r.on('touchend', (e: any) => {
           if (e.changedTouches && e.changedTouches.length > 0) {
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            const deltaX = Math.abs(touchEndX - touchStartX);
-            const deltaY = Math.abs(touchEndY - touchStartY);
+            const iframeWidth = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
+            
+            // Raw coordinates (might be shifted by epub.js CSS translation on some devices)
+            const rawEndX = e.changedTouches[0].clientX;
+            const rawEndY = e.changedTouches[0].clientY;
+            
+            const deltaX = Math.abs(rawEndX - touchStartX);
+            const deltaY = Math.abs(rawEndY - touchStartY);
 
             // If movement is less than 15 pixels, it's a tap, not a swipe
             if (deltaX < 15 && deltaY < 15) {
               lastTouchTime = Date.now();
-              const screenWidth = window.innerWidth;
               
-              if (touchEndX < screenWidth * 0.45) {
+              // Normalize the X coordinate to 0 -> iframeWidth
+              // This fixes the flip-flop bug where clientX returns document-relative pageX 
+              // instead of viewport-relative clientX inside translated iframes.
+              const touchEndX = ((rawEndX % iframeWidth) + iframeWidth) % iframeWidth;
+              
+              if (touchEndX < iframeWidth * 0.45) {
                 goPrev();
-              } else if (touchEndX > screenWidth * 0.55) {
+              } else if (touchEndX > iframeWidth * 0.55) {
                 goNext();
               } else {
                 if (onToggleMenu) onToggleMenu();
@@ -459,13 +467,15 @@ export default function ReaderView({
           const selection = r.getContents()[0]?.window?.getSelection();
           if (selection && selection.toString().length > 0) return;
 
-          const width = window.innerWidth;
-          const x = e.clientX;
-          if (x === undefined) return;
+          const iframeWidth = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
+          const rawX = e.clientX;
+          if (rawX === undefined) return;
+          
+          const touchEndX = ((rawX % iframeWidth) + iframeWidth) % iframeWidth;
 
-          if (x < width * 0.45) {
+          if (touchEndX < iframeWidth * 0.45) {
             goPrev();
-          } else if (x > width * 0.55) {
+          } else if (touchEndX > iframeWidth * 0.55) {
             goNext();
           } else {
             if (onToggleMenu) onToggleMenu();
