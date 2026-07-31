@@ -547,8 +547,26 @@ export default function ReaderPage() {
       height: '100dvh', 
       width: '100vw', 
       background: pageBg, 
-      overflow: 'hidden' 
+      overflow: 'hidden',
+      position: 'relative'
     }}>
+      {/* Top Reading Progress Bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '4px',
+        background: 'rgba(128, 128, 128, 0.2)',
+        zIndex: 50
+      }}>
+        <div style={{
+          height: '100%',
+          width: `${(progress?.percentage || 0) * 100}%`,
+          background: '#f59e0b',
+          transition: 'width 0.3s ease-out'
+        }} />
+      </div>
       <div 
         style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: '12px', width: '100%', maxWidth: '1000px', margin: '0 auto' }}
         onClick={() => {
