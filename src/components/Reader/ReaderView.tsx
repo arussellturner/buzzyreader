@@ -462,23 +462,48 @@ export default function ReaderView({
 
     let startX = 0;
     let startY = 0;
+    let startTime = 0;
     let lastTouchTs = 0;
+    let longPressTimer: ReturnType<typeof setTimeout> | null = null;
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length > 0) {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+        startTime = Date.now();
+
+        // If the user holds for 300ms+, it's a long press for text selection.
+        // Disable the overlay so touches pass through to the iframe.
+        longPressTimer = setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+        }, 300);
       }
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      // Clear the long-press timer if it hasn't fired yet
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+
+      // If the overlay was disabled for text selection, re-enable it after a delay
+      if (overlay.style.pointerEvents === 'none') {
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'auto';
+        }, 500);
+        return; // Don't process as a tap
+      }
+
       if (e.changedTouches.length > 0) {
         const endX = e.changedTouches[0].clientX;
         const endY = e.changedTouches[0].clientY;
         const dx = Math.abs(endX - startX);
         const dy = Math.abs(endY - startY);
+        const elapsed = Date.now() - startTime;
 
-        if (dx < 15 && dy < 15) {
+        // Quick tap: < 300ms and < 15px movement
+        if (dx < 15 && dy < 15 && elapsed < 300) {
           lastTouchTs = Date.now();
           const w = window.innerWidth;
           if (endX < w * 0.45) {
@@ -489,6 +514,13 @@ export default function ReaderView({
             if (onToggleMenu) onToggleMenu();
           }
         }
+      }
+    };
+
+    const onTouchCancel = () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
       }
     };
 
@@ -508,12 +540,15 @@ export default function ReaderView({
 
     overlay.addEventListener('touchstart', onTouchStart, { passive: true });
     overlay.addEventListener('touchend', onTouchEnd, { passive: true });
+    overlay.addEventListener('touchcancel', onTouchCancel, { passive: true });
     overlay.addEventListener('click', onClick);
 
     return () => {
       overlay.removeEventListener('touchstart', onTouchStart);
       overlay.removeEventListener('touchend', onTouchEnd);
+      overlay.removeEventListener('touchcancel', onTouchCancel);
       overlay.removeEventListener('click', onClick);
+      if (longPressTimer) clearTimeout(longPressTimer);
     };
   }, [goNext, goPrev, onToggleMenu, isInitialized]);
 
@@ -524,8 +559,7 @@ export default function ReaderView({
         className={styles.epubContainer}
         data-reader-view
       />
-      {/* Invisible overlay that captures taps in the PARENT coordinate space,
-          completely bypassing epub.js iframe coordinate corruption */}
+      {/* Invisible overlay: quick taps → page turns, long press → passes through to iframe for text selection */}
       <div
         ref={tapOverlayRef}
         style={{
@@ -533,6 +567,7 @@ export default function ReaderView({
           inset: 0,
           zIndex: 2,
           background: 'transparent',
+          pointerEvents: 'auto',
         }}
       />
     </>
