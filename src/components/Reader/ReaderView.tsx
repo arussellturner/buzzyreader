@@ -174,14 +174,12 @@ export default function ReaderView({
       const book = ePub(epubData as ArrayBuffer);
       bookRef.current = book;
 
-      const isVertical = preferences.readingMode === 'vertical';
-      
       const rendition = book.renderTo(containerRef.current, {
         width: '100%',
         height: '100%',
         spread: 'none',
         manager: 'continuous',
-        flow: preferences.readingMode === 'vertical' ? 'scrolled-doc' : 'paginated',
+        flow: 'paginated',
         snap: true,
         allowScriptedContent: true,
       });
@@ -286,7 +284,7 @@ export default function ReaderView({
       setIsInitialized(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [epubData, preferences.readingMode]);
+  }, [epubData]);
 
   /* ---------------------------------------------------------------- */
   /*  Update theme when preferences change                             */
@@ -427,21 +425,16 @@ export default function ReaderView({
           const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
           const x = e.clientX || e.changedTouches?.[0]?.clientX;
           
-          console.log("Click X:", x, "Width:", width, "Mode:", preferences.readingMode);
-          if (!x) return;
-
-          if (preferences.readingMode !== 'vertical') {
-            // Use 45% tap zones on each side, leaving a 10% strip in the middle for the menu toggle
-            if (x < width * 0.45) {
-              console.log("Going Prev");
-              goPrev();
-              return;
-            }
-            if (x > width * 0.55) {
-              console.log("Going Next");
-              goNext();
-              return;
-            }
+          // Use 45% tap zones on each side, leaving a 10% strip in the middle for the menu toggle
+          if (x < width * 0.45) {
+            console.log("Going Prev");
+            goPrev();
+            return;
+          }
+          if (x > width * 0.55) {
+            console.log("Going Next");
+            goNext();
+            return;
           }
           
           // Center click toggles menu

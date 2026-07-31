@@ -164,29 +164,6 @@ export default function ReaderSettings({
             </div>
           </section>
 
-          {/* ---- Reading Mode ---- */}
-          <section className={styles.settingsSection}>
-            <span className={styles.settingsLabel}>Reading Mode</span>
-            <div className={styles.themeRow}>
-              <button
-                className={`${styles.themeCircle} ${preferences.readingMode === 'horizontal' ? styles.themeCircleActive : ''}`}
-                style={{ width: 'auto', padding: '0 12px', borderRadius: '16px' }}
-                onClick={() => onUpdatePreferences({ readingMode: 'horizontal' })}
-                title="Horizontal Pages"
-              >
-                Pages
-              </button>
-              <button
-                className={`${styles.themeCircle} ${preferences.readingMode === 'vertical' ? styles.themeCircleActive : ''}`}
-                style={{ width: 'auto', padding: '0 12px', borderRadius: '16px' }}
-                onClick={() => onUpdatePreferences({ readingMode: 'vertical' })}
-                title="Vertical Scroll"
-              >
-                Scroll
-              </button>
-            </div>
-          </section>
-
           {/* ---- Font Family ---- */}
           <section className={styles.settingsSection}>
             <span className={styles.settingsLabel}>Font</span>
