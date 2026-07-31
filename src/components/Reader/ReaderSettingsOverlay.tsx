@@ -29,32 +29,31 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
       zIndex: 100,
       animation: 'slideUp 0.3s ease-out'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Reading Settings</h3>
-        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Reading Settings</h3>
+        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px' }}>
           &times;
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {/* Theme */}
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Theme</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Theme</label>
+          <div style={{ display: 'flex', gap: '6px' }}>
             {['light', 'dark', 'sepia'].map(theme => (
               <button 
                 key={theme}
                 onClick={() => updatePreferences({ theme: theme as ThemeMode })}
                 style={{ 
-                  flex: 1, 
-                  padding: '8px', 
-                  borderRadius: '6px',
+                  padding: '4px 10px', 
+                  borderRadius: '4px',
                   border: `1px solid ${preferences.theme === theme ? 'var(--accent-primary)' : 'var(--border-color)'}`,
                   background: preferences.theme === theme ? 'var(--bg-elevated)' : 'transparent',
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
-                  textTransform: 'capitalize'
+                  textTransform: 'capitalize',
+                  fontSize: '13px'
                 }}
               >
                 {theme}
@@ -64,12 +63,12 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
         </div>
 
         {/* Font Family */}
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Font</label>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Font</label>
           <select 
             value={preferences.fontFamily} 
             onChange={e => updatePreferences({ fontFamily: e.target.value as FontFamily })}
-            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}
+            style={{ width: '150px', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-elevated)', color: 'var(--text-primary)', fontSize: '13px' }}
           >
             <option value="literata">Literata (Serif)</option>
             <option value="georgia">Georgia (Serif)</option>
@@ -80,49 +79,55 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
         </div>
 
         {/* Text Align */}
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Alignment</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Alignment</label>
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button 
               onClick={() => updatePreferences({ textAlign: 'left' })}
+              title="Left Align"
               style={{ 
-                flex: 1, padding: '8px', borderRadius: '6px',
+                padding: '4px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: `1px solid ${preferences.textAlign === 'left' || !preferences.textAlign ? 'var(--accent-primary)' : 'var(--border-color)'}`,
                 background: preferences.textAlign === 'left' || !preferences.textAlign ? 'var(--bg-elevated)' : 'transparent',
                 color: 'var(--text-primary)', cursor: 'pointer'
               }}
             >
-              Left Align
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2 3h12v1.5H2V3zm0 4h8v1.5H2V7zm0 4h12v1.5H2V11z"/>
+              </svg>
             </button>
             <button 
               onClick={() => updatePreferences({ textAlign: 'justify' })}
+              title="Justify"
               style={{ 
-                flex: 1, padding: '8px', borderRadius: '6px',
+                padding: '4px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: `1px solid ${preferences.textAlign === 'justify' ? 'var(--accent-primary)' : 'var(--border-color)'}`,
                 background: preferences.textAlign === 'justify' ? 'var(--bg-elevated)' : 'transparent',
                 color: 'var(--text-primary)', cursor: 'pointer'
               }}
             >
-              Justify
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2 3h12v1.5H2V3zm0 4h12v1.5H2V7zm0 4h12v1.5H2V11z"/>
+              </svg>
             </button>
           </div>
         </div>
 
         {/* Font Size */}
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Font Size</label>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Font Size</label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', width: '120px' }}>
             <button 
               onClick={() => updatePreferences({ fontSize: Math.max(12, preferences.fontSize - 1) })}
-              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              style={{ padding: '4px 10px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '16px' }}
               disabled={preferences.fontSize <= 12}
             >
               &minus;
             </button>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.fontSize}px</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.fontSize}px</span>
             <button 
               onClick={() => updatePreferences({ fontSize: Math.min(32, preferences.fontSize + 1) })}
-              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              style={{ padding: '4px 10px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '16px' }}
               disabled={preferences.fontSize >= 32}
             >
               +
@@ -131,20 +136,20 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
         </div>
 
         {/* Line Spacing */}
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Line Spacing</label>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Line Spacing</label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', width: '120px' }}>
             <button 
               onClick={() => updatePreferences({ lineSpacing: Math.max(1.0, Number((preferences.lineSpacing - 0.1).toFixed(1))) })}
-              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              style={{ padding: '4px 10px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '16px' }}
               disabled={preferences.lineSpacing <= 1.0}
             >
               &minus;
             </button>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.lineSpacing.toFixed(1)}x</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.lineSpacing.toFixed(1)}x</span>
             <button 
               onClick={() => updatePreferences({ lineSpacing: Math.min(2.5, Number((preferences.lineSpacing + 0.1).toFixed(1))) })}
-              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              style={{ padding: '4px 10px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '16px' }}
               disabled={preferences.lineSpacing >= 2.5}
             >
               +
@@ -153,20 +158,20 @@ export default function ReaderSettingsOverlay({ isOpen, onClose, preferences, up
         </div>
 
         {/* Paragraph Spacing */}
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)' }}>Paragraph Spacing</label>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Par. Spacing</label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', borderRadius: '6px', width: '120px' }}>
             <button 
               onClick={() => updatePreferences({ paragraphSpacing: Math.max(0.5, Number((preferences.paragraphSpacing - 0.1).toFixed(1))) })}
-              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              style={{ padding: '4px 10px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '16px' }}
               disabled={preferences.paragraphSpacing <= 0.5}
             >
               &minus;
             </button>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.paragraphSpacing.toFixed(1)}em</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{preferences.paragraphSpacing.toFixed(1)}em</span>
             <button 
               onClick={() => updatePreferences({ paragraphSpacing: Math.min(3.0, Number((preferences.paragraphSpacing + 0.1).toFixed(1))) })}
-              style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '18px' }}
+              style={{ padding: '4px 10px', background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '16px' }}
               disabled={preferences.paragraphSpacing >= 3.0}
             >
               +
