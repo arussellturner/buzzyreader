@@ -416,8 +416,27 @@ export default function ReaderView({
           }
         };
 
-        // Touch/click handling is done via the overlay div, not inside the iframe.
-        // See the tapOverlayRef useEffect below.
+        // Desktop mouse click handling (coordinates are reliable on desktop).
+        // The overlay only handles TOUCH events for mobile.
+        r.on('click', (e: any) => {
+          // Skip if a touch was recently handled
+          if (typeof window !== 'undefined' && (window as any).__lastTouchTs && Date.now() - (window as any).__lastTouchTs < 800) return;
+
+          const selection = r.getContents()[0]?.window?.getSelection();
+          if (selection && selection.toString().length > 0) return;
+
+          const w = window.innerWidth;
+          const x = e.clientX;
+          if (x === undefined) return;
+
+          if (x < w * 0.3) {
+            goPrev();
+          } else if (x > w * 0.7) {
+            goNext();
+          } else {
+            if (onToggleMenu) onToggleMenu();
+          }
+        });
 
       } catch (err) {
         console.error("Failed to bind epub events", err);
@@ -505,8 +524,15 @@ export default function ReaderView({
         // Quick tap: < 300ms and < 15px movement
         if (dx < 15 && dy < 15 && elapsed < 300) {
           lastTouchTs = Date.now();
+          // Store globally so the desktop click handler can check it
+          (window as any).__lastTouchTs = lastTouchTs;
           const w = window.innerWidth;
-          if (endX < w * 0.45) {
+          const h = window.innerHeight;
+
+          // Top 20% of screen = toggle menu
+          if (endY < h * 0.2) {
+            if (onToggleMenu) onToggleMenu();
+          } else if (endX < w * 0.45) {
             goPrev();
           } else if (endX > w * 0.55) {
             goNext();
@@ -524,51 +550,45 @@ export default function ReaderView({
       }
     };
 
-    const onClick = (e: MouseEvent) => {
-      // Skip if this click was generated from a touch (already handled)
-      if (Date.now() - lastTouchTs < 500) return;
-      const w = window.innerWidth;
-      const x = e.clientX;
-      if (x < w * 0.45) {
-        goPrev();
-      } else if (x > w * 0.55) {
-        goNext();
-      } else {
-        if (onToggleMenu) onToggleMenu();
-      }
-    };
-
     overlay.addEventListener('touchstart', onTouchStart, { passive: true });
     overlay.addEventListener('touchend', onTouchEnd, { passive: true });
     overlay.addEventListener('touchcancel', onTouchCancel, { passive: true });
-    overlay.addEventListener('click', onClick);
 
     return () => {
       overlay.removeEventListener('touchstart', onTouchStart);
       overlay.removeEventListener('touchend', onTouchEnd);
       overlay.removeEventListener('touchcancel', onTouchCancel);
-      overlay.removeEventListener('click', onClick);
       if (longPressTimer) clearTimeout(longPressTimer);
     };
   }, [goNext, goPrev, onToggleMenu, isInitialized]);
 
   return (
     <>
+      {/* On devices with a mouse (hover:hover), the overlay is invisible to pointer
+          events so desktop text selection and iframe clicks work. On touch-only devices,
+          the overlay captures taps for reliable page turning. */}
+      <style>{`
+        .tap-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          background: transparent;
+          pointer-events: auto;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .tap-overlay {
+            pointer-events: none;
+          }
+        }
+      `}</style>
       <div
         ref={containerRef}
         className={styles.epubContainer}
         data-reader-view
       />
-      {/* Invisible overlay: quick taps → page turns, long press → passes through to iframe for text selection */}
       <div
         ref={tapOverlayRef}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 2,
-          background: 'transparent',
-          pointerEvents: 'auto',
-        }}
+        className="tap-overlay"
       />
     </>
   );
