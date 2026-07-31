@@ -292,24 +292,30 @@ export default function ReaderPage() {
     );
   }
 
+  const pageBg = preferences.theme === 'light' ? '#ffffff' : 
+                 preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a';
+  const textColor = preferences.theme === 'light' ? '#000000' : 
+                    preferences.theme === 'sepia' ? '#5c4033' : '#ffffff';
+  const borderColor = preferences.theme === 'dark' ? '#333' : 
+                      preferences.theme === 'sepia' ? '#d3c5a3' : '#ccc';
+
   return (
     <div style={{ 
       display: 'flex', 
       flexDirection: 'column', 
       height: '100dvh', 
       width: '100vw', 
-      background: preferences.theme === 'light' ? '#ffffff' : 
-                  preferences.theme === 'sepia' ? '#f4ecd8' : '#0a0e1a', 
+      background: pageBg, 
       overflow: 'hidden' 
     }}>
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
       </div>
 
-      <div style={{ display: 'flex', width: '100%', height: '50px', borderTop: `1px solid ${preferences.theme === 'dark' ? '#333' : '#ccc'}`, zIndex: 10 }}>
+      <div style={{ display: 'flex', width: '100%', height: '50px', borderTop: `1px solid ${borderColor}`, zIndex: 10, background: 'transparent' }}>
         <button 
           onClick={() => router.push('/library')} 
-          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: preferences.theme === 'dark' ? '#111827' : '#eee', border: 'none', borderRight: `1px solid ${preferences.theme === 'dark' ? '#333' : '#ccc'}`, cursor: 'pointer', color: preferences.theme === 'dark' ? '#fff' : '#000', fontSize: '18px' }}
+          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', borderRight: `1px solid ${borderColor}`, cursor: 'pointer', color: textColor, fontSize: '18px' }}
         >
           🐝
         </button>
@@ -322,7 +328,7 @@ export default function ReaderPage() {
             }
             setIsSettingsOpen(!isSettingsOpen);
           }} 
-          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: preferences.theme === 'dark' ? '#111827' : '#eee', border: 'none', borderRight: `1px solid ${preferences.theme === 'dark' ? '#333' : '#ccc'}`, cursor: 'pointer', color: preferences.theme === 'dark' ? '#fff' : '#000', fontSize: '18px' }}
+          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', borderRight: `1px solid ${borderColor}`, cursor: 'pointer', color: textColor, fontSize: '18px' }}
           title="Settings"
         >
           ⚙️
@@ -336,7 +342,7 @@ export default function ReaderPage() {
             }
             renditionRef.current?.prev();
           }} 
-          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: preferences.theme === 'dark' ? '#111827' : '#eee', border: 'none', borderRight: `1px solid ${preferences.theme === 'dark' ? '#333' : '#ccc'}`, cursor: 'pointer', color: preferences.theme === 'dark' ? '#fff' : '#000', fontSize: '24px' }}
+          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', borderRight: `1px solid ${borderColor}`, cursor: 'pointer', color: textColor, fontSize: '24px' }}
         >
           &larr;
         </button>
@@ -349,7 +355,7 @@ export default function ReaderPage() {
             }
             renditionRef.current?.next();
           }} 
-          style={{ width: '55%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: preferences.theme === 'dark' ? '#111827' : '#eee', border: 'none', cursor: 'pointer', color: preferences.theme === 'dark' ? '#fff' : '#000', fontSize: '24px' }}
+          style={{ width: '55%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', color: textColor, fontSize: '24px' }}
         >
           &rarr;
         </button>
