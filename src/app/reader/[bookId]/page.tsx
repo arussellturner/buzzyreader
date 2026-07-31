@@ -112,13 +112,13 @@ export default function ReaderPage() {
         </button>
         <button 
           onClick={() => renditionRef.current?.prev()} 
-          style={{ width: '35%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', borderRight: '1px solid #ccc', cursor: 'pointer', color: '#000', fontSize: '24px' }}
+          style={{ width: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', borderRight: '1px solid #ccc', cursor: 'pointer', color: '#000', fontSize: '24px' }}
         >
           &larr;
         </button>
         <button 
           onClick={() => renditionRef.current?.next()} 
-          style={{ width: '35%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', cursor: 'pointer', color: '#000', fontSize: '24px' }}
+          style={{ width: '55%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', border: 'none', cursor: 'pointer', color: '#000', fontSize: '24px' }}
         >
           &rarr;
         </button>
