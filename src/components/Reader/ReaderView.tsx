@@ -422,26 +422,26 @@ export default function ReaderView({
 
         r.on('touchstart', (e: any) => {
           if (e.changedTouches && e.changedTouches.length > 0) {
-            touchStartX = e.changedTouches[0].clientX;
-            touchStartY = e.changedTouches[0].clientY;
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
           }
         });
 
         r.on('touchend', (e: any) => {
           if (e.changedTouches && e.changedTouches.length > 0) {
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
             const deltaX = Math.abs(touchEndX - touchStartX);
             const deltaY = Math.abs(touchEndY - touchStartY);
 
             // If movement is less than 15 pixels, it's a tap, not a swipe
             if (deltaX < 15 && deltaY < 15) {
               lastTouchTime = Date.now();
-              const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
+              const screenWidth = window.screen.width;
               
-              if (touchEndX < width * 0.45) {
+              if (touchEndX < screenWidth * 0.45) {
                 goPrev();
-              } else if (touchEndX > width * 0.55) {
+              } else if (touchEndX > screenWidth * 0.55) {
                 goNext();
               } else {
                 if (onToggleMenu) onToggleMenu();
@@ -458,7 +458,7 @@ export default function ReaderView({
           const selection = r.getContents()[0]?.window?.getSelection();
           if (selection && selection.toString().length > 0) return;
 
-          const width = r.getContents()[0]?.window?.innerWidth || window.innerWidth;
+          const width = window.innerWidth;
           const x = e.clientX;
           if (x === undefined) return;
 
