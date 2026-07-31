@@ -145,6 +145,8 @@ export default function ReaderPage() {
             background-color: ${bg} !important;
             background: ${bg} !important;
             max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
           ::selection {
             background: rgba(255, 255, 0, 0.3) !important;
@@ -215,7 +217,9 @@ export default function ReaderPage() {
             'background-color': bgColor,
             'background': bgColor,
             'color': textColor,
-            'max-width': 'none !important'
+            'max-width': 'none !important',
+            'padding': '0 !important',
+            'margin': '0 !important'
           },
           'p': {
             'margin-bottom': `${preferences.paragraphSpacing}em !important`,
@@ -447,6 +451,8 @@ export default function ReaderPage() {
               background-color: ${bgRaw} !important;
               background: ${bgRaw} !important;
               max-width: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
             }
           `;
           doc.head.appendChild(style);
