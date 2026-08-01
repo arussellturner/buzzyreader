@@ -31,6 +31,7 @@ export class DriveStorage {
   async getOrCreateAppFolder(): Promise<string> {
     const response = await fetch(`${DRIVE_API_BASE}/files/root?fields=id`, {
       headers: this.headers,
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -56,7 +57,7 @@ export class DriveStorage {
 
     const response = await fetch(
       `${DRIVE_API_BASE}/files/${file.id}?alt=media`,
-      { headers: this.headers }
+      { headers: this.headers, cache: 'no-store' }
     );
 
     if (!response.ok) {
@@ -120,6 +121,7 @@ export class DriveStorage {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(metadata),
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -140,7 +142,7 @@ export class DriveStorage {
   async getEpubFileContent(fileId: string): Promise<ArrayBuffer> {
     const response = await fetch(
       `${DRIVE_API_BASE}/files/${fileId}?alt=media`,
-      { headers: this.headers }
+      { headers: this.headers, cache: 'no-store' }
     );
 
     if (!response.ok) {
@@ -175,7 +177,7 @@ export class DriveStorage {
 
       const response = await fetch(
         `${DRIVE_API_BASE}/files?${params.toString()}`,
-        { headers: this.headers }
+        { headers: this.headers, cache: 'no-store' }
       );
 
       if (!response.ok) {
@@ -231,7 +233,7 @@ export class DriveStorage {
 
     const response = await fetch(
       `${DRIVE_API_BASE}/files?${params.toString()}`,
-      { headers: this.headers }
+      { headers: this.headers, cache: 'no-store' }
     );
 
     if (!response.ok) {
@@ -281,6 +283,7 @@ export class DriveStorage {
           'Content-Type': `multipart/related; boundary=${boundary}`,
         },
         body,
+        cache: 'no-store',
       }
     );
 
@@ -306,6 +309,7 @@ export class DriveStorage {
           'Content-Type': 'application/json',
         },
         body: content,
+        cache: 'no-store',
       }
     );
 
