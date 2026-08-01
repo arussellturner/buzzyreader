@@ -24,6 +24,8 @@ export default function BookDetailsModal({
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
+  const [coverSuggestions, setCoverSuggestions] = useState<string[]>([]);
+  const [isSearchingCover, setIsSearchingCover] = useState(false);
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -35,6 +37,8 @@ export default function BookDetailsModal({
       setTitle(book.title || '');
       setAuthor(book.author || '');
       setCoverUrl(book.coverUrl || '');
+      setCoverSuggestions([]);
+      setIsSearchingCover(false);
       setNotes(book.notes || '');
       setShowUnsavedPrompt(false);
     }
@@ -99,18 +103,45 @@ export default function BookDetailsModal({
 
   const handleResetProgress = async () => {
     if (!book) return;
-    if (confirm('Are you sure you want to reset reading progress to 0%?')) {
+    if (confirm(`Are you sure you want to reset reading progress for "${book.title}"?`)) {
       try {
         await onResetProgress(book.id);
-        alert('Reading progress reset.');
+        onClose();
       } catch (err) {
         console.error('Failed to reset progress', err);
-        alert('Failed to reset progress');
+        alert('Failed to reset reading progress');
       }
     }
   };
 
-  if (!isOpen || !book) return null;
+  const searchCoverArt = async () => {
+    if (!title) return;
+    setIsSearchingCover(true);
+    setCoverSuggestions([]);
+    
+    try {
+      const query = encodeURIComponent(`${title} ${author}`.trim());
+      const res = await fetch(`https://openlibrary.org/search.json?q=${query}&limit=10`);
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
+      
+      const docsWithCovers = data.docs.filter((doc: any) => doc.cover_i);
+      // Get up to 4 unique covers
+      const covers: string[] = [];
+      for (const doc of docsWithCovers) {
+        if (covers.length >= 4) break;
+        const url = `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+        if (!covers.includes(url)) covers.push(url);
+      }
+      setCoverSuggestions(covers);
+    } catch (err) {
+      console.error('Failed to fetch cover art suggestions:', err);
+    } finally {
+      setIsSearchingCover(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
@@ -185,14 +216,44 @@ export default function BookDetailsModal({
 
             <div className={styles.formGroup}>
               <label htmlFor="book-cover">Cover Image URL (Optional)</label>
-              <input
-                id="book-cover"
-                type="text"
-                value={coverUrl}
-                onChange={(e) => setCoverUrl(e.target.value)}
-                placeholder="https://..."
-                className={styles.input}
-              />
+              <div className={styles.coverInputGroup}>
+                <input
+                  id="book-cover"
+                  type="text"
+                  value={coverUrl}
+                  onChange={(e) => setCoverUrl(e.target.value)}
+                  placeholder="https://..."
+                  className={styles.input}
+                />
+                <button 
+                  type="button"
+                  className={styles.btnSecondary}
+                  onClick={searchCoverArt}
+                  disabled={isSearchingCover || !title}
+                  title="Search OpenLibrary for cover art"
+                >
+                  {isSearchingCover ? 'Searching...' : 'Find Cover'}
+                </button>
+              </div>
+              
+              {coverSuggestions.length > 0 && (
+                <div className={styles.coverSuggestions}>
+                  <p className={styles.suggestionsLabel}>Select a cover:</p>
+                  <div className={styles.suggestionsGrid}>
+                    {coverSuggestions.map((url, i) => (
+                      <button 
+                        key={i}
+                        type="button"
+                        className={`${styles.suggestionBtn} ${coverUrl === url ? styles.suggestionSelected : ''}`}
+                        onClick={() => setCoverUrl(url)}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={`Cover option ${i + 1}`} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className={styles.formGroup}>
