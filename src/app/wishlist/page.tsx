@@ -166,11 +166,8 @@ export default function WishlistPage() {
 
       <main className={libraryStyles.content}>
         <div className={styles.wishlistHeader}>
-          <div className={styles.headerLeft}>
+          <div className={styles.headerTopRow}>
             <PageNavDropdown activePage="wishlist" />
-          </div>
-
-          <div className={styles.headerRight}>
             <button 
               className={styles.addButton} 
               onClick={() => {
@@ -185,6 +182,9 @@ export default function WishlistPage() {
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
             </button>
+          </div>
+
+          <div className={styles.controlsRow}>
             <div className={libraryStyles.sortOptions}>
               <span className={libraryStyles.sortLabel}>Sort by:</span>
               <div className={libraryStyles.selectWrapper}>

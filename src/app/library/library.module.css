@@ -273,9 +273,21 @@
 
 .toolbar {
   display: flex;
+  flex-direction: column;
+  margin-bottom: 40px;
+  gap: 24px;
+}
+
+.toolbarTopRow {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 16px;
   flex-wrap: wrap;
 }

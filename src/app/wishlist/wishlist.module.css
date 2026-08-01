@@ -1,23 +1,22 @@
 .wishlistHeader {
   margin-bottom: 32px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 24px;
 }
 
-.headerLeft {
+.headerTopRow {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
 }
 
-.headerRight {
-  flex: 1;
+.controlsRow {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .pageTitle {
