@@ -483,7 +483,7 @@ export default function ReaderPage() {
     const handleGlobalTap = (e: TouchEvent | MouseEvent) => {
       let x = 0, y = 0;
       if (window.TouchEvent && e instanceof TouchEvent) {
-        if (e.touches.length === 0) return;
+        if (!e.touches || e.touches.length === 0) return;
         x = e.touches[0].clientX;
         y = e.touches[0].clientY;
       } else {
@@ -493,6 +493,12 @@ export default function ReaderPage() {
       
       let clickedCfi: string | null = null;
       const gs = document.querySelectorAll('g[data-epubcfi]');
+      
+      if (gs.length > 0) {
+        if (typeof (window as any)._buzzyDebug === 'function') {
+          (window as any)._buzzyDebug(`Tap checking ${gs.length} marks at ${Math.round(x)},${Math.round(y)}`);
+        }
+      }
       
       for (let i = 0; i < gs.length; i++) {
         const g = gs[i];
@@ -513,8 +519,13 @@ export default function ReaderPage() {
         if (clickedCfi) break;
       }
       
-      if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
-        (window as any)._buzzyMarkClicked(clickedCfi);
+      if (clickedCfi) {
+        if (typeof (window as any)._buzzyDebug === 'function') {
+          (window as any)._buzzyDebug(`Match found!`);
+        }
+        if (typeof (window as any)._buzzyMarkClicked === 'function') {
+          (window as any)._buzzyMarkClicked(clickedCfi);
+        }
       }
     };
     
