@@ -101,6 +101,30 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
     }
   };
 
+  const handleMarkReadToggle = async () => {
+    if (!title.trim() || isSaving || isDeleting) return;
+    setIsSaving(true);
+    
+    const newIsRead = !isRead;
+    setIsRead(newIsRead); // Optimistic
+
+    try {
+      await onSave({
+        title: title.trim(),
+        author: author.trim() || 'Unknown Author',
+        sourceNotes: sourceNotes.trim(),
+        coverUrl: coverUrl.trim() || undefined,
+        isRead: newIsRead
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error saving read status:', error);
+      setIsRead(!newIsRead);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const selectSearchResult = (book: any) => {
     setTitle(book.title || '');
     setAuthor(book.author_name ? book.author_name.join(', ') : 'Unknown Author');
@@ -247,7 +271,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
                 {initialItem && (
                   <button 
                     className={`${styles.markReadBtn} ${isRead ? styles.isReadActive : ''}`} 
-                    onClick={() => setIsRead(!isRead)}
+                    onClick={handleMarkReadToggle}
                     disabled={isSaving || isDeleting}
                   >
                     {isRead ? 'Mark as Unread' : 'Mark as Read'}
