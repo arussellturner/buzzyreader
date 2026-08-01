@@ -57,6 +57,11 @@ export default function ReaderPage() {
   preferencesRef.current = preferences;
 
   useEffect(() => {
+    // Define a global debug function that can be called from anywhere
+    (window as any)._buzzyDebug = (msg: string) => {
+      setDebugLog(prev => [...prev, msg].slice(-7));
+    };
+
     if (status === 'unauthenticated') {
       router.push('/');
     }
@@ -168,14 +173,7 @@ export default function ReaderPage() {
           if (el.style.background) el.style.background = '';
         });
 
-        const logDebug = (msg: string) => {
-          setDebugLog(prev => [...prev, msg].slice(-7));
-        };
-
-        // Instead of relying on unreliable iOS event listeners, we will poll for selection changes
-        // But we attach it to the parent window so it persists across page turns
-        (window as any)._buzzyDebug = logDebug;
-        
+        // Note: _buzzyDebug is now defined at the top of the useEffect
         // Custom listener for tapping existing highlights
         // Taps go to the iframe document, but the SVG overlay is in the parent document!
         const checkTapInParent = (x: number, y: number) => {
@@ -528,10 +526,13 @@ export default function ReaderPage() {
 
     // Also add geometric tap detection to the PARENT document, just in case!
     const handleGlobalTap = (e: TouchEvent | MouseEvent) => {
+      if (typeof (window as any)._buzzyDebug === 'function') {
+        (window as any)._buzzyDebug(`GlobalTap: ${e.type}`);
+      }
       let x = 0, y = 0;
-      if (window.TouchEvent && e instanceof TouchEvent) {
-        // For touchend, use changedTouches
-        const touchList = e.type === 'touchend' ? e.changedTouches : e.touches;
+      if (e.type === 'touchstart' || e.type === 'touchend') {
+        const te = e as TouchEvent;
+        const touchList = e.type === 'touchend' ? te.changedTouches : te.touches;
         if (!touchList || touchList.length === 0) return;
         x = touchList[0].clientX;
         y = touchList[0].clientY;
