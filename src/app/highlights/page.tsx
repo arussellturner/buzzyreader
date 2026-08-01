@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import HighlightCard from '@/components/Highlights/HighlightCard';
@@ -32,6 +32,18 @@ export default function HighlightsPage() {
       router.push('/');
     }
   }, [status, router]);
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     async function fetchHighlights() {
@@ -129,7 +141,7 @@ export default function HighlightsPage() {
           <div className={libraryStyles.headerRight}>
             <ThemeToggle className={libraryStyles.themeToggle} />
 
-            <div className={libraryStyles.userMenuContainer}>
+            <div className={libraryStyles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={libraryStyles.avatarButton} 
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}

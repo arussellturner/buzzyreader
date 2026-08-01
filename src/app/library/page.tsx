@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useGoogleDrive } from '@/hooks/useGoogleDrive';
@@ -157,6 +157,18 @@ export default function LibraryPage() {
     updatePreferences({ theme: themes[nextIdx] });
   }, [preferences.theme, updatePreferences]);
 
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Get user initials for avatar placeholder
   const userInitials = useMemo(() => {
     if (!session?.user?.name) return '?';
@@ -224,7 +236,7 @@ export default function LibraryPage() {
               )}
             </button>
 
-            <div className={styles.userMenuContainer}>
+            <div className={styles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={styles.avatarButton} 
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}

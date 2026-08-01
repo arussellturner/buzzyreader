@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useWishlist } from '@/hooks/useWishlist';
@@ -44,6 +44,18 @@ export default function WishlistPage() {
     }
   }, [status, router]);
 
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const userInitials = useMemo(() => {
     if (!session?.user?.name) return '?';
     return session.user.name
@@ -81,7 +93,7 @@ export default function WishlistPage() {
           <div className={libraryStyles.headerRight}>
             <ThemeToggle className={libraryStyles.themeToggle} />
 
-            <div className={libraryStyles.userMenuContainer}>
+            <div className={libraryStyles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={libraryStyles.avatarButton} 
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
