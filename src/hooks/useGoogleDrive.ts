@@ -42,9 +42,10 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
     [accessToken],
   );
 
-  // Keep a ref so callbacks can read the latest library without re-binding
   const libraryRef = useRef(library);
-  libraryRef.current = library;
+  useEffect(() => {
+    libraryRef.current = library;
+  }, [library]);
 
   // ── Load library on mount / sign-in ──────────────────────────────
   useEffect(() => {

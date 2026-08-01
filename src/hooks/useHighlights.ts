@@ -27,9 +27,10 @@ export function useHighlights(): UseHighlightsReturn {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Refs to keep latest values accessible in async callbacks
   const highlightsRef = useRef(highlights);
-  highlightsRef.current = highlights;
+  useEffect(() => {
+    highlightsRef.current = highlights;
+  }, [highlights]);
 
   const accessTokenRef = useRef<string | null>(null);
   const bookIdRef = useRef<string | null>(null);

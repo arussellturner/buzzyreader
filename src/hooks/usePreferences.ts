@@ -73,9 +73,10 @@ export function usePreferences(): UsePreferencesReturn {
     useState<ReaderPreferences>(DEFAULT_PREFERENCES);
   const [loading, setLoading] = useState(true);
 
-  // Keep a mutable ref to the latest preferences for the debounce closure
   const prefsRef = useRef<ReaderPreferences>(preferences);
-  prefsRef.current = preferences;
+  useEffect(() => {
+    prefsRef.current = preferences;
+  }, [preferences]);
 
   // Debounce timer ref for saving to Drive
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

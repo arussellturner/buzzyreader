@@ -25,9 +25,10 @@ export function useReadingProgress(): UseReadingProgressReturn {
   const [progress, setProgress] = useState<ReadingProgress | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Refs for debounce and latest state
   const progressRef = useRef(progress);
-  progressRef.current = progress;
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accessTokenRef = useRef<string | null>(null);

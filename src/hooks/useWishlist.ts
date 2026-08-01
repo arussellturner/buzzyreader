@@ -12,7 +12,9 @@ export function useWishlist() {
   const [error, setError] = useState<string | null>(null);
 
   const wishlistRef = useRef(wishlist);
-  wishlistRef.current = wishlist;
+  useEffect(() => {
+    wishlistRef.current = wishlist;
+  }, [wishlist]);
 
   useEffect(() => {
     if (!driveStorage) {
