@@ -106,6 +106,7 @@ export default function HighlightCard({
       role="button"
       tabIndex={0}
       aria-label={`Highlight: ${highlight.text.slice(0, 60)}…`}
+      style={{ zIndex: showMenu ? 50 : 1 }}
     >
       <p className={styles.text}>{highlight.text}</p>
 
