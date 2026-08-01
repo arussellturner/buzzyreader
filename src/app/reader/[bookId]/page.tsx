@@ -90,6 +90,7 @@ export default function ReaderPage() {
 
   useEffect(() => {
     let book: any;
+    let pollInterval: NodeJS.Timeout;
     async function initEpub() {
       if (!containerRef.current || !epubData) return;
       
@@ -139,16 +140,7 @@ export default function ReaderPage() {
           * {
             color: ${textColor} !important;
             background-color: transparent !important;
-          }
-          html {
-            background-color: ${bg} !important;
-            background: ${bg} !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          body {
-            background-color: ${bg} !important;
-            background: ${bg} !important;
+            background: transparent !important;
             max-width: none !important;
             padding: 0 !important;
             margin: 0 !important;
@@ -166,6 +158,7 @@ export default function ReaderPage() {
         doc.head.appendChild(style);
         
         // Strip inline color and background styles from all elements
+        // This is the nuclear option for epubs that hardcode styles inline
         const allElements = doc.body.querySelectorAll('*');
         allElements.forEach((el: HTMLElement) => {
           if (el.style.color) el.style.color = '';
@@ -382,7 +375,7 @@ export default function ReaderPage() {
       
       // Polling text selection as ultimate fallback for iOS Safari
       let lastPolledText = '';
-      const pollInterval = setInterval(async () => {
+      pollInterval = setInterval(async () => {
         try {
           const contents = renditionRef.current?.getContents()?.[0];
           if (!contents) return;
@@ -429,7 +422,7 @@ export default function ReaderPage() {
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      clearInterval(pollInterval as any);
+      clearInterval(pollInterval);
     };
   }, [epubData, initialCfi]); // Removed progress from dependency to avoid re-mounting epub on progress change
 
