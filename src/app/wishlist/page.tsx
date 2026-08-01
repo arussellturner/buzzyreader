@@ -137,7 +137,7 @@ export default function WishlistPage() {
 
               {isUserMenuOpen && (
                 <div className={libraryStyles.userMenuDropdown}>
-                  <div style={{ padding: '0 8px 8px', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
+                  <div style={{ padding: '0 8px' }}>
                     <ThemeToggle />
                   </div>
                   <button 
@@ -146,7 +146,6 @@ export default function WishlistPage() {
                   >
                     Log out
                   </button>
-                  <div className={libraryStyles.dropdownDivider} />
                   <div className={libraryStyles.legalDropdownLinks}>
                     <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
                     <span className={libraryStyles.legalDropdownDivider}>•</span>

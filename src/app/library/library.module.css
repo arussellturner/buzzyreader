@@ -243,7 +243,7 @@
 .dropdownItemLogout {
   display: block;
   width: calc(100% - 16px);
-  margin: 8px auto;
+  margin: 16px auto;
   text-align: center;
   padding: 8px 16px;
   background: transparent;
@@ -502,8 +502,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 4px 16px 8px;
-  gap: 2px;
+  padding: 0 16px 8px;
+  gap: 16px;
 }
 
 .legalDropdownLink {

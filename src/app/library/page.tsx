@@ -266,7 +266,7 @@ export default function LibraryPage() {
 
               {isUserMenuOpen && (
                 <div className={styles.userMenuDropdown}>
-                  <div style={{ padding: '0 8px 8px', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
+                  <div style={{ padding: '0 8px' }}>
                     <ThemeToggle />
                   </div>
                   <button 
@@ -275,7 +275,6 @@ export default function LibraryPage() {
                   >
                     Log out
                   </button>
-                  <div className={styles.dropdownDivider} />
                   <div className={styles.legalDropdownLinks}>
                     <button className={styles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
                     <span className={styles.legalDropdownDivider}>•</span>
