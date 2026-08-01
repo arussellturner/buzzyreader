@@ -12,7 +12,9 @@ export default function Home() {
         <LightRays
           raysOrigin="top-center"
           raysColor="#f59e0b" // amber-500
-          raysSpeed={1.5}
+          raysSpeed={0.5}
+          rayLength={3.5}
+          fadeDistance={2.5}
           pulsating={true}
           lightSpread={1.5}
         />
