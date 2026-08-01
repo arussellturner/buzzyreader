@@ -245,11 +245,9 @@ export default function HighlightsPage() {
       {/* Main Content */}
       <main className={libraryStyles.content}>
         <div className={styles.highlightsHeader}>
-          <div className={styles.headerLeft}>
+          <div className={styles.headerTopRow}>
             <h1 className={styles.pageTitle}>Highlights</h1>
-          </div>
-          <div className={styles.headerRight}>
-            <div className={libraryStyles.sortOptions} style={{ marginRight: '16px' }}>
+            <div className={libraryStyles.sortOptions}>
               <span className={libraryStyles.sortLabel}>Sort by:</span>
               <div className={libraryStyles.selectWrapper}>
                 <select
@@ -269,15 +267,15 @@ export default function HighlightsPage() {
                 </span>
               </div>
             </div>
-            <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search highlights..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-            </div>
+          </div>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Search highlights..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
         </div>
 

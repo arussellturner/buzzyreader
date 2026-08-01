@@ -1,21 +1,14 @@
 .highlightsHeader {
   margin-bottom: 32px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 24px;
 }
 
-.headerLeft {
+.headerTopRow {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.headerRight {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .pageTitle {
@@ -28,12 +21,10 @@
 
 .searchContainer {
   width: 100%;
-  max-width: 400px;
 }
 
 .searchInput {
   width: 100%;
-  max-width: 400px;
   padding: 12px 16px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -86,16 +77,6 @@
 
 @media (max-width: 768px) {
   .highlightsHeader {
-    flex-direction: column;
-    align-items: stretch;
     gap: 16px;
-  }
-  
-  .headerRight {
-    justify-content: stretch;
-  }
-  
-  .searchContainer {
-    max-width: 100%;
   }
 }
