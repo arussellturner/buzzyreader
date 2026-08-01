@@ -141,6 +141,53 @@
   to { opacity: 1; }
 }
 
+.topRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.titleAuthorGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.titleAuthorGroup .inputGroup {
+  margin-bottom: 0; /* Override default inputGroup margin */
+}
+
+.coverPreview {
+  width: 80px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-elevated);
+  flex-shrink: 0;
+}
+
+.coverPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coverPreviewPlaceholder {
+  width: 80px;
+  height: 120px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  border: 1px dashed var(--border-color);
+  flex-shrink: 0;
+}
+
 /* ── Google Books Search Styles ── */
 .searchingIndicator {
   position: absolute;

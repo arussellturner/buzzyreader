@@ -205,27 +205,45 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
         ) : (
           <>
             <div className={styles.body}>
-              <div className={styles.inputGroup}>
-                <label className={styles.label}>Title</label>
-                <input 
-                  type="text" 
-                  className={styles.input} 
-                  value={title} 
-                  onChange={e => setTitle(e.target.value)} 
-                  placeholder="Book Title"
-                  autoFocus={!initialItem}
-                />
-              </div>
+              <div className={styles.topRow}>
+                {coverUrl ? (
+                  <div className={styles.coverPreview}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={coverUrl} alt="Cover preview" />
+                  </div>
+                ) : (
+                  <div className={styles.coverPreviewPlaceholder} aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                  </div>
+                )}
+                
+                <div className={styles.titleAuthorGroup}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Title</label>
+                    <input 
+                      type="text" 
+                      className={styles.input} 
+                      value={title} 
+                      onChange={e => setTitle(e.target.value)} 
+                      placeholder="Book Title"
+                      autoFocus={!initialItem}
+                    />
+                  </div>
 
-              <div className={styles.inputGroup}>
-                <label className={styles.label}>Author</label>
-                <input 
-                  type="text" 
-                  className={styles.input} 
-                  value={author} 
-                  onChange={e => setAuthor(e.target.value)} 
-                  placeholder="Author Name"
-                />
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Author</label>
+                    <input 
+                      type="text" 
+                      className={styles.input} 
+                      value={author} 
+                      onChange={e => setAuthor(e.target.value)} 
+                      placeholder="Author Name"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className={styles.inputGroup}>
