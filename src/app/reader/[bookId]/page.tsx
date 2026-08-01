@@ -427,6 +427,12 @@ export default function ReaderPage() {
               }
             }
           } else if (!sel || sel.isCollapsed) {
+            if (lastPolledText !== '') {
+              // The native selection just disappeared (user tapped elsewhere to dismiss)
+              if (typeof (window as any)._buzzyClearSelection === 'function') {
+                (window as any)._buzzyClearSelection();
+              }
+            }
             lastPolledText = '';
           }
         } catch(e) {}
