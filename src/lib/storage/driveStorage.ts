@@ -90,7 +90,23 @@ export async function getReadingProgress(
   drive: DriveStorage,
   bookId: string
 ): Promise<ReadingProgress | null> {
-  return drive.readJsonFile<ReadingProgress>(progressFileName(bookId));
+  const driveResult = await drive.readJsonFile<ReadingProgress>(progressFileName(bookId));
+  
+  let localResult: ReadingProgress | null = null;
+  if (typeof window !== 'undefined') {
+    try {
+      const localStr = localStorage.getItem(progressFileName(bookId));
+      if (localStr) localResult = JSON.parse(localStr);
+    } catch (e) {}
+  }
+  
+  if (!driveResult && !localResult) return null;
+  if (!driveResult) return localResult;
+  if (!localResult) return driveResult;
+  
+  const driveTime = new Date(driveResult.lastRead || 0).getTime();
+  const localTime = new Date(localResult.lastRead || 0).getTime();
+  return localTime > driveTime ? localResult : driveResult;
 }
 
 /**
@@ -102,6 +118,13 @@ export async function saveReadingProgress(
   progress: ReadingProgress
 ): Promise<void> {
   progress.lastRead = new Date().toISOString();
+  
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(progressFileName(bookId), JSON.stringify(progress));
+    } catch (e) {}
+  }
+  
   await drive.writeJsonFile(progressFileName(bookId), progress);
 }
 
