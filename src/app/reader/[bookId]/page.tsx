@@ -844,6 +844,50 @@ export default function ReaderPage() {
       </div>
       <div 
         style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: '12px', width: '100%', maxWidth: '1000px', margin: '0 auto' }}
+        onTouchEnd={(e) => {
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`React: onTouchEnd`);
+          }
+          if (e.changedTouches && e.changedTouches.length > 0) {
+            const x = e.changedTouches[0].clientX;
+            const y = e.changedTouches[0].clientY;
+            const gs = document.querySelectorAll('g[data-epubcfi]');
+            for (let i = 0; i < gs.length; i++) {
+              const g = gs[i];
+              const rects = g.querySelectorAll('rect, path, polygon');
+              for (let j = 0; j < rects.length; j++) {
+                const rect = rects[j].getBoundingClientRect();
+                const padding = 15;
+                if (x >= rect.left - padding && x <= rect.right + padding && y >= rect.top - padding && y <= rect.bottom + padding) {
+                  const clickedCfi = g.getAttribute('data-epubcfi');
+                  if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+                    (window as any)._buzzyMarkClicked(clickedCfi);
+                  }
+                  return;
+                }
+              }
+            }
+          }
+        }}
+        onPointerUp={(e) => {
+          if (e.pointerType !== 'mouse') return; // Only process mouse here to avoid double-firing on touch
+          const gs = document.querySelectorAll('g[data-epubcfi]');
+          for (let i = 0; i < gs.length; i++) {
+            const g = gs[i];
+            const rects = g.querySelectorAll('rect, path, polygon');
+            for (let j = 0; j < rects.length; j++) {
+              const rect = rects[j].getBoundingClientRect();
+              const padding = 5;
+              if (e.clientX >= rect.left - padding && e.clientX <= rect.right + padding && e.clientY >= rect.top - padding && e.clientY <= rect.bottom + padding) {
+                const clickedCfi = g.getAttribute('data-epubcfi');
+                if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+                  (window as any)._buzzyMarkClicked(clickedCfi);
+                }
+                return;
+              }
+            }
+          }
+        }}
         onClick={() => {
           if (activeSelection) {
             setActiveSelection(null);
