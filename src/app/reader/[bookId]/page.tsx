@@ -388,29 +388,68 @@ export default function ReaderPage() {
         }
       });
       
-      // Clear selection on click elsewhere
+      // Clear selection on click elsewhere — BUT FIRST check if user tapped an existing highlight
       rendition.on('click', (e: any) => {
          setDebugLog(prev => [...prev, 'click fired'].slice(-5));
-         // If a mark was just clicked, ignore this synthesized click event
+         
+         // If a mark was just clicked via native epub.js, don't double-process
          if (Date.now() - ((window as any)._buzzyLastMarkClick || 0) < 500) {
            return;
          }
          
          const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
          
-         // If there is an active text selection, they might be dragging handles. Do not close.
+         // If there is an active text selection, don't close
          if (selection && !selection.isCollapsed) {
-           setDebugLog(prev => [...prev, 'click ignored (not collapsed)'].slice(-5));
+           setDebugLog(prev => [...prev, 'click ignored (selection)'].slice(-5));
            return;
          }
          
-         // If they clicked on an epub.js SVG annotation, let the annotation's own callback handle it.
-         if (e.target && (e.target.tagName?.toLowerCase() === 'svg' || e.target.closest?.('svg') || e.target.classList?.contains('epubjs-hl'))) {
-           return;
+         // --- GEOMETRIC HIGHLIGHT TAP DETECTION ---
+         // The click event coords are in iframe-viewport space.
+         // The highlight SVGs are in parent-document space.
+         // We need to offset the iframe coords by the iframe's position in the parent.
+         const iframe = containerRef.current?.querySelector('iframe');
+         if (iframe && e.clientX !== undefined && e.clientY !== undefined) {
+           const iframeRect = iframe.getBoundingClientRect();
+           const parentX = e.clientX + iframeRect.left;
+           const parentY = e.clientY + iframeRect.top;
+           
+           const gs = document.querySelectorAll('g[data-epubcfi]');
+           setDebugLog(prev => [...prev, `click@(${Math.round(parentX)},${Math.round(parentY)}) ${gs.length} marks`].slice(-5));
+           
+           let clickedCfi: string | null = null;
+           for (let i = 0; i < gs.length; i++) {
+             const g = gs[i];
+             const rects = g.querySelectorAll('rect, path, polygon');
+             for (let j = 0; j < rects.length; j++) {
+               const svgRect = rects[j].getBoundingClientRect();
+               const padding = 15;
+               if (
+                 parentX >= svgRect.left - padding &&
+                 parentX <= svgRect.right + padding &&
+                 parentY >= svgRect.top - padding &&
+                 parentY <= svgRect.bottom + padding
+               ) {
+                 clickedCfi = g.getAttribute('data-epubcfi');
+                 break;
+               }
+             }
+             if (clickedCfi) break;
+           }
+           
+           if (clickedCfi) {
+             setDebugLog(prev => [...prev, `HIT highlight!`].slice(-5));
+             (window as any)._buzzyLastMarkClick = Date.now();
+             if (typeof (window as any)._buzzyMarkClicked === 'function') {
+               (window as any)._buzzyMarkClicked(clickedCfi);
+             }
+             return; // Don't clear selection — we're opening a highlight
+           }
          }
          
+         // No highlight was hit — clear selection as normal
          if (activeSelectionRef.current && !activeSelectionRef.current.id) {
-            // If it was just a temp selection we didn't save, remove the highlight
             try {
               renditionRef.current?.annotations.remove(activeSelectionRef.current.cfiRange, "highlight");
             } catch (err) {}
