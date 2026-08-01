@@ -41,6 +41,7 @@ export default function ReaderPage() {
   const [epubData, setEpubData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debugLog, setDebugLog] = useState<string[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Highlight state
@@ -172,6 +173,10 @@ export default function ReaderPage() {
           if (el.style.background) el.style.background = '';
         });
 
+        const logDebug = (msg: string) => {
+          setDebugLog(prev => [...prev, msg].slice(-5));
+        };
+
         // Custom iOS/mobile text selection handling fallback
         let selectionTimeout: NodeJS.Timeout;
         doc.addEventListener('selectionchange', () => {
@@ -180,14 +185,46 @@ export default function ReaderPage() {
             const sel = contents.window.getSelection();
             if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
               const text = sel.toString().trim();
+              logDebug(`selectionchange text: ${text ? 'yes' : 'no'}`);
               if (text) {
                 (contents.window as any).__lastSelectionText = text;
-                if (typeof contents.triggerSelectedEvent === 'function') {
-                  contents.triggerSelectedEvent(sel);
+                try {
+                  if (typeof contents.triggerSelectedEvent === 'function') {
+                    contents.triggerSelectedEvent(sel);
+                    logDebug('triggerSelectedEvent called');
+                  } else {
+                    logDebug('triggerSelectedEvent missing');
+                  }
+                } catch (err: any) {
+                  logDebug(`triggerSelected error: ${err.message}`);
+                }
+              }
+            } else {
+              logDebug('selectionchange but collapsed');
+            }
+          }, 300);
+        });
+        
+        doc.addEventListener('touchend', () => {
+          logDebug('touchend fired');
+          // Secondary fallback for iOS if selectionchange doesn't fire correctly
+          setTimeout(() => {
+            const sel = contents.window.getSelection();
+            if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
+              const text = sel.toString().trim();
+              if (text && !(contents.window as any).__lastSelectionText) {
+                logDebug('touchend fallback triggered');
+                (contents.window as any).__lastSelectionText = text;
+                try {
+                  if (typeof contents.triggerSelectedEvent === 'function') {
+                    contents.triggerSelectedEvent(sel);
+                  }
+                } catch(e: any) {
+                  logDebug(`touchend error: ${e.message}`);
                 }
               }
             }
-          }, 300);
+          }, 500);
         });
       });
       
@@ -257,12 +294,17 @@ export default function ReaderPage() {
       let lastSelectedCfi = '';
       let lastSelectionTime = 0;
       rendition.on('selected', (cfiRange: string, contents: any) => {
-        if (lastSelectedCfi === cfiRange) return;
+        setDebugLog(prev => [...prev, 'rendition.selected fired'].slice(-5));
+        if (lastSelectedCfi === cfiRange) {
+           setDebugLog(prev => [...prev, 'duplicate cfi'].slice(-5));
+           return;
+        }
         lastSelectedCfi = cfiRange;
         lastSelectionTime = Date.now();
         setTimeout(() => { lastSelectedCfi = ''; }, 1000);
         
         const handleSelection = (text: string) => {
+          setDebugLog(prev => [...prev, `handleSelection text: ${text ? 'yes' : 'no'}`].slice(-5));
           if (!text) return;
           const currentActive = activeSelectionRef.current;
           
@@ -319,13 +361,20 @@ export default function ReaderPage() {
       
       // Clear selection on click elsewhere
       rendition.on('click', (e: any) => {
+         setDebugLog(prev => [...prev, 'click fired'].slice(-5));
          // If they just made a selection, ignore synthesized clicks from the touchend event
-         if (Date.now() - lastSelectionTime < 500) return;
+         if (Date.now() - lastSelectionTime < 500) {
+           setDebugLog(prev => [...prev, 'click ignored (time)'].slice(-5));
+           return;
+         }
          
          const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
          
          // If there is an active text selection, they might be dragging handles. Do not close.
-         if (selection && !selection.isCollapsed) return;
+         if (selection && !selection.isCollapsed) {
+           setDebugLog(prev => [...prev, 'click ignored (not collapsed)'].slice(-5));
+           return;
+         }
          
          // If they clicked on an epub.js SVG annotation, let the annotation's own callback handle it.
          if (e.target && (e.target.tagName?.toLowerCase() === 'svg' || e.target.closest?.('svg') || e.target.classList?.contains('epubjs-hl'))) {
@@ -728,12 +777,18 @@ export default function ReaderPage() {
         }}
       />
 
-      <ReaderSettingsOverlay 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
+      <ReaderSettingsOverlay
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
         preferences={preferences}
         updatePreferences={updatePreferences}
       />
+      
+      {/* DEBUG LOGGER (Temporary for mobile debugging) */}
+      <div style={{ position: 'absolute', top: '100px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.8)', color: '#0f0', fontSize: '10px', padding: '4px', pointerEvents: 'none', maxWidth: '200px' }}>
+        {debugLog.map((log, i) => <div key={i}>{log}</div>)}
+      </div>
+
     </div>
   );
 }
