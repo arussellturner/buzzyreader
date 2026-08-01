@@ -1006,6 +1006,45 @@ export default function ReaderPage() {
         </button>
       </div>
 
+      {/* Transparent backdrop to dismiss highlight menu on tap-outside */}
+      {activeSelection && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 49,  // Below HighlightMenu (z:50) but above everything else
+            background: 'transparent',
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (activeSelection && !activeSelection.id) {
+              try {
+                renditionRef.current?.annotations.remove(activeSelection.cfiRange, "highlight");
+              } catch (err) {}
+            }
+            const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+            if (selection) selection.removeAllRanges();
+            setActiveSelection(null);
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (activeSelection && !activeSelection.id) {
+              try {
+                renditionRef.current?.annotations.remove(activeSelection.cfiRange, "highlight");
+              } catch (err) {}
+            }
+            const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+            if (selection) selection.removeAllRanges();
+            setActiveSelection(null);
+          }}
+        />
+      )}
+
       <HighlightMenu
         show={activeSelection !== null}
         isExisting={!!activeSelection?.id}
