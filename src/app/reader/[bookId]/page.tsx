@@ -379,9 +379,8 @@ export default function ReaderPage() {
       // Clear selection on click elsewhere
       rendition.on('click', (e: any) => {
          setDebugLog(prev => [...prev, 'click fired'].slice(-5));
-         // If they just made a selection, ignore synthesized clicks from the touchend event
-         if (Date.now() - lastSelectionTime < 500) {
-           setDebugLog(prev => [...prev, 'click ignored (time)'].slice(-5));
+         // If a mark was just clicked, ignore this synthesized click event
+         if (Date.now() - ((window as any)._buzzyLastMarkClick || 0) < 500) {
            return;
          }
          
@@ -398,11 +397,6 @@ export default function ReaderPage() {
            return;
          }
          
-         // If a mark was just clicked, ignore this synthesized click event
-         if (Date.now() - ((window as any)._buzzyLastMarkClick || 0) < 500) {
-           return;
-         }
-         
          if (activeSelectionRef.current && !activeSelectionRef.current.id) {
             // If it was just a temp selection we didn't save, remove the highlight
             try {
@@ -412,6 +406,16 @@ export default function ReaderPage() {
          
          if (selection) selection.removeAllRanges();
          setActiveSelection(null);
+      });
+      
+      // Native epubjs mark clicked handler (in case epubjs catches it and stops propagation)
+      rendition.on('markClicked', (cfiRange: string) => {
+        if (typeof (window as any)._buzzyDebug === 'function') {
+          (window as any)._buzzyDebug(`Native markClicked!`);
+        }
+        if (typeof (window as any)._buzzyMarkClicked === 'function') {
+          (window as any)._buzzyMarkClicked(cfiRange);
+        }
       });
       
       // Bind clear selection to window so the iframe can call it
