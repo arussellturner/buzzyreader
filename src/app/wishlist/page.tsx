@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useWishlist } from '@/hooks/useWishlist';
 import WishlistModal from '@/components/Wishlist/WishlistModal';
+import WishlistCard from '@/components/Wishlist/WishlistCard';
 import styles from './wishlist.module.css';
 import libraryStyles from '../library/library.module.css';
 
@@ -174,28 +175,14 @@ export default function WishlistPage() {
         ) : (
           <div className={styles.wishlistGrid}>
             {filteredItems.map((item) => (
-              <div 
-                key={item.id} 
-                className={styles.card}
-                onClick={() => {
-                  setSelectedItem(item);
+              <WishlistCard
+                key={item.id}
+                item={item}
+                onClick={(i) => {
+                  setSelectedItem(i);
                   setIsModalOpen(true);
                 }}
-                role="button"
-                tabIndex={0}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.cardTitle}>{item.title}</div>
-                <div className={styles.cardAuthor}>{item.author}</div>
-                {item.sourceNotes && (
-                  <div className={styles.cardNotes}>
-                    <strong>Notes:</strong> {item.sourceNotes}
-                  </div>
-                )}
-                <div className={styles.cardMeta}>
-                  Added on {formatDate(item.addedAt)}
-                </div>
-              </div>
+              />
             ))}
           </div>
         )}
