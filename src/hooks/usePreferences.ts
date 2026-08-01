@@ -72,6 +72,8 @@ const getInitialPreferences = (): ReaderPreferences => {
   return DEFAULT_PREFERENCES;
 };
 
+let globalHasLoadedFromDrive = false;
+
 export interface UsePreferencesReturn {
   preferences: ReaderPreferences;
   loading: boolean;
@@ -106,10 +108,16 @@ export function usePreferences(): UsePreferencesReturn {
         return;
       }
 
+      if (globalHasLoadedFromDrive) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const drive = new DriveStorage(accessToken);
         const prefs = await getPreferences(drive);
         if (!cancelled) {
+          globalHasLoadedFromDrive = true;
           setPreferences(prefs);
           applyPreferencesToCSS(prefs);
           try {
@@ -156,12 +164,10 @@ export function usePreferences(): UsePreferencesReturn {
     [accessToken],
   );
 
-  // Cleanup debounce timer on unmount
+  // Allow background saves to complete even if component unmounts
   useEffect(() => {
     return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
+      // Intentionally not clearing timeout to allow pending saves
     };
   }, []);
 
