@@ -1111,11 +1111,8 @@ export default function ReaderPage() {
         preferences={preferences}
         updatePreferences={updatePreferences}
       />
-      
-      {/* DEBUG LOGGER (Temporary for mobile debugging) */}
-      <div style={{ position: 'absolute', top: '100px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.8)', color: '#0f0', fontSize: '10px', padding: '4px', pointerEvents: 'none', maxWidth: '200px' }}>
-        {debugLog.map((log, i) => <div key={i}>{log}</div>)}
-      </div>
+
+
 
     </div>
   );
