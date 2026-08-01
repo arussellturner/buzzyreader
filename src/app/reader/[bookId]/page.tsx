@@ -1006,8 +1006,10 @@ export default function ReaderPage() {
         </button>
       </div>
 
-      {/* Transparent backdrop to dismiss highlight menu on tap-outside */}
-      {activeSelection && (
+      {/* Transparent backdrop to dismiss highlight menu on tap-outside.
+          Only show for existing saved highlights (with id), NOT during new text selection,
+          because the backdrop would block the native drag handles. */}
+      {activeSelection?.id && (
         <div 
           style={{
             position: 'fixed',
