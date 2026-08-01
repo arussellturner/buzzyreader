@@ -17,6 +17,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
   const [author, setAuthor] = useState('');
   const [sourceNotes, setSourceNotes] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
+  const [isRead, setIsRead] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
@@ -35,6 +36,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
         setAuthor(initialItem.author);
         setSourceNotes(initialItem.sourceNotes || '');
         setCoverUrl(initialItem.coverUrl || '');
+        setIsRead(initialItem.isRead || false);
         setMode('manual');
       } else {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -42,6 +44,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
         setAuthor('');
         setSourceNotes('');
         setCoverUrl('');
+        setIsRead(false);
         setSearchQuery('');
         setMode('search');
       }
@@ -87,7 +90,8 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
         title: title.trim(),
         author: author.trim() || 'Unknown Author',
         sourceNotes: sourceNotes.trim(),
-        coverUrl: coverUrl.trim() || undefined
+        coverUrl: coverUrl.trim() || undefined,
+        isRead
       });
       onClose();
     } catch (error) {
@@ -240,6 +244,15 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
                 )}
               </div>
               <div className={styles.footerRight}>
+                {initialItem && (
+                  <button 
+                    className={`${styles.markReadBtn} ${isRead ? styles.isReadActive : ''}`} 
+                    onClick={() => setIsRead(!isRead)}
+                    disabled={isSaving || isDeleting}
+                  >
+                    {isRead ? 'Mark as Unread' : 'Mark as Read'}
+                  </button>
+                )}
                 <button 
                   className={styles.saveBtn} 
                   onClick={handleSave} 

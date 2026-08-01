@@ -190,18 +190,40 @@ export default function WishlistPage() {
             <p className={libraryStyles.emptyText}>No books match your search.</p>
           </div>
         ) : (
-          <div className={styles.wishlistGrid}>
-            {filteredItems.map((item) => (
-              <WishlistCard
-                key={item.id}
-                item={item}
-                onClick={(i) => {
-                  setSelectedItem(i);
-                  setIsModalOpen(true);
-                }}
-              />
-            ))}
-          </div>
+          <>
+            {filteredItems.filter(item => !item.isRead).length > 0 && (
+              <div className={styles.wishlistGrid}>
+                {filteredItems.filter(item => !item.isRead).map((item) => (
+                  <WishlistCard
+                    key={item.id}
+                    item={item}
+                    onClick={(i) => {
+                      setSelectedItem(i);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {filteredItems.filter(item => item.isRead).length > 0 && (
+              <div className={styles.readSection}>
+                <h2 className={styles.readSectionTitle}>Read Books</h2>
+                <div className={styles.wishlistGrid}>
+                  {filteredItems.filter(item => item.isRead).map((item) => (
+                    <WishlistCard
+                      key={item.id}
+                      item={item}
+                      onClick={(i) => {
+                        setSelectedItem(i);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
 

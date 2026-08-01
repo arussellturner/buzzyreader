@@ -78,6 +78,9 @@ export default function WishlistCard({ item, onClick }: WishlistCardProps) {
     >
       {/* Cover */}
       <div className={styles.coverWrapper}>
+        {item.isRead && (
+          <div className={styles.readBadge}>Read</div>
+        )}
         {item.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.coverUrl} alt={`Cover for ${item.title}`} className={styles.actualCover} />
