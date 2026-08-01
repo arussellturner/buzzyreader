@@ -9,7 +9,7 @@ interface ThemeToggleProps {
 
 type ThemeMode = 'dark' | 'light' | 'sepia' | 'black';
 
-const THEME_CYCLE: ThemeMode[] = ['dark', 'light', 'black'];
+const THEME_CYCLE: ThemeMode[] = ['light', 'dark', 'black'];
 
 const THEME_ICONS: Record<ThemeMode, React.ReactNode> = {
   dark: (
@@ -52,8 +52,6 @@ const THEME_LABELS: Record<ThemeMode, string> = {
 
 export default function ThemeToggle({ className }: ThemeToggleProps) {
   const [theme, setTheme] = useState<ThemeMode>('dark');
-  const [isRotating, setIsRotating] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Read initial theme from DOM
   useEffect(() => {
@@ -65,10 +63,6 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
   }, []);
 
   const cycleTheme = useCallback(() => {
-    setIsRotating(true);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setIsRotating(false), 500);
-
     setTheme((prev) => {
       const idx = THEME_CYCLE.indexOf(prev);
       const next = THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
@@ -95,22 +89,17 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
     });
   }, []);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
+  const nextTheme = THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length] || THEME_CYCLE[0];
 
   return (
     <button
-      className={`${styles.themeToggle} ${isRotating ? styles.rotating : ''} ${className ?? ''}`}
+      className={`${styles.themeToggle} ${className ?? ''}`}
       onClick={cycleTheme}
       aria-label={`Switch theme. Currently: ${THEME_LABELS[theme]}`}
-      title={THEME_LABELS[theme]}
+      title={`Switch to ${THEME_LABELS[nextTheme]}`}
     >
       <span className={styles.themeToggleIcon}>
-        {THEME_ICONS[theme]}
+        {THEME_ICONS[nextTheme]}
       </span>
     </button>
   );

@@ -11,6 +11,7 @@ import BookDetailsModal from '@/components/Library/BookDetailsModal';
 import { getReadingProgress, saveReadingProgress } from '@/lib/storage/driveStorage';
 import type { Book } from '@/types/book';
 import type { ReadingProgress } from '@/types/progress';
+import ThemeToggle from '@/components/UI/ThemeToggle';
 import styles from './library.module.css';
 
 const SKELETON_COUNT = 8;
@@ -145,17 +146,8 @@ export default function LibraryPage() {
       percentage: 0,
       lastRead: new Date().toISOString()
     });
-    // Trigger refresh to update "Recently read" if we fetched progress.
     // Actually progress doesn't update the book object, but it's good enough.
   }, [driveStorage]);
-
-  const toggleTheme = useCallback(() => {
-    const themes = ['light', 'dark', 'black'] as const;
-    let currentIdx = themes.indexOf(preferences.theme as any);
-    if (currentIdx === -1) currentIdx = 0;
-    const nextIdx = (currentIdx + 1) % themes.length;
-    updatePreferences({ theme: themes[nextIdx] });
-  }, [preferences.theme, updatePreferences]);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
   
@@ -226,15 +218,7 @@ export default function LibraryPage() {
               </svg>
             </button>
 
-            <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
-              {preferences.theme === 'dark' ? (
-                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-              ) : preferences.theme === 'light' ? (
-                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-              ) : (
-                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-              )}
-            </button>
+            <ThemeToggle className={styles.themeToggle} />
 
             <div className={styles.userMenuContainer} ref={userMenuRef}>
               <button 
