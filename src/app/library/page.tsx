@@ -248,17 +248,17 @@ export default function LibraryPage() {
                       onThemeChange={(t) => updatePreferences({ theme: t as import('@/types/preferences').ThemeMode })}
                     />
                   </div>
+                  <div className={styles.legalDropdownLinks}>
+                    <button className={styles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
+                    <span className={styles.legalDropdownDivider}>•</span>
+                    <button className={styles.legalDropdownLink} onClick={() => router.push('/terms')}>Terms of Service</button>
+                  </div>
                   <button 
                     className={styles.dropdownItemLogout}
                     onClick={() => signOut()}
                   >
                     Log out
                   </button>
-                  <div className={styles.legalDropdownLinks}>
-                    <button className={styles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
-                    <span className={styles.legalDropdownDivider}>•</span>
-                    <button className={styles.legalDropdownLink} onClick={() => router.push('/terms')}>Terms of Service</button>
-                  </div>
                 </div>
               )}
             </div>

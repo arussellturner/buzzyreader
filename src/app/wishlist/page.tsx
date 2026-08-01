@@ -146,17 +146,17 @@ export default function WishlistPage() {
                       onThemeChange={(t) => updatePreferences({ theme: t as import('@/types/preferences').ThemeMode })}
                     />
                   </div>
+                  <div className={libraryStyles.legalDropdownLinks}>
+                    <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
+                    <span className={libraryStyles.legalDropdownDivider}>•</span>
+                    <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/terms')}>Terms of Service</button>
+                  </div>
                   <button 
                     className={libraryStyles.dropdownItemLogout}
                     onClick={() => signOut()}
                   >
                     Log out
                   </button>
-                  <div className={libraryStyles.legalDropdownLinks}>
-                    <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/privacy')}>Privacy Policy</button>
-                    <span className={libraryStyles.legalDropdownDivider}>•</span>
-                    <button className={libraryStyles.legalDropdownLink} onClick={() => router.push('/terms')}>Terms of Service</button>
-                  </div>
                 </div>
               )}
             </div>
