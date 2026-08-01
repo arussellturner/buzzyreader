@@ -16,7 +16,7 @@ export interface UseGoogleDriveReturn {
   library: Library | null;
   loading: boolean;
   error: string | null;
-  addBook: (file: { id: string; name: string }) => Promise<Book>;
+  addBook: (file: { id: string; name: string }, overrides?: Partial<Book>) => Promise<Book>;
   removeBook: (bookId: string) => Promise<void>;
   updateBook: (updatedBook: Book) => Promise<void>;
   loadEpub: (driveFileId: string) => Promise<ArrayBuffer>;
