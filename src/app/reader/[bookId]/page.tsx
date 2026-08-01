@@ -173,6 +173,16 @@ export default function ReaderPage() {
         // Instead of relying on unreliable iOS event listeners, we will poll for selection changes
         // But we attach it to the parent window so it persists across page turns
         (window as any)._buzzyDebug = logDebug;
+        
+        doc.addEventListener('pointerdown', (e: any) => {
+          const target = e.target as HTMLElement;
+          if (target && (target.tagName?.toLowerCase() === 'svg' || target.closest?.('svg') || target.classList?.contains('epubjs-hl'))) {
+            return;
+          }
+          if (typeof (window as any)._buzzyClearSelection === 'function') {
+            (window as any)._buzzyClearSelection();
+          }
+        }, { passive: true });
       });
       
       // Also style the iframe element itself so it never flashes white
@@ -338,6 +348,13 @@ export default function ReaderPage() {
          if (selection) selection.removeAllRanges();
          setActiveSelection(null);
       });
+      
+      // Bind clear selection to window so the iframe can call it
+      (window as any)._buzzyClearSelection = () => {
+         const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
+         if (selection) selection.removeAllRanges();
+         setActiveSelection(null);
+      };
       
       rendition.on('keyup', (e: KeyboardEvent) => {
          if (e.key === 'ArrowLeft') {
