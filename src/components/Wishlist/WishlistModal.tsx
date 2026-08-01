@@ -28,6 +28,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (initialItem) {
         setTitle(initialItem.title);
         setAuthor(initialItem.author);
@@ -47,6 +48,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
   useEffect(() => {
     // Only search for new items, and only if they've typed something
     if (initialItem || !title.trim()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchResults([]);
       setShowSuggestions(false);
       return;

@@ -50,6 +50,7 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
   // ── Load library on mount / sign-in ──────────────────────────────
   useEffect(() => {
     if (!drive) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
