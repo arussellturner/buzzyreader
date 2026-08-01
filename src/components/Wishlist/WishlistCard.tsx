@@ -78,13 +78,18 @@ export default function WishlistCard({ item, onClick }: WishlistCardProps) {
     >
       {/* Cover */}
       <div className={styles.coverWrapper}>
-        <div className={styles.placeholderCover} style={{ background: gradient }}>
-          <span className={styles.placeholderIcon} aria-hidden="true">
-            {icon}
-          </span>
-          <span className={styles.placeholderTitle}>{item.title}</span>
-          <span className={styles.placeholderAuthor}>{item.author}</span>
-        </div>
+        {item.coverUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.coverUrl} alt={`Cover for ${item.title}`} className={styles.actualCover} />
+        ) : (
+          <div className={styles.placeholderCover} style={{ background: gradient }}>
+            <span className={styles.placeholderIcon} aria-hidden="true">
+              {icon}
+            </span>
+            <span className={styles.placeholderTitle}>{item.title}</span>
+            <span className={styles.placeholderAuthor}>{item.author}</span>
+          </div>
+        )}
       </div>
 
       {/* Info */}

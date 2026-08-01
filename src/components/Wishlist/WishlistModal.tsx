@@ -16,7 +16,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [sourceNotes, setSourceNotes] = useState('');
-  
+  const [coverUrl, setCoverUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
@@ -29,16 +29,19 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
 
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (initialItem) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTitle(initialItem.title);
         setAuthor(initialItem.author);
         setSourceNotes(initialItem.sourceNotes || '');
+        setCoverUrl(initialItem.coverUrl || '');
         setMode('manual');
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTitle('');
         setAuthor('');
         setSourceNotes('');
+        setCoverUrl('');
         setSearchQuery('');
         setMode('search');
       }
@@ -83,7 +86,8 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
       await onSave({
         title: title.trim(),
         author: author.trim() || 'Unknown Author',
-        sourceNotes: sourceNotes.trim()
+        sourceNotes: sourceNotes.trim(),
+        coverUrl: coverUrl.trim() || undefined
       });
       onClose();
     } catch (error) {
@@ -96,6 +100,11 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
   const selectSearchResult = (book: any) => {
     setTitle(book.title || '');
     setAuthor(book.author_name ? book.author_name.join(', ') : 'Unknown Author');
+    if (book.cover_i) {
+      setCoverUrl(`https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`);
+    } else {
+      setCoverUrl('');
+    }
     setMode('manual');
   };
 

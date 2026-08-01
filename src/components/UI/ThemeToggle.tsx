@@ -59,6 +59,7 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
   useEffect(() => {
     const current = document.documentElement.dataset.theme as ThemeMode | undefined;
     if (current && THEME_CYCLE.includes(current)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(current);
     }
   }, []);

@@ -33,6 +33,19 @@ export default function Modal({
     }
   }, [isOpen]);
 
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    const timer = setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+      // Restore focus
+      if (previouslyFocused.current?.focus) {
+        previouslyFocused.current.focus();
+      }
+    }, 180);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
   // Escape key handler
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -52,18 +65,7 @@ export default function Modal({
     }
   }, [isOpen, handleKeyDown]);
 
-  const handleClose = useCallback(() => {
-    setIsClosing(true);
-    const timer = setTimeout(() => {
-      setIsClosing(false);
-      onClose();
-      // Restore focus
-      if (previouslyFocused.current?.focus) {
-        previouslyFocused.current.focus();
-      }
-    }, 180);
-    return () => clearTimeout(timer);
-  }, [onClose]);
+
 
   // Click outside
   const handleOverlayClick = useCallback(
