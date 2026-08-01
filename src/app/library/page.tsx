@@ -267,7 +267,10 @@ export default function LibraryPage() {
               {isUserMenuOpen && (
                 <div className={styles.userMenuDropdown}>
                   <div style={{ padding: '0 8px' }}>
-                    <ThemeToggle />
+                    <ThemeToggle 
+                      theme={preferences?.theme}
+                      onThemeChange={(t) => updatePreferences({ theme: t })}
+                    />
                   </div>
                   <button 
                     className={styles.dropdownItemLogout}

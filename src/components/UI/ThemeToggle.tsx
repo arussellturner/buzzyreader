@@ -5,6 +5,8 @@ import styles from './UI.module.css';
 
 interface ThemeToggleProps {
   className?: string;
+  theme?: string;
+  onThemeChange?: (theme: string) => void;
 }
 
 type ThemeMode = 'dark' | 'light' | 'sepia' | 'black';
@@ -50,21 +52,26 @@ const THEME_LABELS: Record<ThemeMode, string> = {
   black: 'Black mode',
 };
 
-export default function ThemeToggle({ className }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<ThemeMode>('dark');
+export default function ThemeToggle({ className, theme: propTheme, onThemeChange }: ThemeToggleProps) {
+  const [internalTheme, setInternalTheme] = useState<ThemeMode>('dark');
+  const theme = (propTheme as ThemeMode) || internalTheme;
 
-  // Read initial theme from DOM
+  // Read initial theme from DOM if no prop provided
   useEffect(() => {
+    if (propTheme) return;
     const current = document.documentElement.dataset.theme as ThemeMode | undefined;
     if (current && THEME_CYCLE.includes(current)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTheme(current);
+      setInternalTheme(current);
     }
-  }, []);
+  }, [propTheme]);
 
   const handleSetTheme = useCallback((next: ThemeMode) => {
-    setTheme(next);
+    setInternalTheme(next);
     document.documentElement.dataset.theme = next;
+    
+    if (onThemeChange) {
+      onThemeChange(next);
+    }
 
     // Persist to localStorage
     try {

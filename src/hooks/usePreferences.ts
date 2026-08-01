@@ -60,6 +60,18 @@ function applyPreferencesToCSS(prefs: ReaderPreferences): void {
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
+const getInitialPreferences = (): ReaderPreferences => {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('buzzyreader-preferences');
+      if (stored) {
+        return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+      }
+    } catch (e) {}
+  }
+  return DEFAULT_PREFERENCES;
+};
+
 export interface UsePreferencesReturn {
   preferences: ReaderPreferences;
   loading: boolean;
@@ -69,8 +81,7 @@ export interface UsePreferencesReturn {
 export function usePreferences(): UsePreferencesReturn {
   const sessionObj = useSession() || {};
   const session = sessionObj.data;
-  const [preferences, setPreferences] =
-    useState<ReaderPreferences>(DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useState<ReaderPreferences>(getInitialPreferences);
   const [loading, setLoading] = useState(true);
 
   const prefsRef = useRef<ReaderPreferences>(preferences);
@@ -101,6 +112,9 @@ export function usePreferences(): UsePreferencesReturn {
         if (!cancelled) {
           setPreferences(prefs);
           applyPreferencesToCSS(prefs);
+          try {
+            localStorage.setItem('buzzyreader-preferences', JSON.stringify(prefs));
+          } catch (e) {}
         }
       } catch (err) {
         console.error('[usePreferences] Failed to load preferences:', err);
@@ -158,6 +172,9 @@ export function usePreferences(): UsePreferencesReturn {
         const next = { ...prev, ...partial };
         applyPreferencesToCSS(next);
         debouncedSave(next);
+        try {
+          localStorage.setItem('buzzyreader-preferences', JSON.stringify(next));
+        } catch (e) {}
         return next;
       });
     },

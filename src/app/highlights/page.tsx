@@ -222,7 +222,10 @@ export default function HighlightsPage() {
               {isUserMenuOpen && (
                 <div className={libraryStyles.userMenuDropdown}>
                   <div style={{ padding: '0 8px' }}>
-                    <ThemeToggle />
+                    <ThemeToggle 
+                      theme={preferences?.theme}
+                      onThemeChange={(t) => updatePreferences({ theme: t })}
+                    />
                   </div>
                   <button 
                     className={libraryStyles.dropdownItemLogout}
