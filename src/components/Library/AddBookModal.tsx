@@ -149,14 +149,14 @@ export default function AddBookModal({
         const book = await addBook(selectedDriveFile, overrides);
         setAddedFileIds((prev) => new Set(prev).add(selectedDriveFile.id));
         onBookAdded(book);
-        setSelectedDriveFile(null);
+        handleClose();
       } catch {
         // Error handled by hook
       } finally {
         setAddingFileId(null);
       }
     },
-    [addBook, addingFileId, addedFileIds, existingDriveFileIds, onBookAdded, selectedDriveFile]
+    [addBook, addingFileId, addedFileIds, existingDriveFileIds, onBookAdded, selectedDriveFile, handleClose]
   );
 
   const filteredFiles = useMemo(() => {
