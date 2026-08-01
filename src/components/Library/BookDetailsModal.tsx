@@ -27,6 +27,7 @@ export default function BookDetailsModal({
   const [coverSuggestions, setCoverSuggestions] = useState<string[]>([]);
   const [isSearchingCover, setIsSearchingCover] = useState(false);
   const [notes, setNotes] = useState('');
+  const [isRead, setIsRead] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showUnsavedPrompt, setShowUnsavedPrompt] = useState(false);
@@ -40,6 +41,7 @@ export default function BookDetailsModal({
       setCoverSuggestions([]);
       setIsSearchingCover(false);
       setNotes(book.notes || '');
+      setIsRead(book.isRead || false);
       setShowUnsavedPrompt(false);
     }
   }, [book, isOpen]);
@@ -49,7 +51,8 @@ export default function BookDetailsModal({
       title !== (book.title || '') ||
       author !== (book.author || '') ||
       coverUrl !== (book.coverUrl || '') ||
-      notes !== (book.notes || '')
+      notes !== (book.notes || '') ||
+      isRead !== (book.isRead || false)
     );
 
   const handleClose = useCallback(() => {
@@ -75,10 +78,32 @@ export default function BookDetailsModal({
         author,
         coverUrl,
         notes,
+        isRead,
       });
       onClose();
     } catch (err) {
       console.error('Failed to save book details', err);
+      alert('Failed to save changes');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleToggleRead = async () => {
+    if (!book) return;
+    setIsSaving(true);
+    try {
+      await onSave({
+        ...book,
+        title,
+        author,
+        coverUrl,
+        notes,
+        isRead: !isRead,
+      });
+      onClose();
+    } catch (err) {
+      console.error('Failed to toggle read status', err);
       alert('Failed to save changes');
     } finally {
       setIsSaving(false);
@@ -287,6 +312,17 @@ export default function BookDetailsModal({
             </div>
 
             <div className={styles.actions}>
+              {/* Mark as Read / Unread */}
+              <button
+                className={styles.btnSecondary}
+                onClick={handleToggleRead}
+                disabled={isSaving}
+                type="button"
+                style={{ marginRight: 'auto' }}
+              >
+                {isRead ? 'Mark as unread' : 'Mark as read'}
+              </button>
+
               <button
                 className={styles.btnPrimary}
                 onClick={handleSave}

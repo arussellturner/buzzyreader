@@ -79,6 +79,11 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
     >
       {/* Cover */}
       <div className={styles.coverWrapper}>
+        {book.isRead && (
+          <div className={styles.readBadge}>
+            Read
+          </div>
+        )}
         {book.coverUrl ? (
           <img
             className={styles.cover}

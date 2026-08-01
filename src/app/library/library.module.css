@@ -281,8 +281,20 @@
 .bookGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 32px 24px;
-  animation: gridFadeIn 0.5s ease-out;
+  gap: 24px;
+}
+
+.readSection {
+  margin-top: 64px;
+}
+
+.readSectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
 }
 
 @keyframes gridFadeIn {

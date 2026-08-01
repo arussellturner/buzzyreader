@@ -55,6 +55,9 @@ export default function LibraryPage() {
     });
   }, [library?.books, sortOption]);
 
+  const unreadBooks = useMemo(() => books.filter((b) => !b.isRead), [books]);
+  const readBooks = useMemo(() => books.filter((b) => b.isRead), [books]);
+
   // Protected route: redirect to / if not signed in
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -337,18 +340,38 @@ export default function LibraryPage() {
           </div>
         )}
 
-        {/* Book grid */}
+        {/* Book grids */}
         {!isLoading && books.length > 0 && (
-          <div className={styles.bookGrid}>
-            {books.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                progress={progressMap[book.id]}
-                onOpenDetails={handleOpenDetails}
-              />
-            ))}
-          </div>
+          <>
+            {unreadBooks.length > 0 && (
+              <div className={styles.bookGrid}>
+                {unreadBooks.map((book) => (
+                  <BookCard
+                    key={book.id}
+                    book={book}
+                    progress={progressMap[book.id]}
+                    onOpenDetails={handleOpenDetails}
+                  />
+                ))}
+              </div>
+            )}
+
+            {readBooks.length > 0 && (
+              <div className={styles.readSection}>
+                <h2 className={styles.readSectionTitle}>Read</h2>
+                <div className={styles.bookGrid}>
+                  {readBooks.map((book) => (
+                    <BookCard
+                      key={book.id}
+                      book={book}
+                      progress={progressMap[book.id]}
+                      onOpenDetails={handleOpenDetails}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
 

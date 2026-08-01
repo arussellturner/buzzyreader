@@ -8,6 +8,7 @@ export interface Book {
   lastReadAt?: string; // ISO date string
   totalLocations?: number;
   notes?: string; // User notes
+  isRead?: boolean; // User marked as read
 }
 
 export interface Library {
