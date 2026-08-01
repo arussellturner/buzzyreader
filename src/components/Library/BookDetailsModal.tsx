@@ -31,6 +31,7 @@ export default function BookDetailsModal({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showUnsavedPrompt, setShowUnsavedPrompt] = useState(false);
+  const [showDeletePrompt, setShowDeletePrompt] = useState(false);
 
   // Initialize state when book changes or modal opens
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function BookDetailsModal({
       setNotes(book.notes || '');
       setIsRead(book.isRead || false);
       setShowUnsavedPrompt(false);
+      setShowDeletePrompt(false);
     }
   }, [book, isOpen]);
 
@@ -110,19 +112,21 @@ export default function BookDetailsModal({
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
+    setShowDeletePrompt(true);
+  };
+
+  const handleConfirmDelete = async () => {
     if (!book) return;
-    if (confirm(`Are you sure you want to delete "${book.title}"? This cannot be undone.`)) {
-      setIsDeleting(true);
-      try {
-        await onDelete(book.id);
-        onClose();
-      } catch (err) {
-        console.error('Failed to delete book', err);
-        alert('Failed to delete book');
-      } finally {
-        setIsDeleting(false);
-      }
+    setIsDeleting(true);
+    try {
+      await onDelete(book.id);
+      onClose();
+    } catch (err) {
+      console.error('Failed to delete book', err);
+      alert('Failed to delete book');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -189,7 +193,28 @@ export default function BookDetailsModal({
           Book Details
         </h2>
 
-        {showUnsavedPrompt ? (
+        {showDeletePrompt ? (
+          <div className={styles.unsavedPrompt}>
+            <h3>Delete Book</h3>
+            <p>Are you sure you want to delete "{book?.title}"? This cannot be undone.</p>
+            <div className={styles.promptActions}>
+              <button 
+                className={styles.btnSecondary} 
+                onClick={() => setShowDeletePrompt(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.btnDanger}
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Book'}
+              </button>
+            </div>
+          </div>
+        ) : showUnsavedPrompt ? (
           <div className={styles.unsavedPrompt}>
             <h3>Unsaved Changes</h3>
             <p>You have unsaved changes. What would you like to do?</p>
@@ -303,11 +328,11 @@ export default function BookDetailsModal({
               </button>
               <button
                 className={styles.btnDanger}
-                onClick={handleDelete}
-                disabled={isDeleting}
+                onClick={handleDeleteClick}
+                disabled={isDeleting || isSaving}
                 type="button"
               >
-                {isDeleting ? 'Deleting...' : 'Delete Book'}
+                Delete Book
               </button>
             </div>
 
