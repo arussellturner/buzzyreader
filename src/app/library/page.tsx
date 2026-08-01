@@ -66,34 +66,44 @@ export default function LibraryPage() {
     [books]
   );
 
-  useEffect(() => {
+  const fetchProgresses = useCallback(async () => {
     if (!driveStorage || books.length === 0) return;
-    
-    let isMounted = true;
-    
-    const fetchProgresses = async () => {
-      try {
-        const promises = books.map(book => getReadingProgress(driveStorage, book.id));
-        const results = await Promise.allSettled(promises);
-        
-        if (!isMounted) return;
-        
-        const newMap: Record<string, ReadingProgress> = {};
-        results.forEach((res, i) => {
-          if (res.status === 'fulfilled' && res.value) {
-            newMap[books[i].id] = res.value;
-          }
-        });
-        setProgressMap(newMap);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    
-    fetchProgresses();
-    
-    return () => { isMounted = false; };
+    try {
+      const promises = books.map(book => getReadingProgress(driveStorage, book.id));
+      const results = await Promise.allSettled(promises);
+      
+      const newMap: Record<string, ReadingProgress> = {};
+      results.forEach((res, i) => {
+        if (res.status === 'fulfilled' && res.value) {
+          newMap[books[i].id] = res.value;
+        }
+      });
+      setProgressMap(newMap);
+    } catch (err) {
+      console.error(err);
+    }
   }, [driveStorage, books]);
+
+  // Fetch progresses whenever books or driveStorage changes
+  useEffect(() => {
+    fetchProgresses();
+  }, [fetchProgresses]);
+
+  // Force refresh data when the page becomes visible/focused
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshLibrary();
+      fetchProgresses();
+    };
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') handleFocus();
+    });
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [refreshLibrary, fetchProgresses]);
 
   const handleBookAdded = useCallback(
     (_book: Book) => {
