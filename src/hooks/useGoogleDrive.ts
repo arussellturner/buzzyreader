@@ -103,14 +103,15 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
 
   // ── Add book ─────────────────────────────────────────────────────
   const addBook = useCallback(
-    async (file: { id: string; name: string }): Promise<Book> => {
+    async (file: { id: string; name: string }, overrides?: Partial<Book>): Promise<Book> => {
       if (!drive) throw new Error('Not authenticated');
 
       const newBook: Book = {
         id: crypto.randomUUID(),
         driveFileId: file.id,
-        title: file.name.replace(/\.epub$/i, ''),
-        author: 'Unknown Author',
+        title: overrides?.title || file.name.replace(/\.epub$/i, ''),
+        author: overrides?.author || 'Unknown Author',
+        coverUrl: overrides?.coverUrl,
         addedAt: new Date().toISOString(),
       };
 

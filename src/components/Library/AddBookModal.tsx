@@ -35,6 +35,9 @@ export default function AddBookModal({
   const [addingFileId, setAddingFileId] = useState<string | null>(null);
   const [addedFileIds, setAddedFileIds] = useState<Set<string>>(new Set());
   const [isClosing, setIsClosing] = useState(false);
+  const [selectedDriveFile, setSelectedDriveFile] = useState<{id: string, name: string} | null>(null);
+  const [matchOptions, setMatchOptions] = useState<{title: string, author: string, coverUrl?: string}[]>([]);
+  const [isSearchingMatch, setIsSearchingMatch] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,6 +56,9 @@ export default function AddBookModal({
       }
       setSearchQuery('');
       setAddedFileIds(new Set());
+      setSelectedDriveFile(null);
+      setMatchOptions([]);
+      setIsSearchingMatch(false);
       setIsClosing(false);
       // Focus search input after animation
       const timer = setTimeout(() => {
@@ -103,23 +109,54 @@ export default function AddBookModal({
     }
   }, [isOpen]);
 
-  const handleAddBook = useCallback(
-    async (driveFile: any) => {
-      if (addingFileId || addedFileIds.has(driveFile.id) || existingDriveFileIds.has(driveFile.id)) {
+  const handleSelectFile = useCallback(async (file: {id: string, name: string}) => {
+    setSelectedDriveFile(file);
+    setIsSearchingMatch(true);
+    setMatchOptions([]);
+    
+    // Clean filename
+    const cleanName = file.name.replace(/\.epub$/i, '').replace(/[_-]/g, ' ').replace(/\(.*?\)/g, '').trim();
+    
+    try {
+      const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(cleanName)}&limit=5`);
+      if (res.ok) {
+        const data = await res.json();
+        const options = data.docs.map((doc: any) => ({
+          title: doc.title,
+          author: doc.author_name?.[0] || 'Unknown Author',
+          coverUrl: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg` : undefined
+        }));
+        
+        // Ensure unique covers/options if any
+        const uniqueOptions = options.filter((v: any, i: number, a: any[]) => a.findIndex(t => (t.title === v.title && t.author === v.author)) === i);
+        setMatchOptions(uniqueOptions.slice(0, 5));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSearchingMatch(false);
+    }
+  }, []);
+
+  const handleConfirmMatch = useCallback(
+    async (overrides?: {title: string, author: string, coverUrl?: string}) => {
+      if (!selectedDriveFile) return;
+      if (addingFileId || addedFileIds.has(selectedDriveFile.id) || existingDriveFileIds.has(selectedDriveFile.id)) {
         return;
       }
-      setAddingFileId(driveFile.id);
+      setAddingFileId(selectedDriveFile.id);
       try {
-        const book = await addBook(driveFile);
-        setAddedFileIds((prev) => new Set(prev).add(driveFile.id));
+        const book = await addBook(selectedDriveFile, overrides);
+        setAddedFileIds((prev) => new Set(prev).add(selectedDriveFile.id));
         onBookAdded(book);
+        setSelectedDriveFile(null);
       } catch {
         // Error handled by hook
       } finally {
         setAddingFileId(null);
       }
     },
-    [addBook, addingFileId, addedFileIds, existingDriveFileIds, onBookAdded]
+    [addBook, addingFileId, addedFileIds, existingDriveFileIds, onBookAdded, selectedDriveFile]
   );
 
   const filteredFiles = useMemo(() => {
@@ -144,9 +181,9 @@ export default function AddBookModal({
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>
             <span className={styles.modalTitleIcon} aria-hidden="true">
-              📂
+              {selectedDriveFile ? '🔍' : '📂'}
             </span>
-            Add from Google Drive
+            {selectedDriveFile ? 'Select Match' : 'Add from Google Drive'}
           </h2>
           <button
             className={styles.closeButton}
@@ -158,9 +195,59 @@ export default function AddBookModal({
           </button>
         </div>
 
-        {/* Search */}
-        <div className={styles.searchWrapper}>
-          <div className={styles.searchInputWrapper}>
+        {selectedDriveFile ? (
+          <div className={styles.matchSelection}>
+            <h3 className={styles.matchHeader}>Matching details for "{selectedDriveFile.name}"</h3>
+            
+            {isSearchingMatch ? (
+              <div className={styles.loadingState}>
+                <div className={styles.spinner} />
+                <span className={styles.loadingText}>Searching OpenLibrary for matches…</span>
+              </div>
+            ) : matchOptions.length > 0 ? (
+              <div className={styles.matchList}>
+                {matchOptions.map((opt, i) => (
+                  <button 
+                    key={i} 
+                    className={styles.matchItem}
+                    onClick={() => handleConfirmMatch(opt)}
+                    disabled={!!addingFileId}
+                    type="button"
+                  >
+                    {opt.coverUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={opt.coverUrl} className={styles.matchCover} alt="Cover preview" />
+                    ) : (
+                      <div className={styles.matchCoverPlaceholder}>📘</div>
+                    )}
+                    <div className={styles.matchInfo}>
+                      <span className={styles.matchTitle}>{opt.title}</span>
+                      <span className={styles.matchAuthor}>{opt.author}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <span className={styles.emptyIcon} aria-hidden="true">📭</span>
+                <span className={styles.emptyTitle}>No matches found</span>
+              </div>
+            )}
+
+            <button 
+              className={styles.skipMatchBtn}
+              onClick={() => handleConfirmMatch()}
+              disabled={!!addingFileId}
+              type="button"
+            >
+              {addingFileId ? 'Adding...' : 'Skip and use file name'}
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Search */}
+            <div className={styles.searchWrapper}>
+              <div className={styles.searchInputWrapper}>
             <span className={styles.searchIcon} aria-hidden="true">
               🔍
             </span>
@@ -236,7 +323,7 @@ export default function AddBookModal({
                   ) : (
                     <button
                       className={styles.addBtn}
-                      onClick={() => handleAddBook(file)}
+                      onClick={() => handleSelectFile(file)}
                       disabled={isAdding}
                       type="button"
                     >
@@ -248,6 +335,8 @@ export default function AddBookModal({
             })
           )}
         </div>
+          </>
+        )}
       </div>
     </div>
   );
