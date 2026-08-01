@@ -177,55 +177,9 @@ export default function ReaderPage() {
           setDebugLog(prev => [...prev, msg].slice(-7));
         };
 
-        // Custom iOS/mobile text selection handling fallback
-        let selectionTimeout: NodeJS.Timeout;
-        
-        doc.addEventListener('touchstart', () => {
-          logDebug('touchstart');
-        }, { passive: true });
-
-        doc.addEventListener('selectionchange', () => {
-          clearTimeout(selectionTimeout);
-          selectionTimeout = setTimeout(() => {
-            const sel = contents.window.getSelection();
-            if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-              const text = sel.toString().trim();
-              logDebug(`selectionchange: ${text.substring(0, 5)}...`);
-              if (text) {
-                (contents.window as any).__lastSelectionText = text;
-                try {
-                  if (typeof contents.triggerSelectedEvent === 'function') {
-                    contents.triggerSelectedEvent(sel);
-                    logDebug('triggerSelectedEvent ok');
-                  }
-                } catch (err: any) {
-                  logDebug(`triggerSelected err: ${err.message}`);
-                }
-              }
-            } else {
-              logDebug('selectionchange: collapsed');
-            }
-          }, 300);
-        });
-        
-        doc.addEventListener('touchend', () => {
-          logDebug('touchend');
-          setTimeout(() => {
-            const sel = contents.window.getSelection();
-            if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-              const text = sel.toString().trim();
-              if (text && !(contents.window as any).__lastSelectionText) {
-                logDebug('touchend fallback run');
-                (contents.window as any).__lastSelectionText = text;
-                try {
-                  if (typeof contents.triggerSelectedEvent === 'function') {
-                    contents.triggerSelectedEvent(sel);
-                  }
-                } catch(e: any) {}
-              }
-            }
-          }, 500);
-        });
+        // Instead of relying on unreliable iOS event listeners, we will poll for selection changes
+        // But we attach it to the parent window so it persists across page turns
+        (window as any)._buzzyDebug = logDebug;
       });
       
       // Also style the iframe element itself so it never flashes white
@@ -425,6 +379,48 @@ export default function ReaderPage() {
       } else {
         rendition.display();
       }
+      
+      // Polling text selection as ultimate fallback for iOS Safari
+      let lastPolledText = '';
+      const pollInterval = setInterval(async () => {
+        try {
+          const contents = renditionRef.current?.getContents()?.[0];
+          if (!contents) return;
+          const sel = contents.window.getSelection();
+          if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
+            const text = sel.toString().trim();
+            if (text && text !== lastPolledText) {
+              lastPolledText = text;
+              if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`polled: ${text.substring(0, 5)}`);
+              
+              // Try to generate CFI
+              let cfi = '';
+              try {
+                const range = sel.getRangeAt(0);
+                const { EpubCFI } = await import('epubjs');
+                cfi = new EpubCFI(range, contents.cfiBase).toString();
+              } catch (e: any) {
+                if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`cfi range err: ${e.message}`);
+                // Fallback to node-based CFI
+                try {
+                  const { EpubCFI } = await import('epubjs');
+                  cfi = new EpubCFI(sel.anchorNode, contents.cfiBase).toString();
+                } catch (e2: any) {
+                  if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`cfi node err: ${e2.message}`);
+                }
+              }
+              
+              if (cfi) {
+                if ((window as any)._buzzyDebug) (window as any)._buzzyDebug('cfi generated manually');
+                contents.window.__lastSelectionText = text;
+                renditionRef.current?.emit('selected', cfi, contents);
+              }
+            }
+          } else if (!sel || sel.isCollapsed) {
+            lastPolledText = '';
+          }
+        } catch(e) {}
+      }, 800);
     }
 
     initEpub();
@@ -432,6 +428,8 @@ export default function ReaderPage() {
     return () => {
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      clearInterval(pollInterval as any);
     };
   }, [epubData, initialCfi]); // Removed progress from dependency to avoid re-mounting epub on progress change
 
