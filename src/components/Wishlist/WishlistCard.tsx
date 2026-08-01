@@ -87,13 +87,15 @@ export default function WishlistCard({ item, onClick }: WishlistCardProps) {
               {icon}
             </span>
             <span className={styles.placeholderTitle}>{item.title}</span>
-            <span className={styles.placeholderAuthor}>{item.author}</span>
           </div>
         )}
       </div>
 
       {/* Info */}
       <div className={styles.info}>
+        <h3 className={styles.title}>{item.title}</h3>
+        <p className={styles.author}>{item.author}</p>
+        
         {item.sourceNotes ? (
           <>
             <div className={styles.notesLabel}>How you heard about this</div>
