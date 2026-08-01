@@ -2,44 +2,47 @@
    UI Components — Shared Styles
    ============================================================ */
 
-/* --- Theme Toggle --- */
-.themeToggle {
-  position: relative;
+.themeSelectorGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+}
+
+.themeSelectorButton {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--border-radius-full);
-  background: var(--color-surface-glass);
-  border: var(--border-glass);
-  color: var(--color-text-primary);
   cursor: pointer;
-  transition: background var(--transition-base),
-              transform var(--transition-spring),
-              box-shadow var(--transition-base);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s;
 }
 
-.themeToggle:hover {
-  background: var(--color-surface-hover);
-  box-shadow: var(--shadow-md);
-  transform: scale(1.08);
+.themeSelectorButton svg {
+  width: 18px;
+  height: 18px;
 }
 
-.themeToggle:active {
-  transform: scale(0.94);
+.themeSelectorButton:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
-.themeToggleIcon {
-  width: 20px;
-  height: 20px;
-  transition: transform var(--transition-spring);
+.themeSelectorButtonActive {
+  background: var(--accent-primary);
+  color: #fff;
+  border-color: var(--accent-primary);
 }
 
-.themeToggle.rotating .themeToggleIcon {
-  transform: rotate(360deg);
+.themeSelectorButtonActive:hover {
+  background: var(--accent-primary);
+  color: #fff;
 }
 
 /* --- Slider --- */

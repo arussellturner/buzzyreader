@@ -62,45 +62,41 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
     }
   }, []);
 
-  const cycleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const idx = THEME_CYCLE.indexOf(prev);
-      const next = THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
-      document.documentElement.dataset.theme = next;
+  const handleSetTheme = useCallback((next: ThemeMode) => {
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
 
-      // Persist to localStorage
-      try {
-        const stored = localStorage.getItem('buzzyreader-preferences');
-        if (stored) {
-          const prefs = JSON.parse(stored);
-          prefs.theme = next;
-          localStorage.setItem('buzzyreader-preferences', JSON.stringify(prefs));
-        } else {
-          localStorage.setItem(
-            'buzzyreader-preferences',
-            JSON.stringify({ theme: next })
-          );
-        }
-      } catch {
-        // localStorage unavailable
+    // Persist to localStorage
+    try {
+      const stored = localStorage.getItem('buzzyreader-preferences');
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        prefs.theme = next;
+        localStorage.setItem('buzzyreader-preferences', JSON.stringify(prefs));
+      } else {
+        localStorage.setItem(
+          'buzzyreader-preferences',
+          JSON.stringify({ theme: next })
+        );
       }
-
-      return next;
-    });
+    } catch {
+      // localStorage unavailable
+    }
   }, []);
 
-  const nextTheme = THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length] || THEME_CYCLE[0];
-
   return (
-    <button
-      className={`${styles.themeToggle} ${className ?? ''}`}
-      onClick={cycleTheme}
-      aria-label={`Switch theme. Currently: ${THEME_LABELS[theme]}`}
-      title={`Switch to ${THEME_LABELS[nextTheme]}`}
-    >
-      <span className={styles.themeToggleIcon}>
-        {THEME_ICONS[nextTheme]}
-      </span>
-    </button>
+    <div className={`${styles.themeSelectorGroup} ${className ?? ''}`}>
+      {THEME_CYCLE.map((mode) => (
+        <button
+          key={mode}
+          className={`${styles.themeSelectorButton} ${theme === mode ? styles.themeSelectorButtonActive : ''}`}
+          onClick={() => handleSetTheme(mode)}
+          aria-label={THEME_LABELS[mode]}
+          title={THEME_LABELS[mode]}
+        >
+          {THEME_ICONS[mode]}
+        </button>
+      ))}
+    </div>
   );
 }

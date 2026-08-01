@@ -179,27 +179,25 @@ export default function HighlightsPage() {
             <span className={libraryStyles.logoText}>BuzzyReader</span>
           </a>
 
-          <div className={libraryStyles.navDropdownContainer} ref={navMenuRef}>
-            <button 
-              className={libraryStyles.navDropdownButton}
-              onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
-            >
-              Highlights
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            {isNavMenuOpen && (
-              <div className={libraryStyles.navDropdownMenu}>
-                <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/library')}>Library</button>
-                <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/wishlist')}>Wishlist</button>
-                <button className={`${libraryStyles.navDropdownItem} ${libraryStyles.navDropdownItemActive}`} onClick={() => router.push('/highlights')}>Highlights</button>
-              </div>
-            )}
-          </div>
-
           <div className={libraryStyles.headerRight}>
-            <ThemeToggle className={libraryStyles.themeToggle} />
+            <div className={libraryStyles.navDropdownContainer} ref={navMenuRef}>
+              <button 
+                className={libraryStyles.navDropdownButton}
+                onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+              >
+                Highlights
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              {isNavMenuOpen && (
+                <div className={libraryStyles.navDropdownMenu}>
+                  <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/library')}>Library</button>
+                  <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/wishlist')}>Wishlist</button>
+                  <button className={`${libraryStyles.navDropdownItem} ${libraryStyles.navDropdownItemActive}`} onClick={() => router.push('/highlights')}>Highlights</button>
+                </div>
+              )}
+            </div>
 
             <div className={libraryStyles.userMenuContainer} ref={userMenuRef}>
               <button 
@@ -223,6 +221,9 @@ export default function HighlightsPage() {
 
               {isUserMenuOpen && (
                 <div className={libraryStyles.userMenuDropdown}>
+                  <div style={{ padding: '0 8px 8px', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
+                    <ThemeToggle />
+                  </div>
                   <button 
                     className={libraryStyles.dropdownItemLogout}
                     onClick={() => signOut()}
