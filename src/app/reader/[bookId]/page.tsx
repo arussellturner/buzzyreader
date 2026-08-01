@@ -179,8 +179,12 @@ export default function ReaderPage() {
           selectionTimeout = setTimeout(() => {
             const sel = contents.window.getSelection();
             if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-              if (typeof contents.triggerSelectedEvent === 'function') {
-                contents.triggerSelectedEvent(sel);
+              const text = sel.toString().trim();
+              if (text) {
+                (contents.window as any).__lastSelectionText = text;
+                if (typeof contents.triggerSelectedEvent === 'function') {
+                  contents.triggerSelectedEvent(sel);
+                }
               }
             }
           }, 300);
@@ -251,59 +255,73 @@ export default function ReaderPage() {
       
       // Handle text selection
       let lastSelectedCfi = '';
+      let lastSelectionTime = 0;
       rendition.on('selected', (cfiRange: string, contents: any) => {
         if (lastSelectedCfi === cfiRange) return;
         lastSelectedCfi = cfiRange;
+        lastSelectionTime = Date.now();
         setTimeout(() => { lastSelectedCfi = ''; }, 1000);
         
-        book.getRange(cfiRange).then((range: any) => {
-          if (range) {
-            const text = range.toString();
-            const currentActive = activeSelectionRef.current;
+        const handleSelection = (text: string) => {
+          if (!text) return;
+          const currentActive = activeSelectionRef.current;
+          
+          if (currentActive && currentActive.id) {
+            // Adjusting existing active highlight
+            updateHighlight(currentActive.id, { cfiRange, text });
             
-            if (currentActive && currentActive.id) {
-              // Adjusting existing active highlight
-              updateHighlight(currentActive.id, { cfiRange, text });
-              
-              try {
-                renditionRef.current?.annotations.remove(currentActive.cfiRange, 'highlight');
-                renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
-                  const h = { ...currentActive, cfiRange, text };
-                  setActiveSelection(h);
-                  // Do NOT clear selection — leave native drag handles visible
-                });
-              } catch (e) {}
-              
-              setActiveSelection({ ...currentActive, cfiRange, text });
-            } else {
-              // Create new highlight automatically
-              const id = crypto.randomUUID();
-              const newHighlight = {
-                id,
-                bookId,
-                cfiRange,
-                text,
-                color: 'yellow' as HighlightColor,
-                createdAt: new Date().toISOString()
-              };
-              
-              addHighlight(newHighlight);
-              
-              try {
-                renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
-                  setActiveSelection(newHighlight);
-                  // Do NOT clear selection — leave native drag handles visible
-                });
-              } catch (e) {}
-              
-              setActiveSelection(newHighlight);
-            }
+            try {
+              renditionRef.current?.annotations.remove(currentActive.cfiRange, 'highlight');
+              renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
+                const h = { ...currentActive, cfiRange, text };
+                setActiveSelection(h);
+                // Do NOT clear selection — leave native drag handles visible
+              });
+            } catch (e) {}
+            
+            setActiveSelection({ ...currentActive, cfiRange, text });
+          } else {
+            // Create new highlight automatically
+            const id = crypto.randomUUID();
+            const newHighlight = {
+              id,
+              bookId,
+              cfiRange,
+              text,
+              color: 'yellow' as HighlightColor,
+              createdAt: new Date().toISOString()
+            };
+            
+            addHighlight(newHighlight);
+            
+            try {
+              renditionRef.current?.annotations.highlight(cfiRange, {}, (e: any) => {
+                setActiveSelection(newHighlight);
+                // Do NOT clear selection — leave native drag handles visible
+              });
+            } catch (e) {}
+            
+            setActiveSelection(newHighlight);
           }
-        });
+        };
+
+        try {
+          book.getRange(cfiRange).then((range: any) => {
+            const text = range ? range.toString().trim() : '';
+            handleSelection(text || contents.window.__lastSelectionText || '');
+          }).catch(() => {
+            handleSelection(contents.window.__lastSelectionText || '');
+          });
+        } catch (err) {
+          handleSelection(contents.window.__lastSelectionText || '');
+        }
       });
       
       // Clear selection on click elsewhere
       rendition.on('click', (e: any) => {
+         // If they just made a selection, ignore synthesized clicks from the touchend event
+         if (Date.now() - lastSelectionTime < 500) return;
+         
          const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
          
          // If there is an active text selection, they might be dragging handles. Do not close.
