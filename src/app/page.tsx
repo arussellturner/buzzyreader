@@ -19,8 +19,8 @@ export default function Home() {
 
       {/* Hero */}
       <section className={styles.hero}>
+        <h1 className={styles.title}>BuzzyReader</h1>
         <img src="/logo.png" alt="BuzzyReader" className={styles.beeIcon} width={80} height={80} />
-        <h1 className={styles.title} style={{ display: 'none' }}>BuzzyReader</h1>
         <p className={styles.tagline}>Your books. Everywhere.</p>
         <p className={styles.description}>
           A premium ePub reader that syncs across all your devices.
