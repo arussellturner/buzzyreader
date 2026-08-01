@@ -26,6 +26,7 @@ export default function HighlightsPage() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [editingHighlight, setEditingHighlight] = useState<Highlight | null>(null);
   const [editNote, setEditNote] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -86,9 +87,44 @@ export default function HighlightsPage() {
     )
   })).filter(bh => bh.highlights.length > 0);
 
-  const getBookTitle = (bookId: string) => {
+  const getBookTitle = useCallback((bookId: string) => {
     return library?.books.find(b => b.id === bookId)?.title || 'Unknown Book';
-  };
+  }, [library]);
+
+  const sortedHighlights = useMemo(() => {
+    const sorted = [...filteredHighlights];
+    if (sortBy === 'title') {
+      sorted.sort((a, b) => {
+        const titleA = getBookTitle(a.bookId).toLowerCase();
+        const titleB = getBookTitle(b.bookId).toLowerCase();
+        return titleA.localeCompare(titleB);
+      });
+    } else if (sortBy === 'author-first') {
+      sorted.sort((a, b) => {
+        const bookA = library?.books.find(book => book.id === a.bookId);
+        const bookB = library?.books.find(book => book.id === b.bookId);
+        const authorA = (bookA?.author || 'Unknown').toLowerCase();
+        const authorB = (bookB?.author || 'Unknown').toLowerCase();
+        return authorA.localeCompare(authorB);
+      });
+    } else if (sortBy === 'author-last') {
+      sorted.sort((a, b) => {
+        const bookA = library?.books.find(book => book.id === a.bookId);
+        const bookB = library?.books.find(book => book.id === b.bookId);
+        const getLastName = (author: string) => author.split(' ').pop() || author;
+        const authorA = getLastName(bookA?.author || 'Unknown').toLowerCase();
+        const authorB = getLastName(bookB?.author || 'Unknown').toLowerCase();
+        return authorA.localeCompare(authorB);
+      });
+    } else { // 'recent'
+      sorted.sort((a, b) => {
+        const recentA = Math.max(...a.highlights.map(h => new Date(h.createdAt || 0).getTime()));
+        const recentB = Math.max(...b.highlights.map(h => new Date(h.createdAt || 0).getTime()));
+        return recentB - recentA;
+      });
+    }
+    return sorted;
+  }, [filteredHighlights, sortBy, library, getBookTitle]);
 
   const saveEdit = async () => {
     if (!editingHighlight || !driveStorage) return;
@@ -138,6 +174,12 @@ export default function HighlightsPage() {
             <span className={libraryStyles.logoText}>BuzzyReader</span>
           </a>
 
+          <nav className={libraryStyles.navLinks}>
+            <button className={libraryStyles.navLink} onClick={() => router.push('/library')}>Library</button>
+            <button className={libraryStyles.navLink} onClick={() => router.push('/wishlist')}>Wishlist</button>
+            <button className={`${libraryStyles.navLink} ${libraryStyles.navLinkActive}`} onClick={() => router.push('/highlights')}>Highlights</button>
+          </nav>
+
           <div className={libraryStyles.headerRight}>
             <ThemeToggle className={libraryStyles.themeToggle} />
 
@@ -164,18 +206,6 @@ export default function HighlightsPage() {
               {isUserMenuOpen && (
                 <div className={libraryStyles.userMenuDropdown}>
                   <button 
-                    className={libraryStyles.dropdownItem}
-                    onClick={() => router.push('/highlights')}
-                  >
-                    Highlights
-                  </button>
-                  <button 
-                    className={libraryStyles.dropdownItem}
-                    onClick={() => router.push('/wishlist')}
-                  >
-                    Wishlist
-                  </button>
-                  <button 
                     className={libraryStyles.dropdownItemLogout}
                     onClick={() => signOut()}
                   >
@@ -201,6 +231,26 @@ export default function HighlightsPage() {
             <h1 className={styles.pageTitle}>Highlights</h1>
           </div>
           <div className={styles.headerRight}>
+            <div className={libraryStyles.sortOptions} style={{ marginRight: '16px' }}>
+              <span className={libraryStyles.sortLabel}>Sort by:</span>
+              <div className={libraryStyles.selectWrapper}>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={libraryStyles.sortSelect}
+                >
+                  <option value="recent">Recent</option>
+                  <option value="title">Book Title</option>
+                  <option value="author-first">Author (First Name)</option>
+                  <option value="author-last">Author (Last Name)</option>
+                </select>
+                <span className={libraryStyles.selectIcon} aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+              </div>
+            </div>
             <div className={styles.searchContainer}>
               <input
                 type="text"
@@ -223,13 +273,13 @@ export default function HighlightsPage() {
             <h2 className={libraryStyles.emptyTitle}>No highlights yet</h2>
             <p className={libraryStyles.emptyText}>Start reading and highlighting passages in your books.</p>
           </div>
-        ) : filteredHighlights.length === 0 ? (
+        ) : sortedHighlights.length === 0 ? (
           <div className={libraryStyles.emptyState}>
             <p className={libraryStyles.emptyText}>No highlights match your search.</p>
           </div>
         ) : (
           <div className={styles.highlightList}>
-            {filteredHighlights.map((bookGroup) => (
+            {sortedHighlights.map((bookGroup) => (
               <div key={bookGroup.bookId} className={styles.bookSection}>
                 <h2 className={styles.bookTitle}>
                   {getBookTitle(bookGroup.bookId)}

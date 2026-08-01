@@ -90,6 +90,12 @@ export default function WishlistPage() {
             <span className={libraryStyles.logoText}>BuzzyReader</span>
           </a>
 
+          <nav className={libraryStyles.navLinks}>
+            <button className={libraryStyles.navLink} onClick={() => router.push('/library')}>Library</button>
+            <button className={`${libraryStyles.navLink} ${libraryStyles.navLinkActive}`} onClick={() => router.push('/wishlist')}>Wishlist</button>
+            <button className={libraryStyles.navLink} onClick={() => router.push('/highlights')}>Highlights</button>
+          </nav>
+
           <div className={libraryStyles.headerRight}>
             <ThemeToggle className={libraryStyles.themeToggle} />
 
@@ -115,18 +121,6 @@ export default function WishlistPage() {
 
               {isUserMenuOpen && (
                 <div className={libraryStyles.userMenuDropdown}>
-                  <button 
-                    className={libraryStyles.dropdownItem}
-                    onClick={() => router.push('/highlights')}
-                  >
-                    Highlights
-                  </button>
-                  <button 
-                    className={libraryStyles.dropdownItem}
-                    onClick={() => router.push('/wishlist')}
-                  >
-                    Wishlist
-                  </button>
                   <button 
                     className={libraryStyles.dropdownItemLogout}
                     onClick={() => signOut()}

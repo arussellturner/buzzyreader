@@ -213,6 +213,12 @@ export default function LibraryPage() {
             <span className={styles.logoText}>BuzzyReader</span>
           </a>
 
+          <nav className={styles.navLinks}>
+            <button className={`${styles.navLink} ${styles.navLinkActive}`} onClick={() => router.push('/library')}>Library</button>
+            <button className={styles.navLink} onClick={() => router.push('/wishlist')}>Wishlist</button>
+            <button className={styles.navLink} onClick={() => router.push('/highlights')}>Highlights</button>
+          </nav>
+
           <div className={styles.headerRight}>
             <button className={styles.addBookIconBtn} onClick={handleOpenModal} aria-label="Add Book" title="Add Book">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -245,18 +251,6 @@ export default function LibraryPage() {
 
               {isUserMenuOpen && (
                 <div className={styles.userMenuDropdown}>
-                  <button 
-                    className={styles.dropdownItem}
-                    onClick={() => router.push('/highlights')}
-                  >
-                    Highlights
-                  </button>
-                  <button 
-                    className={styles.dropdownItem}
-                    onClick={() => router.push('/wishlist')}
-                  >
-                    Wishlist
-                  </button>
                   <button 
                     className={styles.dropdownItemLogout}
                     onClick={() => signOut()}
