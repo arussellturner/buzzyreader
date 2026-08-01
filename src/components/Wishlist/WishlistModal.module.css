@@ -235,3 +235,76 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── New Search Flow Styles ── */
+.searchModeBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.searchResultsList {
+  display: flex;
+  flex-direction: column;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-surface);
+}
+
+.searchResultItem {
+  display: flex;
+  padding: 12px;
+  gap: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.searchResultItem:last-child {
+  border-bottom: none;
+}
+
+.searchResultItem:hover {
+  background: var(--bg-elevated);
+}
+
+.manualEntryLink {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 8px 0;
+  align-self: flex-start;
+}
+
+.manualEntryLink:hover {
+  opacity: 0.8;
+}
+
+.emptyState {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.backBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.backBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}

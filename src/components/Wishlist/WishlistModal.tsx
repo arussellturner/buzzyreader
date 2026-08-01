@@ -12,7 +12,7 @@ interface WishlistModalProps {
   initialItem?: WishlistItem | null;
 }
 
-export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initialItem }: WishlistModalProps) {
+export default function WishlistModal({ isOpen, onClose, onSave, initialItem, onDelete }: WishlistModalProps) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [sourceNotes, setSourceNotes] = useState('');
@@ -20,11 +20,12 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Google Books Search State
+  // Search Flow State
+  const [mode, setMode] = useState<'search' | 'manual'>('search');
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const lastSelectedTitle = useRef('');
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -33,39 +34,35 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
         setTitle(initialItem.title);
         setAuthor(initialItem.author);
         setSourceNotes(initialItem.sourceNotes || '');
-        lastSelectedTitle.current = initialItem.title;
+        setMode('manual');
       } else {
         setTitle('');
         setAuthor('');
         setSourceNotes('');
-        lastSelectedTitle.current = '';
+        setSearchQuery('');
+        setMode('search');
       }
       setSearchResults([]);
-      setShowSuggestions(false);
+      setHasSearched(false);
     }
   }, [isOpen, initialItem]);
 
   useEffect(() => {
-    // Only search for new items, and only if they've typed something
-    if (initialItem || !title.trim()) {
+    if (mode !== 'search' || !searchQuery.trim()) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchResults([]);
-      setShowSuggestions(false);
-      return;
-    }
-    
-    // Don't search if the title is exactly what they just selected from the dropdown
-    if (title === lastSelectedTitle.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHasSearched(false);
       return;
     }
 
     const timeoutId = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}&maxResults=5`);
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5`);
         const data = await res.json();
         setSearchResults(data.items || []);
-        setShowSuggestions(true);
+        setHasSearched(true);
       } catch (err) {
         console.error('Book search failed:', err);
       } finally {
@@ -74,7 +71,7 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
     }, 600); // 600ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [title, initialItem]);
+  }, [searchQuery, mode]);
 
   if (!isOpen) return null;
 
@@ -88,10 +85,6 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
         author: author.trim() || 'Unknown Author',
         sourceNotes: sourceNotes.trim()
       });
-      setTitle('');
-      setAuthor('');
-      setSourceNotes('');
-      lastSelectedTitle.current = '';
       onClose();
     } catch (error) {
       console.error('Error saving wishlist item:', error);
@@ -100,125 +93,156 @@ export default function WishlistModal({ isOpen, onClose, onSave, onDelete, initi
     }
   };
 
+  const selectSearchResult = (bookInfo: any) => {
+    setTitle(bookInfo.title || '');
+    setAuthor(bookInfo.authors ? bookInfo.authors.join(', ') : 'Unknown Author');
+    setMode('manual');
+  };
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <header className={styles.header}>
-          <h2 className={styles.title}>{initialItem ? 'Edit Book' : 'Add to Wishlist'}</h2>
+          <h2 className={styles.title}>
+            {initialItem ? 'Edit Book' : (mode === 'search' ? 'Find a Book' : 'Add to Wishlist')}
+          </h2>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
             &times;
           </button>
         </header>
 
-        <div className={styles.body}>
-          <div className={styles.inputGroup} style={{ position: 'relative' }}>
-            <label className={styles.label}>Title</label>
-            <input 
-              type="text" 
-              className={styles.input} 
-              value={title} 
-              onChange={e => {
-                setTitle(e.target.value);
-                if (e.target.value === '') {
-                  setSearchResults([]);
-                  setShowSuggestions(false);
-                }
-              }} 
-              onFocus={() => {
-                if (searchResults.length > 0) setShowSuggestions(true);
-              }}
-              placeholder="Search for a book or enter title..."
-            />
-            {isSearching && (
-              <div className={styles.searchingIndicator}>Searching...</div>
-            )}
-            {showSuggestions && searchResults.length > 0 && !initialItem && (
-               <div className={styles.suggestionsDropdown}>
-                  {searchResults.map(book => {
-                     const volInfo = book.volumeInfo;
-                     return (
-                       <div 
-                         key={book.id} 
-                         className={styles.suggestionItem}
-                         onClick={() => {
-                           const newTitle = volInfo.title;
-                           lastSelectedTitle.current = newTitle;
-                           setTitle(newTitle);
-                           setAuthor(volInfo.authors ? volInfo.authors.join(', ') : 'Unknown Author');
-                           setShowSuggestions(false);
-                         }}
-                       >
-                         {volInfo.imageLinks?.smallThumbnail ? (
-                           <img src={volInfo.imageLinks.smallThumbnail} alt="" className={styles.suggestionImage} />
-                         ) : (
-                           <div className={styles.suggestionImagePlaceholder}>?</div>
-                         )}
-                         <div className={styles.suggestionInfo}>
-                           <div className={styles.suggestionTitle}>{volInfo.title}</div>
-                           <div className={styles.suggestionAuthor}>{volInfo.authors?.join(', ')}</div>
-                         </div>
-                       </div>
-                     );
-                  })}
-               </div>
-            )}
-          </div>
+        {mode === 'search' ? (
+          <div className={styles.body}>
+            <div className={styles.inputGroup} style={{ position: 'relative' }}>
+              <label className={styles.label}>Search for a book</label>
+              <input 
+                type="text" 
+                className={styles.input} 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)} 
+                placeholder="Enter title, author, or keywords..."
+                autoFocus
+              />
+              {isSearching && (
+                <div className={styles.searchingIndicator}>Searching...</div>
+              )}
+            </div>
 
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Author</label>
-            <input 
-              type="text" 
-              className={styles.input} 
-              value={author} 
-              onChange={e => setAuthor(e.target.value)} 
-              placeholder="Author Name"
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>How did you hear about this?</label>
-            <textarea 
-              className={styles.textarea} 
-              value={sourceNotes} 
-              onChange={e => setSourceNotes(e.target.value)} 
-              placeholder="e.g. Recommended by a friend, heard on a podcast..."
-              rows={4}
-            />
-          </div>
-        </div>
-
-        <footer className={styles.footer}>
-          <div className={styles.footerLeft}>
-            {initialItem && onDelete && (
-              <button 
-                className={styles.deleteBtn} 
-                onClick={async () => {
-                  setIsDeleting(true);
-                  try {
-                    await onDelete(initialItem.id);
-                    onClose();
-                  } catch (e) {
-                    console.error(e);
-                  } finally {
-                    setIsDeleting(false);
-                  }
-                }}
-                disabled={isDeleting || isSaving}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+            {hasSearched && searchResults.length === 0 && !isSearching && (
+              <div className={styles.emptyState}>
+                No books found.
+              </div>
             )}
-          </div>
-          <div className={styles.footerRight}>
+
+            {searchResults.length > 0 && (
+              <div className={styles.searchResultsList}>
+                {searchResults.map(book => {
+                  const volInfo = book.volumeInfo;
+                  return (
+                    <div 
+                      key={book.id} 
+                      className={styles.searchResultItem}
+                      onClick={() => selectSearchResult(volInfo)}
+                    >
+                      {volInfo.imageLinks?.smallThumbnail ? (
+                        <img src={volInfo.imageLinks.smallThumbnail} alt="" className={styles.suggestionImage} />
+                      ) : (
+                        <div className={styles.suggestionImagePlaceholder}>?</div>
+                      )}
+                      <div className={styles.suggestionInfo}>
+                        <div className={styles.suggestionTitle}>{volInfo.title}</div>
+                        <div className={styles.suggestionAuthor}>{volInfo.authors?.join(', ')}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             <button 
-              className={styles.saveBtn} 
-              onClick={handleSave} 
-              disabled={isSaving || isDeleting || !title.trim()}
+              className={styles.manualEntryLink} 
+              onClick={() => setMode('manual')}
             >
-              {isSaving ? 'Saving...' : (initialItem ? 'Save' : 'Add Book')}
+              Can&apos;t find it? Add manually.
             </button>
           </div>
-        </footer>
+        ) : (
+          <>
+            <div className={styles.body}>
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Title</label>
+                <input 
+                  type="text" 
+                  className={styles.input} 
+                  value={title} 
+                  onChange={e => setTitle(e.target.value)} 
+                  placeholder="Book Title"
+                  autoFocus={!initialItem}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Author</label>
+                <input 
+                  type="text" 
+                  className={styles.input} 
+                  value={author} 
+                  onChange={e => setAuthor(e.target.value)} 
+                  placeholder="Author Name"
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>How did you hear about this?</label>
+                <textarea 
+                  className={styles.textarea} 
+                  value={sourceNotes} 
+                  onChange={e => setSourceNotes(e.target.value)} 
+                  placeholder="e.g. Recommended by a friend, heard on a podcast..."
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            <footer className={styles.footer}>
+              <div className={styles.footerLeft}>
+                {!initialItem && (
+                  <button className={styles.backBtn} onClick={() => setMode('search')}>
+                    Back
+                  </button>
+                )}
+                {initialItem && onDelete && (
+                  <button 
+                    className={styles.deleteBtn} 
+                    onClick={async () => {
+                      setIsDeleting(true);
+                      try {
+                        await onDelete(initialItem.id);
+                        onClose();
+                      } catch (e) {
+                        console.error(e);
+                      } finally {
+                        setIsDeleting(false);
+                      }
+                    }}
+                    disabled={isDeleting || isSaving}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                )}
+              </div>
+              <div className={styles.footerRight}>
+                <button 
+                  className={styles.saveBtn} 
+                  onClick={handleSave} 
+                  disabled={isSaving || isDeleting || !title.trim()}
+                >
+                  {isSaving ? 'Saving...' : (initialItem ? 'Save' : 'Add Book')}
+                </button>
+              </div>
+            </footer>
+          </>
+        )}
       </div>
     </div>
   );
