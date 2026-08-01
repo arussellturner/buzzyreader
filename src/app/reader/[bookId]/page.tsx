@@ -579,7 +579,7 @@ export default function ReaderPage() {
             
             // Selection is the same as last poll — check if it's been stable long enough
             if (text === lastPolledText) return; // Already processed this exact text
-            if (Date.now() - stableTextSince < 1500) return; // Not stable long enough
+            if (Date.now() - stableTextSince < 800) return; // Not stable long enough
             
             // Selection has been stable for 1.5s — fire it
             lastPolledText = text;
@@ -617,7 +617,7 @@ export default function ReaderPage() {
             stableText = '';
           }
         } catch(e) {}
-      }, 500);
+      }, 300);
     }
 
     initEpub();
