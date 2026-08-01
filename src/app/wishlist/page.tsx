@@ -147,6 +147,9 @@ export default function WishlistPage() {
         <div className={styles.wishlistHeader}>
           <div className={styles.headerLeft}>
             <PageNavDropdown activePage="wishlist" />
+          </div>
+
+          <div className={styles.headerRight}>
             <button 
               className={styles.addButton} 
               onClick={() => {
@@ -161,9 +164,6 @@ export default function WishlistPage() {
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
             </button>
-          </div>
-
-          <div className={styles.headerRight}>
             <div className={styles.searchContainer}>
               <input
                 type="text"

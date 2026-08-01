@@ -148,22 +148,24 @@
   box-shadow: var(--shadow-sm);
 }
 
-.addBookIconBtn {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 4px;
+.addButton {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s, background-color 0.2s;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
-.addBookIconBtn:hover {
-  color: var(--text-primary);
-  background: var(--border-subtle);
+.addButton:hover {
+  background: var(--bg-elevated);
+  transform: scale(1.05);
 }
 
 .userAvatar {
@@ -276,6 +278,12 @@
   margin-bottom: 40px;
   gap: 16px;
   flex-wrap: wrap;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .sortOptions {

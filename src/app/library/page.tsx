@@ -220,13 +220,6 @@ export default function LibraryPage() {
           </a>
 
           <div className={styles.headerRight}>
-            <button className={styles.addBookIconBtn} onClick={handleOpenModal} aria-label="Add Book" title="Add Book">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-
             <div className={styles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={styles.avatarButton} 
@@ -278,24 +271,32 @@ export default function LibraryPage() {
         {/* Sub Nav / Toolbar */}
         <div className={styles.toolbar}>
           <PageNavDropdown activePage="library" />
-          <div className={styles.sortOptions}>
-            <label htmlFor="sort-select" className={styles.sortLabel}>Sort by:</label>
-            <div className={styles.selectWrapper}>
-              <select
-                id="sort-select"
-                className={styles.sortSelect}
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as SortOption)}
-              >
-                <option value="title">Title</option>
-                <option value="authorFirst">Author (First name)</option>
-                <option value="authorLast">Author (Last name)</option>
-                <option value="recentRead">Last opened</option>
-                <option value="recentAdded">Date added</option>
-              </select>
-              <svg className={styles.selectIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
+          <div className={styles.toolbarRight}>
+            <button className={styles.addButton} onClick={handleOpenModal} aria-label="Add Book" title="Add Book">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
+            </button>
+            <div className={styles.sortOptions}>
+              <label htmlFor="sort-select" className={styles.sortLabel}>Sort by:</label>
+              <div className={styles.selectWrapper}>
+                <select
+                  id="sort-select"
+                  className={styles.sortSelect}
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value as SortOption)}
+                >
+                  <option value="title">Title</option>
+                  <option value="authorFirst">Author (First name)</option>
+                  <option value="authorLast">Author (Last name)</option>
+                  <option value="recentRead">Last opened</option>
+                  <option value="recentAdded">Date added</option>
+                </select>
+                <svg className={styles.selectIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
