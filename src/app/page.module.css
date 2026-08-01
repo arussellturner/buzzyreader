@@ -118,12 +118,13 @@
   font-weight: 800;
   letter-spacing: -2px;
   line-height: 1.05;
-  background: var(--gradient-hero);
+  background: linear-gradient(135deg, #ffffff 0%, #a8b8d0 50%, #ffffff 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: fadeInDown 0.8s ease-out both, gradientShift 8s ease-in-out infinite;
+  margin-bottom: var(--space-sm);
 }
 
 /* Tagline */
