@@ -244,7 +244,7 @@
 
 .dropdownItemLogout {
   display: block;
-  width: calc(100% - 32px);
+  width: calc(100% - 48px);
   margin: 16px auto 16px;
   text-align: center;
   padding: 8px 16px;
