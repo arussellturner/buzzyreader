@@ -319,41 +319,40 @@ export default function BookDetailsModal({
 
             <div className={styles.dangerZone}>
               <h4>Manage Book</h4>
-              <button
-                className={styles.btnGhost}
-                onClick={handleResetProgress}
-                type="button"
-              >
-                Reset Reading Progress
-              </button>
-              <button
-                className={styles.btnDanger}
-                onClick={handleDeleteClick}
-                disabled={isDeleting || isSaving}
-                type="button"
-              >
-                Delete Book
-              </button>
+              <div className={styles.manageBookActions}>
+                <button
+                  className={styles.btnGhost}
+                  onClick={handleToggleRead}
+                  disabled={isSaving}
+                  type="button"
+                >
+                  {isRead ? 'Mark as unread' : 'Mark as read'}
+                </button>
+                <button
+                  className={styles.btnGhost}
+                  onClick={handleResetProgress}
+                  type="button"
+                >
+                  Reset reading progress
+                </button>
+                <button
+                  className={styles.btnDanger}
+                  onClick={handleDeleteClick}
+                  disabled={isDeleting || isSaving}
+                  type="button"
+                >
+                  Delete book
+                </button>
+              </div>
             </div>
 
             <div className={styles.actions}>
-              {/* Mark as Read / Unread */}
-              <button
-                className={styles.btnSecondary}
-                onClick={handleToggleRead}
-                disabled={isSaving}
-                type="button"
-                style={{ marginRight: 'auto' }}
-              >
-                {isRead ? 'Mark as unread' : 'Mark as read'}
-              </button>
-
               <button
                 className={styles.btnPrimary}
                 onClick={handleSave}
                 disabled={!hasChanges || isSaving}
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? 'Saving...' : 'Save changes'}
               </button>
             </div>
           </div>

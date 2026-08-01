@@ -124,6 +124,12 @@
   gap: 12px;
 }
 
+.manageBookActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .dangerZone h4 {
   font-size: 14px;
   font-weight: 600;
