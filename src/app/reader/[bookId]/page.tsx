@@ -257,10 +257,7 @@ export default function ReaderPage() {
             }
           }
           
-          // No highlight was hit — if a menu is open, dismiss it
-          if (typeof (window as any)._buzzyClearSelection === 'function') {
-            (window as any)._buzzyClearSelection();
-          }
+          // No highlight was hit — dismissal is handled by the backdrop overlay
         };
         
         // Listen on the iframe document for touchend (the most reliable touch event on iOS Safari)
@@ -273,17 +270,6 @@ export default function ReaderPage() {
         doc.addEventListener('click', (e: MouseEvent) => {
           proxyTouchToMarks(e.clientX, e.clientY);
         });
-        
-        // Use pointerdown for clearing selection when tapping non-highlight areas
-        doc.addEventListener('pointerdown', (e: any) => {
-          const target = e.target as HTMLElement;
-          if (target && (target.tagName?.toLowerCase() === 'svg' || target.closest?.('svg') || target.classList?.contains('epubjs-hl'))) {
-            return;
-          }
-          if (typeof (window as any)._buzzyClearSelection === 'function') {
-            (window as any)._buzzyClearSelection();
-          }
-        }, { passive: true });
       });
       
       // Also style the iframe element itself so it never flashes white
