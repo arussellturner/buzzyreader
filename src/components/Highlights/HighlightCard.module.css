@@ -11,9 +11,6 @@
   cursor: pointer;
 }
 
-.card:hover {
-  opacity: 0.8;
-}
 
 /* Color variants */
 .yellow {
