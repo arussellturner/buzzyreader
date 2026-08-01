@@ -53,6 +53,7 @@ export default function ReaderPage() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const renditionRef = useRef<any>(null);
+  const [renditionReady, setRenditionReady] = useState(false);
   const preferencesRef = useRef(preferences);
   preferencesRef.current = preferences;
 
@@ -544,16 +545,22 @@ export default function ReaderPage() {
         }
       });
       
-      if (initialCfi) {
-        rendition.display(initialCfi);
-      } else if (progress?.cfi) {
-        rendition.display(progress.cfi);
-      } else {
-        rendition.display();
-      }
+      const displayPromise = initialCfi 
+        ? rendition.display(initialCfi)
+        : (progress?.cfi ? rendition.display(progress.cfi) : rendition.display());
+      
+      displayPromise.then(() => {
+        setRenditionReady(true);
+      }).catch(() => {
+        setRenditionReady(true);
+      });
       
       // Polling text selection as ultimate fallback for iOS Safari
+      // Uses debouncing: only fires after the selection text hasn't changed for 1.5s
+      // This prevents creating annotations while the user is still adjusting drag handles
       let lastPolledText = '';
+      let stableText = '';
+      let stableTextSince = 0;
       pollInterval = setInterval(async () => {
         try {
           const contents = renditionRef.current?.getContents()?.[0];
@@ -561,32 +568,43 @@ export default function ReaderPage() {
           const sel = contents.window.getSelection();
           if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
             const text = sel.toString().trim();
-            if (text && text !== lastPolledText) {
-              lastPolledText = text;
-              if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`polled: ${text.substring(0, 5)}`);
-              
-              // Try to generate CFI
-              let cfi = '';
+            if (!text) return;
+            
+            if (text !== stableText) {
+              // Selection changed — reset the debounce timer
+              stableText = text;
+              stableTextSince = Date.now();
+              return;
+            }
+            
+            // Selection is the same as last poll — check if it's been stable long enough
+            if (text === lastPolledText) return; // Already processed this exact text
+            if (Date.now() - stableTextSince < 1500) return; // Not stable long enough
+            
+            // Selection has been stable for 1.5s — fire it
+            lastPolledText = text;
+            if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`polled: ${text.substring(0, 5)}`);
+            
+            // Try to generate CFI
+            let cfi = '';
+            try {
+              const range = sel.getRangeAt(0);
+              const { EpubCFI } = await import('epubjs');
+              cfi = new EpubCFI(range, contents.cfiBase).toString();
+            } catch (e: any) {
+              if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`cfi range err: ${e.message}`);
               try {
-                const range = sel.getRangeAt(0);
                 const { EpubCFI } = await import('epubjs');
-                cfi = new EpubCFI(range, contents.cfiBase).toString();
-              } catch (e: any) {
-                if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`cfi range err: ${e.message}`);
-                // Fallback to node-based CFI
-                try {
-                  const { EpubCFI } = await import('epubjs');
-                  cfi = new EpubCFI(sel.anchorNode, contents.cfiBase).toString();
-                } catch (e2: any) {
-                  if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`cfi node err: ${e2.message}`);
-                }
+                cfi = new EpubCFI(sel.anchorNode, contents.cfiBase).toString();
+              } catch (e2: any) {
+                if ((window as any)._buzzyDebug) (window as any)._buzzyDebug(`cfi node err: ${e2.message}`);
               }
-              
-              if (cfi) {
-                if ((window as any)._buzzyDebug) (window as any)._buzzyDebug('cfi generated manually');
-                contents.window.__lastSelectionText = text;
-                renditionRef.current?.emit('selected', cfi, contents);
-              }
+            }
+            
+            if (cfi) {
+              if ((window as any)._buzzyDebug) (window as any)._buzzyDebug('cfi generated manually');
+              contents.window.__lastSelectionText = text;
+              renditionRef.current?.emit('selected', cfi, contents);
             }
           } else if (!sel || sel.isCollapsed) {
             if (lastPolledText !== '') {
@@ -596,9 +614,10 @@ export default function ReaderPage() {
               }
             }
             lastPolledText = '';
+            stableText = '';
           }
         } catch(e) {}
-      }, 800);
+      }, 500);
     }
 
     initEpub();
@@ -703,7 +722,7 @@ export default function ReaderPage() {
         });
       } catch (e) {}
     });
-  }, [highlights, epubData]);
+  }, [highlights, epubData, renditionReady]);
 
   // Listen for preference changes and apply them dynamically if epub is already loaded
   useEffect(() => {
