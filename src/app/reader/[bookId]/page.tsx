@@ -212,18 +212,27 @@ export default function ReaderPage() {
         };
 
         doc.addEventListener('touchstart', (e: TouchEvent) => {
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`IframeTap: touchstart`);
+          }
           if (!e.touches || e.touches.length === 0) return;
           checkTapInParent(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
+        }, { passive: true, capture: true });
         
         doc.addEventListener('touchend', (e: TouchEvent) => {
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`IframeTap: touchend`);
+          }
           if (!e.changedTouches || e.changedTouches.length === 0) return;
           checkTapInParent(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        }, { passive: true });
+        }, { passive: true, capture: true });
         
         doc.addEventListener('click', (e: MouseEvent) => {
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`IframeTap: click`);
+          }
           checkTapInParent(e.clientX, e.clientY);
-        });
+        }, { capture: true });
         
         doc.addEventListener('pointerdown', (e: any) => {
           const target = e.target as HTMLElement;
