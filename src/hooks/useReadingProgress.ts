@@ -14,7 +14,7 @@ import type { ReadingProgress } from '@/types/progress';
 export interface UseReadingProgressReturn {
   progress: ReadingProgress | null;
   loading: boolean;
-  updateProgress: (location: string, percentage: number) => void;
+  updateProgress: (location: string, percentage: number | null) => void;
   loadProgress: (accessToken: string, bookId: string) => Promise<void>;
 }
 
@@ -87,14 +87,18 @@ export function useReadingProgress(): UseReadingProgressReturn {
 
   // ── Update progress (optimistic + debounced save) ────────────────
   const updateProgress = useCallback(
-    (location: string, percentage: number): void => {
+    (location: string, percentage: number | null): void => {
       const bookId = bookIdRef.current;
       if (!bookId) return;
+
+      const safePercentage = percentage !== null && !isNaN(percentage) 
+        ? Math.min(1, Math.max(0, percentage))
+        : (progressRef.current?.percentage ?? 0);
 
       const updated: ReadingProgress = {
         bookId,
         cfi: location,
-        percentage: Math.min(1, Math.max(0, percentage)),
+        percentage: safePercentage,
         lastRead: new Date().toISOString(),
         currentPage: progressRef.current?.currentPage,
         totalPages: progressRef.current?.totalPages,

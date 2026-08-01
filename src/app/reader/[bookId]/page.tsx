@@ -536,9 +536,10 @@ export default function ReaderPage() {
            renditionRef.current?.next();
          }
        });
-       
        rendition.on('relocated', (location: any) => {
-        const percentage = book.locations.percentageFromCfi(location.start.cfi);
+        const percentage = book.locations.length() > 0 
+          ? book.locations.percentageFromCfi(location.start.cfi) 
+          : null;
         updateProgress(location.start.cfi, percentage);
       });
       
