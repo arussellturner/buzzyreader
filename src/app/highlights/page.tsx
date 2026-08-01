@@ -198,7 +198,7 @@ export default function HighlightsPage() {
       <main className={libraryStyles.content}>
         <div className={styles.highlightsHeader}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.pageTitle}>Your Highlights</h1>
+            <h1 className={styles.pageTitle}>Highlights</h1>
           </div>
           <div className={styles.headerRight}>
             <div className={styles.searchContainer}>
