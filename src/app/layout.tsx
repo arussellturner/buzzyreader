@@ -43,9 +43,32 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
+      suppressHydrationWarning
       className={`${inter.variable} ${literata.variable}`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const stored = localStorage.getItem('buzzyreader-preferences');
+                if (stored) {
+                  const prefs = JSON.parse(stored);
+                  if (prefs.theme) {
+                    document.documentElement.dataset.theme = prefs.theme;
+                  } else {
+                    document.documentElement.dataset.theme = 'dark';
+                  }
+                } else {
+                  document.documentElement.dataset.theme = 'dark';
+                }
+              } catch (e) {
+                document.documentElement.dataset.theme = 'dark';
+              }
+            `,
+          }}
+        />
+      </head>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>
