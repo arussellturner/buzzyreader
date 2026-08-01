@@ -59,9 +59,9 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
     const timeoutId = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5`);
+        const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}&limit=5`);
         const data = await res.json();
-        setSearchResults(data.items || []);
+        setSearchResults(data.docs || []);
         setHasSearched(true);
       } catch (err) {
         console.error('Book search failed:', err);
@@ -93,9 +93,9 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
     }
   };
 
-  const selectSearchResult = (bookInfo: any) => {
-    setTitle(bookInfo.title || '');
-    setAuthor(bookInfo.authors ? bookInfo.authors.join(', ') : 'Unknown Author');
+  const selectSearchResult = (book: any) => {
+    setTitle(book.title || '');
+    setAuthor(book.author_name ? book.author_name.join(', ') : 'Unknown Author');
     setMode('manual');
   };
 
@@ -136,22 +136,21 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
 
             {searchResults.length > 0 && (
               <div className={styles.searchResultsList}>
-                {searchResults.map(book => {
-                  const volInfo = book.volumeInfo;
+                {searchResults.map((book: any, idx) => {
                   return (
                     <div 
-                      key={book.id} 
+                      key={book.key || idx} 
                       className={styles.searchResultItem}
-                      onClick={() => selectSearchResult(volInfo)}
+                      onClick={() => selectSearchResult(book)}
                     >
-                      {volInfo.imageLinks?.smallThumbnail ? (
-                        <img src={volInfo.imageLinks.smallThumbnail} alt="" className={styles.suggestionImage} />
+                      {book.cover_i ? (
+                        <img src={`https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`} alt="" className={styles.suggestionImage} />
                       ) : (
                         <div className={styles.suggestionImagePlaceholder}>?</div>
                       )}
                       <div className={styles.suggestionInfo}>
-                        <div className={styles.suggestionTitle}>{volInfo.title}</div>
-                        <div className={styles.suggestionAuthor}>{volInfo.authors?.join(', ')}</div>
+                        <div className={styles.suggestionTitle}>{book.title}</div>
+                        <div className={styles.suggestionAuthor}>{book.author_name?.join(', ')}</div>
                       </div>
                     </div>
                   );
