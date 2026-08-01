@@ -521,8 +521,6 @@ export default function ReaderPage() {
 
     initEpub();
 
-    initEpub();
-
     return () => {
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
