@@ -184,7 +184,7 @@ export default function ReaderPage() {
           const gs = document.querySelectorAll('g[data-epubcfi]');
           
           if (typeof (window as any)._buzzyDebug === 'function') {
-            (window as any)._buzzyDebug(`Iframe tap: checking ${gs.length} marks`);
+            (window as any)._buzzyDebug(`Iframe tap: found ${gs.length} marks`);
           }
           
           for (let i = 0; i < gs.length; i++) {
@@ -543,10 +543,8 @@ export default function ReaderPage() {
       let clickedCfi: string | null = null;
       const gs = document.querySelectorAll('g[data-epubcfi]');
       
-      if (gs.length > 0) {
-        if (typeof (window as any)._buzzyDebug === 'function') {
-          (window as any)._buzzyDebug(`Parent tap: checking ${gs.length} marks`);
-        }
+      if (typeof (window as any)._buzzyDebug === 'function') {
+        (window as any)._buzzyDebug(`Parent tap: found ${gs.length} marks`);
       }
       
       for (let i = 0; i < gs.length; i++) {
