@@ -33,11 +33,20 @@ export function useReadingProgress(): UseReadingProgressReturn {
   const accessTokenRef = useRef<string | null>(null);
   const bookIdRef = useRef<string | null>(null);
 
-  // Cleanup debounce timer on unmount
+  // Cleanup debounce timer on unmount and flush pending save
   useEffect(() => {
     return () => {
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
+        const token = accessTokenRef.current;
+        const bookId = bookIdRef.current;
+        const currentProgress = progressRef.current;
+        if (token && bookId && currentProgress) {
+          const drive = new DriveStorage(token);
+          saveReadingProgress(drive, bookId, currentProgress).catch(err => 
+            console.error('[useReadingProgress] Failed to flush progress on unmount:', err)
+          );
+        }
       }
     };
   }, []);
