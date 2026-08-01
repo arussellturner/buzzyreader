@@ -234,7 +234,12 @@ export default function ReaderPage() {
           checkTapInParent(e.clientX, e.clientY);
         }, { capture: true });
         
-        doc.addEventListener('pointerdown', (e: any) => {
+        doc.addEventListener('pointerdown', (e: PointerEvent) => {
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`IframeTap: pointerdown`);
+          }
+          checkTapInParent(e.clientX, e.clientY);
+          
           const target = e.target as HTMLElement;
           if (target && (target.tagName?.toLowerCase() === 'svg' || target.closest?.('svg') || target.classList?.contains('epubjs-hl'))) {
             return;
@@ -242,7 +247,14 @@ export default function ReaderPage() {
           if (typeof (window as any)._buzzyClearSelection === 'function') {
             (window as any)._buzzyClearSelection();
           }
-        }, { passive: true });
+        }, { passive: true, capture: true });
+        
+        doc.addEventListener('pointerup', (e: PointerEvent) => {
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`IframeTap: pointerup`);
+          }
+          checkTapInParent(e.clientX, e.clientY);
+        }, { passive: true, capture: true });
       });
       
       // Also style the iframe element itself so it never flashes white
