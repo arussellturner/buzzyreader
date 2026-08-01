@@ -176,27 +176,69 @@ export default function ReaderPage() {
         // But we attach it to the parent window so it persists across page turns
         (window as any)._buzzyDebug = logDebug;
         
-        // Custom listener for tapping existing highlights
+        // Custom listener for tapping existing highlights using geometric collision detection
+        // This is 100% bulletproof and ignores pointer-events or DOM hierarchy issues on iOS
         doc.addEventListener('touchstart', (e: TouchEvent) => {
-          const target = e.target as HTMLElement;
-          const g = target.closest?.('g[data-epubcfi]');
-          if (g) {
-            const cfi = g.getAttribute('data-epubcfi');
-            if (cfi && typeof (window as any)._buzzyMarkClicked === 'function') {
-              (window as any)._buzzyMarkClicked(cfi);
+          if (!e.touches || e.touches.length === 0) return;
+          const touch = e.touches[0];
+          const x = touch.clientX;
+          const y = touch.clientY;
+          
+          let clickedCfi: string | null = null;
+          const gs = doc.querySelectorAll('g[data-epubcfi]');
+          
+          for (let i = 0; i < gs.length; i++) {
+            const g = gs[i];
+            const rects = g.querySelectorAll('rect, path, polygon');
+            for (let j = 0; j < rects.length; j++) {
+              const rect = rects[j].getBoundingClientRect();
+              const padding = 15; // Generous tap target for mobile
+              if (
+                x >= rect.left - padding &&
+                x <= rect.right + padding &&
+                y >= rect.top - padding &&
+                y <= rect.bottom + padding
+              ) {
+                clickedCfi = g.getAttribute('data-epubcfi');
+                break;
+              }
             }
+            if (clickedCfi) break;
+          }
+          
+          if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+            (window as any)._buzzyMarkClicked(clickedCfi);
           }
         }, { passive: true });
         
-        // Also listen on click for desktop
+        // Also listen on click for desktop using the same geometric check
         doc.addEventListener('click', (e: MouseEvent) => {
-          const target = e.target as HTMLElement;
-          const g = target.closest?.('g[data-epubcfi]');
-          if (g) {
-            const cfi = g.getAttribute('data-epubcfi');
-            if (cfi && typeof (window as any)._buzzyMarkClicked === 'function') {
-              (window as any)._buzzyMarkClicked(cfi);
+          const x = e.clientX;
+          const y = e.clientY;
+          
+          let clickedCfi: string | null = null;
+          const gs = doc.querySelectorAll('g[data-epubcfi]');
+          
+          for (let i = 0; i < gs.length; i++) {
+            const g = gs[i];
+            const rects = g.querySelectorAll('rect, path, polygon');
+            for (let j = 0; j < rects.length; j++) {
+              const rect = rects[j].getBoundingClientRect();
+              if (
+                x >= rect.left &&
+                x <= rect.right &&
+                y >= rect.top &&
+                y <= rect.bottom
+              ) {
+                clickedCfi = g.getAttribute('data-epubcfi');
+                break;
+              }
             }
+            if (clickedCfi) break;
+          }
+          
+          if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+            (window as any)._buzzyMarkClicked(clickedCfi);
           }
         });
 
