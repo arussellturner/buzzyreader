@@ -2,18 +2,21 @@ import styles from './page.module.css';
 import LandingClient from './LandingClient';
 
 
+import LightRays from '@/components/Backgrounds/LightRays/LightRays';
+
 export default function Home() {
   return (
     <div className={styles.landing}>
-      {/* Animated background orbs */}
-      <div className={styles.backgroundOrbs} aria-hidden="true">
-        <div className={styles.gradientOrb} />
-        <div className={styles.gradientOrb} />
-        <div className={styles.gradientOrb} />
-        <div className={styles.gradientOrb} />
-        <div className={styles.gradientOrb} />
+      {/* LightRays background */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, overflow: 'hidden' }}>
+        <LightRays
+          raysOrigin="top-center"
+          raysColor="#f59e0b" // amber-500
+          raysSpeed={1.5}
+          pulsating={true}
+          lightSpread={1.5}
+        />
       </div>
-
       {/* Noise texture overlay */}
       <div className={styles.noiseOverlay} aria-hidden="true" />
 
