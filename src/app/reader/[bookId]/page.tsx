@@ -256,6 +256,11 @@ export default function ReaderPage() {
               }
             }
           }
+          
+          // No highlight was hit — if a menu is open, dismiss it
+          if (typeof (window as any)._buzzyClearSelection === 'function') {
+            (window as any)._buzzyClearSelection();
+          }
         };
         
         // Listen on the iframe document for touchend (the most reliable touch event on iOS Safari)
