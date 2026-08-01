@@ -218,6 +218,11 @@ export default function ReaderPage() {
           checkTapInParent(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: true });
         
+        doc.addEventListener('touchend', (e: TouchEvent) => {
+          if (!e.changedTouches || e.changedTouches.length === 0) return;
+          checkTapInParent(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }, { passive: true });
+        
         doc.addEventListener('click', (e: MouseEvent) => {
           checkTapInParent(e.clientX, e.clientY);
         });
@@ -521,7 +526,63 @@ export default function ReaderPage() {
 
     initEpub();
 
+    // Also add geometric tap detection to the PARENT document, just in case!
+    const handleGlobalTap = (e: TouchEvent | MouseEvent) => {
+      let x = 0, y = 0;
+      if (window.TouchEvent && e instanceof TouchEvent) {
+        // For touchend, use changedTouches
+        const touchList = e.type === 'touchend' ? e.changedTouches : e.touches;
+        if (!touchList || touchList.length === 0) return;
+        x = touchList[0].clientX;
+        y = touchList[0].clientY;
+      } else {
+        x = (e as MouseEvent).clientX;
+        y = (e as MouseEvent).clientY;
+      }
+      
+      let clickedCfi: string | null = null;
+      const gs = document.querySelectorAll('g[data-epubcfi]');
+      
+      if (gs.length > 0) {
+        if (typeof (window as any)._buzzyDebug === 'function') {
+          (window as any)._buzzyDebug(`Parent tap: checking ${gs.length} marks`);
+        }
+      }
+      
+      for (let i = 0; i < gs.length; i++) {
+        const g = gs[i];
+        const rects = g.querySelectorAll('rect, path, polygon');
+        for (let j = 0; j < rects.length; j++) {
+          const rect = rects[j].getBoundingClientRect();
+          const padding = 15;
+          if (
+            x >= rect.left - padding &&
+            x <= rect.right + padding &&
+            y >= rect.top - padding &&
+            y <= rect.bottom + padding
+          ) {
+            clickedCfi = g.getAttribute('data-epubcfi');
+            break;
+          }
+        }
+        if (clickedCfi) break;
+      }
+      
+      if (clickedCfi) {
+        if (typeof (window as any)._buzzyMarkClicked === 'function') {
+          (window as any)._buzzyMarkClicked(clickedCfi);
+        }
+      }
+    };
+    
+    window.addEventListener('touchstart', handleGlobalTap, { passive: true, capture: true });
+    window.addEventListener('touchend', handleGlobalTap, { passive: true, capture: true });
+    window.addEventListener('click', handleGlobalTap, { capture: true });
+
     return () => {
+      window.removeEventListener('touchstart', handleGlobalTap, { capture: true });
+      window.removeEventListener('touchend', handleGlobalTap, { capture: true });
+      window.removeEventListener('click', handleGlobalTap, { capture: true });
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
       // eslint-disable-next-line react-hooks/exhaustive-deps
