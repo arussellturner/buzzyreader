@@ -197,15 +197,19 @@ export default function HighlightsPage() {
       {/* Main Content */}
       <main className={libraryStyles.content}>
         <div className={styles.highlightsHeader}>
-          <h1 className={styles.pageTitle}>Your Highlights</h1>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              placeholder="Search highlights..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
+          <div className={styles.headerLeft}>
+            <h1 className={styles.pageTitle}>Your Highlights</h1>
+          </div>
+          <div className={styles.headerRight}>
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Search highlights..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+            </div>
           </div>
         </div>
 

@@ -3,6 +3,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerRight {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .pageTitle {
@@ -33,7 +46,8 @@
 }
 
 .searchContainer {
-  margin-bottom: 32px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .searchInput {
@@ -74,6 +88,20 @@
 }
 
 @media (max-width: 768px) {
+  .wishlistHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .headerRight {
+    justify-content: stretch;
+  }
+  
+  .searchContainer {
+    max-width: 100%;
+  }
+
   .wishlistGrid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 24px 16px;
