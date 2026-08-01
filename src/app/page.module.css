@@ -124,7 +124,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: fadeInDown 0.8s ease-out both, gradientShift 8s ease-in-out infinite;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-lg);
 }
 
 /* Tagline */
