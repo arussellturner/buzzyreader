@@ -338,6 +338,11 @@ export default function ReaderPage() {
            return;
          }
          
+         // If a mark was just clicked, ignore this synthesized click event
+         if (Date.now() - ((window as any)._buzzyLastMarkClick || 0) < 500) {
+           return;
+         }
+         
          if (activeSelectionRef.current && !activeSelectionRef.current.id) {
             // If it was just a temp selection we didn't save, remove the highlight
             try {
@@ -351,6 +356,9 @@ export default function ReaderPage() {
       
       // Bind clear selection to window so the iframe can call it
       (window as any)._buzzyClearSelection = () => {
+         if (Date.now() - ((window as any)._buzzyLastMarkClick || 0) < 500) {
+           return;
+         }
          const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
          if (selection) selection.removeAllRanges();
          setActiveSelection(null);
@@ -471,6 +479,7 @@ export default function ReaderPage() {
     highlights.forEach(h => {
       try {
         renditionRef.current?.annotations.highlight(h.cfiRange, {}, (e: any) => {
+          (window as any)._buzzyLastMarkClick = Date.now();
           setActiveSelection(h);
           // Programmatically select the highlight range so native drag handles appear
           try {
