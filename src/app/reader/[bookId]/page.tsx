@@ -176,72 +176,9 @@ export default function ReaderPage() {
         // But we attach it to the parent window so it persists across page turns
         (window as any)._buzzyDebug = logDebug;
         
-        // Custom listener for tapping existing highlights using geometric collision detection
-        // This is 100% bulletproof and ignores pointer-events or DOM hierarchy issues on iOS
-        doc.addEventListener('touchstart', (e: TouchEvent) => {
-          if (!e.touches || e.touches.length === 0) return;
-          const touch = e.touches[0];
-          const x = touch.clientX;
-          const y = touch.clientY;
-          
-          let clickedCfi: string | null = null;
-          const gs = doc.querySelectorAll('g[data-epubcfi]');
-          
-          for (let i = 0; i < gs.length; i++) {
-            const g = gs[i];
-            const rects = g.querySelectorAll('rect, path, polygon');
-            for (let j = 0; j < rects.length; j++) {
-              const rect = rects[j].getBoundingClientRect();
-              const padding = 15; // Generous tap target for mobile
-              if (
-                x >= rect.left - padding &&
-                x <= rect.right + padding &&
-                y >= rect.top - padding &&
-                y <= rect.bottom + padding
-              ) {
-                clickedCfi = g.getAttribute('data-epubcfi');
-                break;
-              }
-            }
-            if (clickedCfi) break;
-          }
-          
-          if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
-            (window as any)._buzzyMarkClicked(clickedCfi);
-          }
-        }, { passive: true });
+        // Note: We no longer attach SVG tap listeners to the iframe document,
+        // because epub.js injects the SVG overlay into the *parent* document.
         
-        // Also listen on click for desktop using the same geometric check
-        doc.addEventListener('click', (e: MouseEvent) => {
-          const x = e.clientX;
-          const y = e.clientY;
-          
-          let clickedCfi: string | null = null;
-          const gs = doc.querySelectorAll('g[data-epubcfi]');
-          
-          for (let i = 0; i < gs.length; i++) {
-            const g = gs[i];
-            const rects = g.querySelectorAll('rect, path, polygon');
-            for (let j = 0; j < rects.length; j++) {
-              const rect = rects[j].getBoundingClientRect();
-              if (
-                x >= rect.left &&
-                x <= rect.right &&
-                y >= rect.top &&
-                y <= rect.bottom
-              ) {
-                clickedCfi = g.getAttribute('data-epubcfi');
-                break;
-              }
-            }
-            if (clickedCfi) break;
-          }
-          
-          if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
-            (window as any)._buzzyMarkClicked(clickedCfi);
-          }
-        });
-
         doc.addEventListener('pointerdown', (e: any) => {
           const target = e.target as HTMLElement;
           if (target && (target.tagName?.toLowerCase() === 'svg' || target.closest?.('svg') || target.classList?.contains('epubjs-hl'))) {
@@ -541,7 +478,52 @@ export default function ReaderPage() {
 
     initEpub();
 
+    // Geometric tap detection for highlights in the PARENT document.
+    // epub.js creates an SVG overlay containing <g data-epubcfi="..."> inside the parent DOM!
+    const handleGlobalTap = (e: TouchEvent | MouseEvent) => {
+      let x = 0, y = 0;
+      if (window.TouchEvent && e instanceof TouchEvent) {
+        if (e.touches.length === 0) return;
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      } else {
+        x = (e as MouseEvent).clientX;
+        y = (e as MouseEvent).clientY;
+      }
+      
+      let clickedCfi: string | null = null;
+      const gs = document.querySelectorAll('g[data-epubcfi]');
+      
+      for (let i = 0; i < gs.length; i++) {
+        const g = gs[i];
+        const rects = g.querySelectorAll('rect, path, polygon');
+        for (let j = 0; j < rects.length; j++) {
+          const rect = rects[j].getBoundingClientRect();
+          const padding = 15;
+          if (
+            x >= rect.left - padding &&
+            x <= rect.right + padding &&
+            y >= rect.top - padding &&
+            y <= rect.bottom + padding
+          ) {
+            clickedCfi = g.getAttribute('data-epubcfi');
+            break;
+          }
+        }
+        if (clickedCfi) break;
+      }
+      
+      if (clickedCfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+        (window as any)._buzzyMarkClicked(clickedCfi);
+      }
+    };
+    
+    window.addEventListener('touchstart', handleGlobalTap, { passive: true });
+    window.addEventListener('click', handleGlobalTap);
+
     return () => {
+      window.removeEventListener('touchstart', handleGlobalTap);
+      window.removeEventListener('click', handleGlobalTap);
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
       // eslint-disable-next-line react-hooks/exhaustive-deps
