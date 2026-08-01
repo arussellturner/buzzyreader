@@ -68,6 +68,8 @@ export default function ReaderPage() {
     }
   }, [status, router]);
 
+  const lastReadAtUpdatedRef = useRef<string | null>(null);
+  
   useEffect(() => {
     async function loadBookData() {
       if (!driveStorage || !library) return;
@@ -87,10 +89,13 @@ export default function ReaderPage() {
         const data = await driveStorage.getEpubFileContent(book.driveFileId);
         setEpubData(data);
         
-        // Update lastReadAt so "Last opened" sort works in library
-        try {
-          await updateBook({ ...book, lastReadAt: new Date().toISOString() });
-        } catch (e) {}
+        // Update lastReadAt once per book open (guard against re-render loop)
+        if (lastReadAtUpdatedRef.current !== bookId) {
+          lastReadAtUpdatedRef.current = bookId;
+          try {
+            await updateBook({ ...book, lastReadAt: new Date().toISOString() });
+          } catch (e) {}
+        }
       } catch (err: any) {
         console.error("Failed to load book:", err);
         setError(err.message || 'Failed to load book from Google Drive');
