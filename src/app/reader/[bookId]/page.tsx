@@ -41,7 +41,7 @@ export default function ReaderPage() {
   const [epubData, setEpubData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [debugLog, setDebugLog] = useState<string[]>([]);
+  const [debugLog, setDebugLog] = useState<string[]>(['DEBUG V2: LOADED']);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Highlight state
@@ -174,54 +174,54 @@ export default function ReaderPage() {
         });
 
         const logDebug = (msg: string) => {
-          setDebugLog(prev => [...prev, msg].slice(-5));
+          setDebugLog(prev => [...prev, msg].slice(-7));
         };
 
         // Custom iOS/mobile text selection handling fallback
         let selectionTimeout: NodeJS.Timeout;
+        
+        doc.addEventListener('touchstart', () => {
+          logDebug('touchstart');
+        }, { passive: true });
+
         doc.addEventListener('selectionchange', () => {
           clearTimeout(selectionTimeout);
           selectionTimeout = setTimeout(() => {
             const sel = contents.window.getSelection();
             if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
               const text = sel.toString().trim();
-              logDebug(`selectionchange text: ${text ? 'yes' : 'no'}`);
+              logDebug(`selectionchange: ${text.substring(0, 5)}...`);
               if (text) {
                 (contents.window as any).__lastSelectionText = text;
                 try {
                   if (typeof contents.triggerSelectedEvent === 'function') {
                     contents.triggerSelectedEvent(sel);
-                    logDebug('triggerSelectedEvent called');
-                  } else {
-                    logDebug('triggerSelectedEvent missing');
+                    logDebug('triggerSelectedEvent ok');
                   }
                 } catch (err: any) {
-                  logDebug(`triggerSelected error: ${err.message}`);
+                  logDebug(`triggerSelected err: ${err.message}`);
                 }
               }
             } else {
-              logDebug('selectionchange but collapsed');
+              logDebug('selectionchange: collapsed');
             }
           }, 300);
         });
         
         doc.addEventListener('touchend', () => {
-          logDebug('touchend fired');
-          // Secondary fallback for iOS if selectionchange doesn't fire correctly
+          logDebug('touchend');
           setTimeout(() => {
             const sel = contents.window.getSelection();
             if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
               const text = sel.toString().trim();
               if (text && !(contents.window as any).__lastSelectionText) {
-                logDebug('touchend fallback triggered');
+                logDebug('touchend fallback run');
                 (contents.window as any).__lastSelectionText = text;
                 try {
                   if (typeof contents.triggerSelectedEvent === 'function') {
                     contents.triggerSelectedEvent(sel);
                   }
-                } catch(e: any) {
-                  logDebug(`touchend error: ${e.message}`);
-                }
+                } catch(e: any) {}
               }
             }
           }, 500);
