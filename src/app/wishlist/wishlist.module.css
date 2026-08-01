@@ -58,3 +58,10 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 32px 24px;
 }
+
+@media (max-width: 768px) {
+  .wishlistGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 24px 16px;
+  }
+}
