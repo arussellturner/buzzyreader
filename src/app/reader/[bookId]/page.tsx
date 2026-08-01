@@ -210,36 +210,67 @@ export default function ReaderPage() {
             }
           }
         };
-
-        doc.addEventListener('touchstart', (e: TouchEvent) => {
+        // IMPORTANT: On iOS Safari, marks-pane sets pointer-events:none on the SVG overlay,
+        // so touches pass through to the iframe. marks-pane then proxies mouseup/mousedown/click/touchstart
+        // from the iframe contentDocument to the SVG marks. But it does NOT proxy touchend or pointerup,
+        // and its touchstart->MouseEvent cloning breaks on iOS Safari.
+        //
+        // Our fix: we manually dispatch a 'click' event to matching SVG marks on touchend,
+        // using the same coordinate-matching logic marks-pane uses internally.
+        const proxyTouchToMarks = (x: number, y: number) => {
+          const gs = window.document.querySelectorAll('g[data-epubcfi]');
           if (typeof (window as any)._buzzyDebug === 'function') {
-            (window as any)._buzzyDebug(`IframeTap: touchstart`);
+            (window as any)._buzzyDebug(`proxy: ${gs.length} marks @(${Math.round(x)},${Math.round(y)})`);
           }
-          if (!e.touches || e.touches.length === 0) return;
-          checkTapInParent(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true, capture: true });
-        
-        doc.addEventListener('touchend', (e: TouchEvent) => {
-          if (typeof (window as any)._buzzyDebug === 'function') {
-            (window as any)._buzzyDebug(`IframeTap: touchend`);
-          }
-          if (!e.changedTouches || e.changedTouches.length === 0) return;
-          checkTapInParent(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        }, { passive: true, capture: true });
-        
-        doc.addEventListener('click', (e: MouseEvent) => {
-          if (typeof (window as any)._buzzyDebug === 'function') {
-            (window as any)._buzzyDebug(`IframeTap: click`);
-          }
-          checkTapInParent(e.clientX, e.clientY);
-        }, { capture: true });
-        
-        doc.addEventListener('pointerdown', (e: PointerEvent) => {
-          if (typeof (window as any)._buzzyDebug === 'function') {
-            (window as any)._buzzyDebug(`IframeTap: pointerdown`);
-          }
-          checkTapInParent(e.clientX, e.clientY);
           
+          // Get the iframe offset so we can convert iframe-local coords to parent coords
+          const iframe = containerRef.current?.querySelector('iframe');
+          if (!iframe) return;
+          const iframeRect = iframe.getBoundingClientRect();
+          const parentX = x + iframeRect.left;
+          const parentY = y + iframeRect.top;
+          
+          for (let i = gs.length - 1; i >= 0; i--) {
+            const g = gs[i];
+            const rects = g.getClientRects();
+            for (let j = 0; j < rects.length; j++) {
+              const r = rects[j];
+              // The SVG rects are in parent-viewport coordinates
+              const padding = 10;
+              if (
+                parentX >= r.left - padding &&
+                parentX <= r.right + padding &&
+                parentY >= r.top - padding &&
+                parentY <= r.bottom + padding
+              ) {
+                const cfi = g.getAttribute('data-epubcfi');
+                if (cfi) {
+                  if (typeof (window as any)._buzzyDebug === 'function') {
+                    (window as any)._buzzyDebug(`HIT! ${cfi.substring(0, 25)}`);
+                  }
+                  if (typeof (window as any)._buzzyMarkClicked === 'function') {
+                    (window as any)._buzzyMarkClicked(cfi);
+                  }
+                }
+                return;
+              }
+            }
+          }
+        };
+        
+        // Listen on the iframe document for touchend (the most reliable touch event on iOS Safari)
+        doc.addEventListener('touchend', (e: TouchEvent) => {
+          if (!e.changedTouches || e.changedTouches.length === 0) return;
+          proxyTouchToMarks(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }, { passive: true });
+        
+        // Also listen for click (fires on desktop and as synthetic click on mobile after touch)
+        doc.addEventListener('click', (e: MouseEvent) => {
+          proxyTouchToMarks(e.clientX, e.clientY);
+        });
+        
+        // Use pointerdown for clearing selection when tapping non-highlight areas
+        doc.addEventListener('pointerdown', (e: any) => {
           const target = e.target as HTMLElement;
           if (target && (target.tagName?.toLowerCase() === 'svg' || target.closest?.('svg') || target.classList?.contains('epubjs-hl'))) {
             return;
@@ -247,14 +278,7 @@ export default function ReaderPage() {
           if (typeof (window as any)._buzzyClearSelection === 'function') {
             (window as any)._buzzyClearSelection();
           }
-        }, { passive: true, capture: true });
-        
-        doc.addEventListener('pointerup', (e: PointerEvent) => {
-          if (typeof (window as any)._buzzyDebug === 'function') {
-            (window as any)._buzzyDebug(`IframeTap: pointerup`);
-          }
-          checkTapInParent(e.clientX, e.clientY);
-        }, { passive: true, capture: true });
+        }, { passive: true });
       });
       
       // Also style the iframe element itself so it never flashes white
@@ -588,64 +612,54 @@ export default function ReaderPage() {
 
     initEpub();
 
-    // Also add geometric tap detection to the PARENT document, just in case!
-    const handleGlobalTap = (e: TouchEvent | MouseEvent) => {
-      if (typeof (window as any)._buzzyDebug === 'function') {
-        (window as any)._buzzyDebug(`GlobalTap: ${e.type}`);
-      }
-      let x = 0, y = 0;
-      if (e.type === 'touchstart' || e.type === 'touchend') {
-        const te = e as TouchEvent;
-        const touchList = e.type === 'touchend' ? te.changedTouches : te.touches;
-        if (!touchList || touchList.length === 0) return;
-        x = touchList[0].clientX;
-        y = touchList[0].clientY;
-      } else {
-        x = (e as MouseEvent).clientX;
-        y = (e as MouseEvent).clientY;
-      }
+    // DIRECT SVG ELEMENT BINDING APPROACH
+    // marks-pane creates SVG overlay elements in the parent document.
+    // On iOS Safari, these SVGs intercept touches BEFORE the iframe sees them,
+    // but marks-pane's own click handlers don't fire on iOS.
+    // Solution: poll for SVG elements and directly bind handlers + force pointer-events.
+    const svgBindInterval = setInterval(() => {
+      // First, force pointer-events on the SVG container itself
+      // marks-pane may set pointer-events:none on the SVG, which blocks ALL child events on iOS
+      const svgOverlays = document.querySelectorAll('svg.epubjs-marks, svg[class*="marks"]');
+      svgOverlays.forEach((svg) => {
+        (svg as SVGElement).style.pointerEvents = 'none'; // container passes through
+      });
       
-      let clickedCfi: string | null = null;
       const gs = document.querySelectorAll('g[data-epubcfi]');
-      
-      if (typeof (window as any)._buzzyDebug === 'function') {
-        (window as any)._buzzyDebug(`Parent tap: found ${gs.length} marks`);
-      }
-      
-      for (let i = 0; i < gs.length; i++) {
-        const g = gs[i];
-        const rects = g.querySelectorAll('rect, path, polygon');
-        for (let j = 0; j < rects.length; j++) {
-          const rect = rects[j].getBoundingClientRect();
-          const padding = 15;
-          if (
-            x >= rect.left - padding &&
-            x <= rect.right + padding &&
-            y >= rect.top - padding &&
-            y <= rect.bottom + padding
-          ) {
-            clickedCfi = g.getAttribute('data-epubcfi');
-            break;
+      gs.forEach((g) => {
+        if ((g as any)._buzzyBound) return; // Already bound
+        (g as any)._buzzyBound = true;
+        
+        // Force pointer-events on the highlight group and its children
+        (g as SVGElement).style.pointerEvents = 'all';
+        (g as SVGElement).style.cursor = 'pointer';
+        g.querySelectorAll('rect, path, polygon').forEach((el) => {
+          (el as SVGElement).style.pointerEvents = 'all';
+          (el as SVGElement).style.cursor = 'pointer';
+        });
+        
+        const cfi = g.getAttribute('data-epubcfi');
+        if (!cfi) return;
+        
+        const handleTap = (e: Event) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`SVG tap: ${e.type} ${cfi.substring(0, 20)}`);
           }
-        }
-        if (clickedCfi) break;
-      }
-      
-      if (clickedCfi) {
-        if (typeof (window as any)._buzzyMarkClicked === 'function') {
-          (window as any)._buzzyMarkClicked(clickedCfi);
-        }
-      }
-    };
-    
-    window.addEventListener('touchstart', handleGlobalTap, { passive: true, capture: true });
-    window.addEventListener('touchend', handleGlobalTap, { passive: true, capture: true });
-    window.addEventListener('click', handleGlobalTap, { capture: true });
+          if (typeof (window as any)._buzzyMarkClicked === 'function') {
+            (window as any)._buzzyMarkClicked(cfi);
+          }
+        };
+        
+        g.addEventListener('click', handleTap);
+        g.addEventListener('touchend', handleTap, { passive: false });
+        g.addEventListener('pointerup', handleTap);
+      });
+    }, 300);
 
     return () => {
-      window.removeEventListener('touchstart', handleGlobalTap, { capture: true });
-      window.removeEventListener('touchend', handleGlobalTap, { capture: true });
-      window.removeEventListener('click', handleGlobalTap, { capture: true });
+      clearInterval(svgBindInterval);
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
       // eslint-disable-next-line react-hooks/exhaustive-deps
