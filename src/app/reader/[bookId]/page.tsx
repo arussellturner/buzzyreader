@@ -48,6 +48,8 @@ export default function ReaderPage() {
   const [activeSelection, setActiveSelection] = useState<{ id?: string, cfiRange: string, text: string, color?: HighlightColor, note?: string } | null>(null);
   const activeSelectionRef = useRef(activeSelection);
   activeSelectionRef.current = activeSelection;
+  const highlightsRef = useRef(highlights);
+  highlightsRef.current = highlights;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const renditionRef = useRef<any>(null);
@@ -174,6 +176,30 @@ export default function ReaderPage() {
         // But we attach it to the parent window so it persists across page turns
         (window as any)._buzzyDebug = logDebug;
         
+        // Custom listener for tapping existing highlights
+        doc.addEventListener('touchstart', (e: TouchEvent) => {
+          const target = e.target as HTMLElement;
+          const g = target.closest?.('g[data-epubcfi]');
+          if (g) {
+            const cfi = g.getAttribute('data-epubcfi');
+            if (cfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+              (window as any)._buzzyMarkClicked(cfi);
+            }
+          }
+        }, { passive: true });
+        
+        // Also listen on click for desktop
+        doc.addEventListener('click', (e: MouseEvent) => {
+          const target = e.target as HTMLElement;
+          const g = target.closest?.('g[data-epubcfi]');
+          if (g) {
+            const cfi = g.getAttribute('data-epubcfi');
+            if (cfi && typeof (window as any)._buzzyMarkClicked === 'function') {
+              (window as any)._buzzyMarkClicked(cfi);
+            }
+          }
+        });
+
         doc.addEventListener('pointerdown', (e: any) => {
           const target = e.target as HTMLElement;
           if (target && (target.tagName?.toLowerCase() === 'svg' || target.closest?.('svg') || target.classList?.contains('epubjs-hl'))) {
@@ -362,6 +388,30 @@ export default function ReaderPage() {
          const selection = renditionRef.current?.getContents()?.[0]?.window.getSelection();
          if (selection) selection.removeAllRanges();
          setActiveSelection(null);
+      };
+      
+      // Bind mark clicked manually
+      (window as any)._buzzyMarkClicked = (cfi: string) => {
+         (window as any)._buzzyLastMarkClick = Date.now();
+         const h = highlightsRef.current.find((hl: any) => hl.cfiRange === cfi);
+         if (h) {
+           setActiveSelection(h);
+           // Programmatically select the highlight range so native drag handles appear
+           try {
+             const contents = renditionRef.current?.getContents()?.[0];
+             if (contents) {
+               renditionRef.current?.book?.getRange(h.cfiRange).then((range: any) => {
+                 if (range) {
+                   const sel = contents.window.getSelection();
+                   if (sel) {
+                     sel.removeAllRanges();
+                     sel.addRange(range);
+                   }
+                 }
+               });
+             }
+           } catch (err) {}
+         }
       };
       
       rendition.on('keyup', (e: KeyboardEvent) => {
