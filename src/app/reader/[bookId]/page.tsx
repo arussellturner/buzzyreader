@@ -33,7 +33,7 @@ export default function ReaderPage() {
   const bookId = params.bookId as string;
   const initialCfi = searchParams.get('cfi');
 
-  const { library, driveStorage } = useGoogleDrive();
+  const { library, driveStorage, updateBook } = useGoogleDrive();
   const { preferences, updatePreferences } = usePreferences();
   const { highlights, addHighlight, updateHighlight, removeHighlight, loadHighlights } = useHighlights();
   const { progress, updateProgress, loadProgress } = useReadingProgress();
@@ -86,6 +86,11 @@ export default function ReaderPage() {
         }
         const data = await driveStorage.getEpubFileContent(book.driveFileId);
         setEpubData(data);
+        
+        // Update lastReadAt so "Last opened" sort works in library
+        try {
+          await updateBook({ ...book, lastReadAt: new Date().toISOString() });
+        } catch (e) {}
       } catch (err: any) {
         console.error("Failed to load book:", err);
         setError(err.message || 'Failed to load book from Google Drive');
