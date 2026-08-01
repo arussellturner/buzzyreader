@@ -49,34 +49,67 @@
   color: var(--text-primary);
 }
 
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: 32px;
+.navDropdownContainer {
+  position: relative;
+  margin-left: 24px;
 }
 
-.navLink {
+.navDropdownButton {
   background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 14px;
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: 15px;
   font-weight: 600;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.navDropdownButton:hover {
+  background: var(--bg-elevated);
+}
+
+.navDropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 180px;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.navDropdownItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
-  text-decoration: none;
 }
 
-.navLink:hover {
-  color: var(--text-primary);
+.navDropdownItem:hover {
   background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
-.navLinkActive {
+.navDropdownItemActive {
   color: var(--text-primary);
   background: var(--bg-elevated);
+  font-weight: 600;
 }
 
 .headerRight {

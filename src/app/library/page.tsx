@@ -29,6 +29,7 @@ export default function LibraryPage() {
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recentRead');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [progressMap, setProgressMap] = useState<Record<string, ReadingProgress>>({});
 
   const books = useMemo(() => {
@@ -153,11 +154,15 @@ export default function LibraryPage() {
   }, [driveStorage]);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const navMenuRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (navMenuRef.current && !navMenuRef.current.contains(event.target as Node)) {
+        setIsNavMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -213,11 +218,24 @@ export default function LibraryPage() {
             <span className={styles.logoText}>BuzzyReader</span>
           </a>
 
-          <nav className={styles.navLinks}>
-            <button className={`${styles.navLink} ${styles.navLinkActive}`} onClick={() => router.push('/library')}>Library</button>
-            <button className={styles.navLink} onClick={() => router.push('/wishlist')}>Wishlist</button>
-            <button className={styles.navLink} onClick={() => router.push('/highlights')}>Highlights</button>
-          </nav>
+          <div className={styles.navDropdownContainer} ref={navMenuRef}>
+            <button 
+              className={styles.navDropdownButton}
+              onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+            >
+              Library
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            {isNavMenuOpen && (
+              <div className={styles.navDropdownMenu}>
+                <button className={`${styles.navDropdownItem} ${styles.navDropdownItemActive}`} onClick={() => router.push('/library')}>Library</button>
+                <button className={styles.navDropdownItem} onClick={() => router.push('/wishlist')}>Wishlist</button>
+                <button className={styles.navDropdownItem} onClick={() => router.push('/highlights')}>Highlights</button>
+              </div>
+            )}
+          </div>
 
           <div className={styles.headerRight}>
             <button className={styles.addBookIconBtn} onClick={handleOpenModal} aria-label="Add Book" title="Add Book">

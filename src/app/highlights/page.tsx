@@ -24,6 +24,7 @@ export default function HighlightsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [editingHighlight, setEditingHighlight] = useState<Highlight | null>(null);
   const [editNote, setEditNote] = useState('');
   const [sortBy, setSortBy] = useState('recent');
@@ -35,11 +36,15 @@ export default function HighlightsPage() {
   }, [status, router]);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
-  
+  const navMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (navMenuRef.current && !navMenuRef.current.contains(event.target as Node)) {
+        setIsNavMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -174,11 +179,24 @@ export default function HighlightsPage() {
             <span className={libraryStyles.logoText}>BuzzyReader</span>
           </a>
 
-          <nav className={libraryStyles.navLinks}>
-            <button className={libraryStyles.navLink} onClick={() => router.push('/library')}>Library</button>
-            <button className={libraryStyles.navLink} onClick={() => router.push('/wishlist')}>Wishlist</button>
-            <button className={`${libraryStyles.navLink} ${libraryStyles.navLinkActive}`} onClick={() => router.push('/highlights')}>Highlights</button>
-          </nav>
+          <div className={libraryStyles.navDropdownContainer} ref={navMenuRef}>
+            <button 
+              className={libraryStyles.navDropdownButton}
+              onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+            >
+              Highlights
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            {isNavMenuOpen && (
+              <div className={libraryStyles.navDropdownMenu}>
+                <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/library')}>Library</button>
+                <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/wishlist')}>Wishlist</button>
+                <button className={`${libraryStyles.navDropdownItem} ${libraryStyles.navDropdownItemActive}`} onClick={() => router.push('/highlights')}>Highlights</button>
+              </div>
+            )}
+          </div>
 
           <div className={libraryStyles.headerRight}>
             <ThemeToggle className={libraryStyles.themeToggle} />
