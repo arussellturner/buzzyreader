@@ -71,14 +71,16 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
   return (
     <div
       className={styles.card}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open ${book.title} by ${book.author}`}
     >
       {/* Cover */}
-      <div className={styles.coverWrapper}>
+      <div 
+        className={styles.coverWrapper}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={`Open ${book.title} by ${book.author}`}
+      >
         {book.isRead && (
           <div className={styles.readBadge}>
             Read
@@ -102,7 +104,23 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
       </div>
 
       {/* Info */}
-      <div className={styles.info}>
+      <div 
+        className={styles.info}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onOpenDetails) onOpenDetails(book);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onOpenDetails) onOpenDetails(book);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${book.title}`}
+      >
         <h3 className={styles.title}>{book.title}</h3>
         <p className={styles.author}>{book.author}</p>
         
@@ -130,13 +148,6 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
             Last opened: {formatDetailedDate(book.lastReadAt)}
           </div>
         )}
-
-        {/* Details Link */}
-        <div className={styles.detailsLinkWrapper}>
-          <button className={styles.detailsLink} onClick={(e) => { e.stopPropagation(); if (onOpenDetails) onOpenDetails(book); }}>
-            DETAILS
-          </button>
-        </div>
       </div>
     </div>
   );
