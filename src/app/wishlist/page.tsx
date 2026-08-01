@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useWishlist } from '@/hooks/useWishlist';
 import { usePreferences } from '@/hooks/usePreferences';
+import PageNavDropdown from '@/components/UI/PageNavDropdown';
 import WishlistModal from '@/components/Wishlist/WishlistModal';
 import WishlistCard from '@/components/Wishlist/WishlistCard';
 import ThemeToggle from '@/components/UI/ThemeToggle';
@@ -96,25 +97,6 @@ export default function WishlistPage() {
           </a>
 
           <div className={libraryStyles.headerRight}>
-            <div className={libraryStyles.navDropdownContainer} ref={navMenuRef}>
-              <button 
-                className={libraryStyles.navDropdownButton}
-                onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
-              >
-                Wishlist
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </button>
-              {isNavMenuOpen && (
-                <div className={libraryStyles.navDropdownMenu}>
-                  <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/library')}>Library</button>
-                  <button className={`${libraryStyles.navDropdownItem} ${libraryStyles.navDropdownItemActive}`} onClick={() => router.push('/wishlist')}>Wishlist</button>
-                  <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/highlights')}>Highlights</button>
-                </div>
-              )}
-            </div>
-
             <div className={libraryStyles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={libraryStyles.avatarButton} 
@@ -164,7 +146,7 @@ export default function WishlistPage() {
       <main className={libraryStyles.content}>
         <div className={styles.wishlistHeader}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.pageTitle}>Wishlist</h1>
+            <PageNavDropdown activePage="wishlist" />
             <button 
               className={styles.addButton} 
               onClick={() => {

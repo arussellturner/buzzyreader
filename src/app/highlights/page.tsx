@@ -9,6 +9,7 @@ import { BookHighlights, Highlight } from '@/types/highlight';
 import { getAllHighlights, saveHighlights } from '@/lib/storage/driveStorage';
 import { usePreferences } from '@/hooks/usePreferences';
 import ThemeToggle from '@/components/UI/ThemeToggle';
+import PageNavDropdown from '@/components/UI/PageNavDropdown';
 import styles from './highlights.module.css';
 import libraryStyles from '../library/library.module.css';
 
@@ -180,25 +181,6 @@ export default function HighlightsPage() {
           </a>
 
           <div className={libraryStyles.headerRight}>
-            <div className={libraryStyles.navDropdownContainer} ref={navMenuRef}>
-              <button 
-                className={libraryStyles.navDropdownButton}
-                onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
-              >
-                Highlights
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </button>
-              {isNavMenuOpen && (
-                <div className={libraryStyles.navDropdownMenu}>
-                  <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/library')}>Library</button>
-                  <button className={libraryStyles.navDropdownItem} onClick={() => router.push('/wishlist')}>Wishlist</button>
-                  <button className={`${libraryStyles.navDropdownItem} ${libraryStyles.navDropdownItemActive}`} onClick={() => router.push('/highlights')}>Highlights</button>
-                </div>
-              )}
-            </div>
-
             <div className={libraryStyles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={libraryStyles.avatarButton} 
@@ -249,7 +231,7 @@ export default function HighlightsPage() {
       <main className={libraryStyles.content}>
         <div className={styles.highlightsHeader}>
           <div className={styles.headerTopRow}>
-            <h1 className={styles.pageTitle}>Highlights</h1>
+            <PageNavDropdown activePage="highlights" />
             <div className={libraryStyles.sortOptions}>
               <span className={libraryStyles.sortLabel}>Sort by:</span>
               <div className={libraryStyles.selectWrapper}>

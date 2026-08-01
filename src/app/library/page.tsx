@@ -12,6 +12,7 @@ import { getReadingProgress, saveReadingProgress } from '@/lib/storage/driveStor
 import type { Book } from '@/types/book';
 import type { ReadingProgress } from '@/types/progress';
 import ThemeToggle from '@/components/UI/ThemeToggle';
+import PageNavDropdown from '@/components/UI/PageNavDropdown';
 import styles from './library.module.css';
 
 const SKELETON_COUNT = 8;
@@ -226,24 +227,6 @@ export default function LibraryPage() {
               </svg>
             </button>
 
-            <div className={styles.navDropdownContainer} ref={navMenuRef}>
-              <button 
-                className={styles.navDropdownButton}
-                onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
-              >
-                Library
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </button>
-              {isNavMenuOpen && (
-                <div className={styles.navDropdownMenu}>
-                  <button className={`${styles.navDropdownItem} ${styles.navDropdownItemActive}`} onClick={() => router.push('/library')}>Library</button>
-                  <button className={styles.navDropdownItem} onClick={() => router.push('/wishlist')}>Wishlist</button>
-                  <button className={styles.navDropdownItem} onClick={() => router.push('/highlights')}>Highlights</button>
-                </div>
-              )}
-            </div>
             <div className={styles.userMenuContainer} ref={userMenuRef}>
               <button 
                 className={styles.avatarButton} 
@@ -294,6 +277,7 @@ export default function LibraryPage() {
       <main className={styles.content}>
         {/* Sub Nav / Toolbar */}
         <div className={styles.toolbar}>
+          <PageNavDropdown activePage="library" />
           <div className={styles.sortOptions}>
             <label htmlFor="sort-select" className={styles.sortLabel}>Sort by:</label>
             <div className={styles.selectWrapper}>
