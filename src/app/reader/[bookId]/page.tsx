@@ -176,8 +176,51 @@ export default function ReaderPage() {
         // But we attach it to the parent window so it persists across page turns
         (window as any)._buzzyDebug = logDebug;
         
-        // Note: We no longer attach SVG tap listeners to the iframe document,
-        // because epub.js injects the SVG overlay into the *parent* document.
+        // Custom listener for tapping existing highlights
+        // Taps go to the iframe document, but the SVG overlay is in the parent document!
+        const checkTapInParent = (x: number, y: number) => {
+          let clickedCfi: string | null = null;
+          // Query the PARENT document for the highlights
+          const gs = document.querySelectorAll('g[data-epubcfi]');
+          
+          if (typeof (window as any)._buzzyDebug === 'function') {
+            (window as any)._buzzyDebug(`Iframe tap: checking ${gs.length} marks`);
+          }
+          
+          for (let i = 0; i < gs.length; i++) {
+            const g = gs[i];
+            const rects = g.querySelectorAll('rect, path, polygon');
+            for (let j = 0; j < rects.length; j++) {
+              const rect = rects[j].getBoundingClientRect();
+              const padding = 15;
+              if (
+                x >= rect.left - padding &&
+                x <= rect.right + padding &&
+                y >= rect.top - padding &&
+                y <= rect.bottom + padding
+              ) {
+                clickedCfi = g.getAttribute('data-epubcfi');
+                break;
+              }
+            }
+            if (clickedCfi) break;
+          }
+          
+          if (clickedCfi) {
+            if (typeof (window as any)._buzzyMarkClicked === 'function') {
+              (window as any)._buzzyMarkClicked(clickedCfi);
+            }
+          }
+        };
+
+        doc.addEventListener('touchstart', (e: TouchEvent) => {
+          if (!e.touches || e.touches.length === 0) return;
+          checkTapInParent(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        
+        doc.addEventListener('click', (e: MouseEvent) => {
+          checkTapInParent(e.clientX, e.clientY);
+        });
         
         doc.addEventListener('pointerdown', (e: any) => {
           const target = e.target as HTMLElement;
@@ -478,63 +521,9 @@ export default function ReaderPage() {
 
     initEpub();
 
-    // Geometric tap detection for highlights in the PARENT document.
-    // epub.js creates an SVG overlay containing <g data-epubcfi="..."> inside the parent DOM!
-    const handleGlobalTap = (e: TouchEvent | MouseEvent) => {
-      let x = 0, y = 0;
-      if (window.TouchEvent && e instanceof TouchEvent) {
-        if (!e.touches || e.touches.length === 0) return;
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-      } else {
-        x = (e as MouseEvent).clientX;
-        y = (e as MouseEvent).clientY;
-      }
-      
-      let clickedCfi: string | null = null;
-      const gs = document.querySelectorAll('g[data-epubcfi]');
-      
-      if (gs.length > 0) {
-        if (typeof (window as any)._buzzyDebug === 'function') {
-          (window as any)._buzzyDebug(`Tap checking ${gs.length} marks at ${Math.round(x)},${Math.round(y)}`);
-        }
-      }
-      
-      for (let i = 0; i < gs.length; i++) {
-        const g = gs[i];
-        const rects = g.querySelectorAll('rect, path, polygon');
-        for (let j = 0; j < rects.length; j++) {
-          const rect = rects[j].getBoundingClientRect();
-          const padding = 15;
-          if (
-            x >= rect.left - padding &&
-            x <= rect.right + padding &&
-            y >= rect.top - padding &&
-            y <= rect.bottom + padding
-          ) {
-            clickedCfi = g.getAttribute('data-epubcfi');
-            break;
-          }
-        }
-        if (clickedCfi) break;
-      }
-      
-      if (clickedCfi) {
-        if (typeof (window as any)._buzzyDebug === 'function') {
-          (window as any)._buzzyDebug(`Match found!`);
-        }
-        if (typeof (window as any)._buzzyMarkClicked === 'function') {
-          (window as any)._buzzyMarkClicked(clickedCfi);
-        }
-      }
-    };
-    
-    window.addEventListener('touchstart', handleGlobalTap, { passive: true });
-    window.addEventListener('click', handleGlobalTap);
+    initEpub();
 
     return () => {
-      window.removeEventListener('touchstart', handleGlobalTap);
-      window.removeEventListener('click', handleGlobalTap);
       if (renditionRef.current) renditionRef.current.destroy();
       if (book) book.destroy();
       // eslint-disable-next-line react-hooks/exhaustive-deps
