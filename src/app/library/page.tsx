@@ -245,7 +245,7 @@ export default function LibraryPage() {
                   <div style={{ padding: '0 8px' }}>
                     <ThemeToggle 
                       theme={preferences?.theme}
-                      onThemeChange={(t) => updatePreferences({ theme: t })}
+                      onThemeChange={(t) => updatePreferences({ theme: t as import('@/types/preferences').ThemeMode })}
                     />
                   </div>
                   <button 

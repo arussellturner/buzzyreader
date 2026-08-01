@@ -206,7 +206,7 @@ export default function HighlightsPage() {
                   <div style={{ padding: '0 8px' }}>
                     <ThemeToggle 
                       theme={preferences?.theme}
-                      onThemeChange={(t) => updatePreferences({ theme: t })}
+                      onThemeChange={(t) => updatePreferences({ theme: t as import('@/types/preferences').ThemeMode })}
                     />
                   </div>
                   <button 
@@ -232,25 +232,25 @@ export default function HighlightsPage() {
         <div className={styles.highlightsHeader}>
           <div className={styles.headerTopRow}>
             <PageNavDropdown activePage="highlights" />
-            <div className={libraryStyles.sortOptions}>
-              <span className={libraryStyles.sortLabel}>Sort by:</span>
-              <div className={libraryStyles.selectWrapper}>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className={libraryStyles.sortSelect}
-                >
-                  <option value="recent">Recent</option>
-                  <option value="title">Book Title</option>
-                  <option value="author-first">Author (First Name)</option>
-                  <option value="author-last">Author (Last Name)</option>
-                </select>
-                <span className={libraryStyles.selectIcon} aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </span>
-              </div>
+          </div>
+          <div className={libraryStyles.sortOptions}>
+            <span className={libraryStyles.sortLabel}>Sort by:</span>
+            <div className={libraryStyles.selectWrapper}>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className={libraryStyles.sortSelect}
+              >
+                <option value="recent">Recent</option>
+                <option value="title">Book Title</option>
+                <option value="author-first">Author (First Name)</option>
+                <option value="author-last">Author (Last Name)</option>
+              </select>
+              <span className={libraryStyles.selectIcon} aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
             </div>
           </div>
           <div className={styles.searchContainer}>

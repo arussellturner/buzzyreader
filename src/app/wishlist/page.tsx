@@ -35,6 +35,7 @@ export default function WishlistPage() {
   const { preferences, updatePreferences } = usePreferences();
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('date');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,14 +79,34 @@ export default function WishlistPage() {
 
   const items = wishlist?.items || [];
   
-  const filteredItems = items.filter(item => {
-    const query = searchQuery.toLowerCase();
-    return (
-      item.title.toLowerCase().includes(query) ||
-      item.author.toLowerCase().includes(query) ||
-      item.sourceNotes.toLowerCase().includes(query)
-    );
-  });
+  const filteredAndSortedItems = useMemo(() => {
+    const result = items.filter(item => {
+      const query = searchQuery.toLowerCase();
+      return (
+        item.title.toLowerCase().includes(query) ||
+        item.author.toLowerCase().includes(query) ||
+        item.sourceNotes.toLowerCase().includes(query)
+      );
+    });
+
+    result.sort((a, b) => {
+      if (sortBy === 'title') {
+        return a.title.localeCompare(b.title);
+      } else if (sortBy === 'author-first') {
+        return a.author.localeCompare(b.author);
+      } else if (sortBy === 'author-last') {
+        const getLastName = (name: string) => {
+          const parts = name.trim().split(' ');
+          return parts[parts.length - 1];
+        };
+        return getLastName(a.author).localeCompare(getLastName(b.author));
+      }
+      // default: date added (newest first)
+      return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+    });
+
+    return result;
+  }, [items, searchQuery, sortBy]);
 
   return (
     <div className={libraryStyles.libraryPage}>
@@ -122,7 +143,7 @@ export default function WishlistPage() {
                   <div style={{ padding: '0 8px' }}>
                     <ThemeToggle 
                       theme={preferences?.theme}
-                      onThemeChange={(t) => updatePreferences({ theme: t })}
+                      onThemeChange={(t) => updatePreferences({ theme: t as import('@/types/preferences').ThemeMode })}
                     />
                   </div>
                   <button 
@@ -164,6 +185,26 @@ export default function WishlistPage() {
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
             </button>
+            <div className={libraryStyles.sortOptions}>
+              <span className={libraryStyles.sortLabel}>Sort by:</span>
+              <div className={libraryStyles.selectWrapper}>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={libraryStyles.sortSelect}
+                >
+                  <option value="date">Date added</option>
+                  <option value="title">Title</option>
+                  <option value="author-first">Author (first name)</option>
+                  <option value="author-last">Author (last name)</option>
+                </select>
+                <span className={libraryStyles.selectIcon} aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+              </div>
+            </div>
             <div className={styles.searchContainer}>
               <input
                 type="text"
@@ -186,20 +227,20 @@ export default function WishlistPage() {
             <h2 className={libraryStyles.emptyTitle}>Your wishlist is empty</h2>
             <p className={libraryStyles.emptyText}>Keep track of books you want to read.</p>
           </div>
-        ) : filteredItems.length === 0 ? (
+        ) : filteredAndSortedItems.length === 0 ? (
           <div className={libraryStyles.emptyState}>
             <p className={libraryStyles.emptyText}>No books match your search.</p>
           </div>
         ) : (
           <>
-            {filteredItems.filter(item => !item.isRead).length > 0 && (
+            {filteredAndSortedItems.filter(item => !item.isRead).length > 0 && (
               <div className={styles.wishlistGrid}>
-                {filteredItems.filter(item => !item.isRead).map((item) => (
+                {filteredAndSortedItems.filter(item => !item.isRead).map((item) => (
                   <WishlistCard
                     key={item.id}
                     item={item}
-                    onClick={(i) => {
-                      setSelectedItem(i);
+                    onClick={() => {
+                      setSelectedItem(item);
                       setIsModalOpen(true);
                     }}
                   />
@@ -207,11 +248,11 @@ export default function WishlistPage() {
               </div>
             )}
             
-            {filteredItems.filter(item => item.isRead).length > 0 && (
+            {filteredAndSortedItems.filter(item => item.isRead).length > 0 && (
               <div className={styles.readSection}>
-                <h2 className={styles.readSectionTitle}>Read Books</h2>
+                <h2 className={styles.readSectionTitle}>Read</h2>
                 <div className={styles.wishlistGrid}>
-                  {filteredItems.filter(item => item.isRead).map((item) => (
+                  {filteredAndSortedItems.filter(item => item.isRead).map((item) => (
                     <WishlistCard
                       key={item.id}
                       item={item}
