@@ -525,3 +525,39 @@
   border-color: var(--text-primary);
   background: var(--bg-surface);
 }
+
+.uploadSection {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.uploadBtn {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed var(--border-color);
+  color: var(--text-primary);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uploadBtn:hover:not(:disabled) {
+  background: var(--bg-surface);
+  border-color: var(--text-secondary);
+}
+
+.uploadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

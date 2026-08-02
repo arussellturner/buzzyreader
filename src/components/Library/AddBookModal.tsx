@@ -38,8 +38,10 @@ export default function AddBookModal({
   const [selectedDriveFile, setSelectedDriveFile] = useState<{id: string, name: string} | null>(null);
   const [matchOptions, setMatchOptions] = useState<{title: string, author: string, coverUrl?: string}[]>([]);
   const [isSearchingMatch, setIsSearchingMatch] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Scan Drive when modal opens
   useEffect(() => {
@@ -108,6 +110,32 @@ export default function AddBookModal({
       };
     }
   }, [isOpen]);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !driveStorage) return;
+
+    if (!file.name.toLowerCase().endsWith('.epub')) {
+      alert('Please select an ePub file.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const newFile = await driveStorage.uploadEpub(file);
+      // Prepend to drive files so it shows up immediately in the list
+      setDriveFiles(prev => [newFile, ...prev]);
+    } catch (err) {
+      console.error('Failed to upload file:', err);
+      alert('Failed to upload file.');
+    } finally {
+      setIsUploading(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleSelectFile = useCallback(async (file: {id: string, name: string}) => {
     setSelectedDriveFile(file);
@@ -263,78 +291,97 @@ export default function AddBookModal({
           </div>
         </div>
 
-        {/* File list */}
-        <div className={styles.fileList}>
-          {isScanning ? (
-            <div className={styles.loadingState}>
-              <div className={styles.spinner} />
-              <span className={styles.loadingText}>Scanning your Google Drive…</span>
-            </div>
-          ) : error ? (
-            <div className={styles.errorState}>
-              <span className={styles.emptyIcon} aria-hidden="true">⚠️</span>
-              <p className={styles.errorText}>{error}</p>
-              <button
-                className={styles.retryBtn}
-                onClick={() => {
-                  if (driveStorage) {
-                    setIsScanning(true);
-                    driveStorage.listEpubFiles().then(setDriveFiles).catch(console.error).finally(() => setIsScanning(false));
-                  }
-                }}
-                type="button"
-              >
-                Try again
-              </button>
-            </div>
-          ) : filteredFiles.length === 0 ? (
-            <div className={styles.emptyState}>
-              <span className={styles.emptyIcon} aria-hidden="true">📭</span>
-              <span className={styles.emptyTitle}>
-                {searchQuery ? 'No matches found' : 'No ePub files found'}
-              </span>
-              <span className={styles.emptyText}>
-                {searchQuery
-                  ? `No files match "${searchQuery}". Try a different search.`
-                  : 'Upload .epub files to your Google Drive and they\'ll appear here.'}
-              </span>
-            </div>
-          ) : (
-            filteredFiles.map((file) => {
-              const isAlreadyAdded =
-                addedFileIds.has(file.id) || existingDriveFileIds.has(file.id);
-              const isAdding = addingFileId === file.id;
+          {/* File list */}
+          <div className={styles.fileList}>
+            {isScanning ? (
+              <div className={styles.loadingState}>
+                <div className={styles.spinner} />
+                <span className={styles.loadingText}>Scanning your Google Drive…</span>
+              </div>
+            ) : error ? (
+              <div className={styles.errorState}>
+                <span className={styles.emptyIcon} aria-hidden="true">⚠️</span>
+                <p className={styles.errorText}>{error}</p>
+                <button
+                  className={styles.retryBtn}
+                  onClick={() => {
+                    if (driveStorage) {
+                      setIsScanning(true);
+                      driveStorage.listEpubFiles().then(setDriveFiles).catch(console.error).finally(() => setIsScanning(false));
+                    }
+                  }}
+                  type="button"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : filteredFiles.length === 0 ? (
+              <div className={styles.emptyState}>
+                <span className={styles.emptyIcon} aria-hidden="true">📭</span>
+                <span className={styles.emptyTitle}>
+                  {searchQuery ? 'No matches found' : 'No ePub files found'}
+                </span>
+                <span className={styles.emptyText}>
+                  {searchQuery
+                    ? `No files match "${searchQuery}". Try a different search.`
+                    : 'Upload .epub files to your Google Drive and they\'ll appear here.'}
+                </span>
+              </div>
+            ) : (
+              filteredFiles.map((file) => {
+                const isAlreadyAdded =
+                  addedFileIds.has(file.id) || existingDriveFileIds.has(file.id);
+                const isAdding = addingFileId === file.id;
 
-              return (
-                <div key={file.id} className={styles.fileRow}>
-                  <div className={styles.fileIcon} aria-hidden="true">
-                    📘
+                return (
+                  <div key={file.id} className={styles.fileRow}>
+                    <div className={styles.fileIcon} aria-hidden="true">
+                      📘
+                    </div>
+                    <span className={styles.fileName} title={file.name}>
+                      {file.name}
+                    </span>
+                    {(file as any).size && (
+                      <span className={styles.fileSize}>{formatFileSize((file as any).size)}</span>
+                    )}
+                    {isAlreadyAdded ? (
+                      <button className={styles.addedBtn} disabled type="button">
+                        Added ✓
+                      </button>
+                    ) : (
+                      <button
+                        className={styles.addBtn}
+                        onClick={() => handleSelectFile(file)}
+                        disabled={isAdding}
+                        type="button"
+                      >
+                        {isAdding ? '…' : 'Add'}
+                      </button>
+                    )}
                   </div>
-                  <span className={styles.fileName} title={file.name}>
-                    {file.name}
-                  </span>
-                  {(file as any).size && (
-                    <span className={styles.fileSize}>{formatFileSize((file as any).size)}</span>
-                  )}
-                  {isAlreadyAdded ? (
-                    <button className={styles.addedBtn} disabled type="button">
-                      Added ✓
-                    </button>
-                  ) : (
-                    <button
-                      className={styles.addBtn}
-                      onClick={() => handleSelectFile(file)}
-                      disabled={isAdding}
-                      type="button"
-                    >
-                      {isAdding ? '…' : 'Add'}
-                    </button>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
+                );
+              })
+            )}
+          </div>
+          
+          {/* Upload Section */}
+          <div className={styles.uploadSection}>
+            <input 
+              type="file" 
+              accept=".epub" 
+              className={styles.hiddenInput} 
+              ref={fileInputRef} 
+              onChange={handleFileSelect} 
+            />
+            <button 
+              className={styles.uploadBtn} 
+              onClick={() => fileInputRef.current?.click()} 
+              disabled={isUploading} 
+              type="button"
+            >
+              {isUploading ? 'Uploading...' : 'Upload ePub'}
+            </button>
+          </div>
           </>
         )}
       </div>

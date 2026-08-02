@@ -156,6 +156,55 @@ export class DriveStorage {
   }
 
   /**
+   * Upload an ePub file to the user's regular Google Drive.
+   */
+  async uploadEpub(file: File): Promise<{ id: string; name: string }> {
+    // 1. Create file metadata
+    const metadata = {
+      name: file.name,
+      mimeType: 'application/epub+zip',
+    };
+    
+    const metaResponse = await fetch(`${DRIVE_API_BASE}/files?fields=id,name`, {
+      method: 'POST',
+      headers: {
+        ...this.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metadata),
+      cache: 'no-store',
+    });
+
+    if (!metaResponse.ok) {
+      const errorText = await metaResponse.text();
+      console.error('Google Drive API Error (Metadata):', errorText);
+      throw new DriveError(`Failed to create file metadata: ${file.name}`, metaResponse.status);
+    }
+    
+    const metaData = await metaResponse.json();
+    const fileId = metaData.id;
+
+    // 2. Upload file content
+    const uploadResponse = await fetch(`${DRIVE_UPLOAD_BASE}/files/${fileId}?uploadType=media`, {
+      method: 'PATCH',
+      headers: {
+        ...this.headers,
+        'Content-Type': 'application/epub+zip',
+      },
+      body: file,
+      cache: 'no-store',
+    });
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error('Google Drive API Error (Upload):', errorText);
+      throw new DriveError(`Failed to upload file content: ${file.name}`, uploadResponse.status);
+    }
+
+    return { id: fileId, name: metaData.name };
+  }
+
+  /**
    * List all ePub files in the user's Google Drive.
    * Searches across the entire drive for files with the epub MIME type.
    */
