@@ -39,6 +39,7 @@ export default function AddBookModal({
   const [matchOptions, setMatchOptions] = useState<{title: string, author: string, coverUrl?: string}[]>([]);
   const [isSearchingMatch, setIsSearchingMatch] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [extractedMetadata, setExtractedMetadata] = useState<{title: string, author: string} | undefined>(undefined);
   const overlayRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -143,10 +144,29 @@ export default function AddBookModal({
     setMatchOptions([]);
     
     // Clean filename
-    const cleanName = file.name.replace(/\.epub$/i, '').replace(/[_-]/g, ' ').replace(/\(.*?\)/g, '').trim();
+    let titleStr = file.name.replace(/\.epub$/i, '');
+    let authorStr = 'Unknown Author';
+
+    // Remove anything in parentheses (often year or publisher)
+    titleStr = titleStr.replace(/\(.*?\)/g, '').trim();
+    
+    // Replace underscores with spaces
+    titleStr = titleStr.replace(/_/g, ' ');
+
+    // Check for a hyphen to split title and author
+    if (titleStr.includes('-')) {
+      const parts = titleStr.split('-');
+      // Assume the last part after the last hyphen is the author (e.g. Book - Author)
+      authorStr = parts.pop()?.trim() || 'Unknown Author';
+      titleStr = parts.join('-').trim();
+    }
+    
+    setExtractedMetadata({ title: titleStr, author: authorStr });
+    
+    const query = `${titleStr} ${authorStr !== 'Unknown Author' ? authorStr : ''}`.trim();
     
     try {
-      const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(cleanName)}&limit=5`);
+      const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5`);
       if (res.ok) {
         const data = await res.json();
         const options = data.docs.map((doc: any) => ({
@@ -264,7 +284,7 @@ export default function AddBookModal({
 
             <button 
               className={styles.skipMatchBtn}
-              onClick={() => handleConfirmMatch()}
+              onClick={() => handleConfirmMatch(extractedMetadata)}
               disabled={!!addingFileId}
               type="button"
             >

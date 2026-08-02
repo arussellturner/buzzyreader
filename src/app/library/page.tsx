@@ -28,7 +28,7 @@ export default function LibraryPage() {
   const { preferences, updatePreferences } = usePreferences();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>('recentRead');
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
@@ -44,8 +44,10 @@ export default function LibraryPage() {
       );
     }
     
+    const currentSortOption = preferences.librarySortOption || 'recentRead';
+    
     return [...filtered].sort((a, b) => {
-      switch (sortOption) {
+      switch (currentSortOption) {
         case 'title':
           return (a.title || '').localeCompare(b.title || '');
         case 'authorFirst':
@@ -64,7 +66,7 @@ export default function LibraryPage() {
           return bAdded - aAdded; // Descending
       }
     });
-  }, [library?.books, sortOption, searchQuery]);
+  }, [library?.books, preferences.librarySortOption, searchQuery]);
 
   const unreadBooks = useMemo(() => sortedBooks.filter((b) => !b.isRead), [sortedBooks]);
   const readBooks = useMemo(() => sortedBooks.filter((b) => b.isRead), [sortedBooks]);
@@ -123,8 +125,9 @@ export default function LibraryPage() {
   const handleBookAdded = useCallback(
     (_book: Book) => {
       refreshLibrary();
+      updatePreferences({ librarySortOption: 'recentAdded' });
     },
-    [refreshLibrary]
+    [refreshLibrary, updatePreferences]
   );
 
   const handleOpenModal = useCallback(() => {
@@ -291,9 +294,9 @@ export default function LibraryPage() {
               <div className={styles.selectWrapper}>
                 <select
                   id="sort-select"
+                  value={preferences?.librarySortOption || 'recentRead'}
+                  onChange={(e) => updatePreferences({ librarySortOption: e.target.value as SortOption })}
                   className={styles.sortSelect}
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value as SortOption)}
                 >
                   <option value="title">Title</option>
                   <option value="authorFirst">Author (First name)</option>
@@ -320,7 +323,7 @@ export default function LibraryPage() {
           </div>
         </div>
 
-        {isLoading && (
+        {isLoading && (library?.books || []).length === 0 && (
           <div className={styles.skeletonGrid}>
             {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
               <div key={i} className={styles.skeleton}>
@@ -356,7 +359,7 @@ export default function LibraryPage() {
           </div>
         )}
 
-        {!isLoading && (library?.books || []).length > 0 && (
+        {(library?.books || []).length > 0 && (
           <>
             {searchQuery.trim() !== '' && sortedBooks.length === 0 && (
               <p className={styles.emptyText}>No books match your search.</p>

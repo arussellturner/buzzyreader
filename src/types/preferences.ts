@@ -12,6 +12,7 @@ export interface ReaderPreferences {
   ttsRate: number; // 0.5-2.0
   ttsVoice?: string; // Voice URI
   textAlign?: 'left' | 'justify';
+  librarySortOption?: 'title' | 'authorFirst' | 'authorLast' | 'recentRead' | 'recentAdded';
 }
 
 export const DEFAULT_PREFERENCES: ReaderPreferences = {
@@ -24,4 +25,5 @@ export const DEFAULT_PREFERENCES: ReaderPreferences = {
   showProgress: true,
   ttsRate: 1.0,
   textAlign: 'left',
+  librarySortOption: 'recentRead',
 };

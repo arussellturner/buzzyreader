@@ -122,8 +122,8 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
         tabIndex={0}
         aria-label={`View details for ${book.title}`}
       >
-        <h3 className={styles.title}>{book.title}</h3>
         <p className={styles.author}>{book.author}</p>
+        <h3 className={styles.title}>{book.title}</h3>
       </div>
     </div>
   );
