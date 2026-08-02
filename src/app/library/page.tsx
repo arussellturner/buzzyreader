@@ -97,7 +97,7 @@ export default function LibraryPage() {
   }, [status, router]);
 
   const existingDriveFileIds = useMemo(
-    () => new Set((library?.books || []).map((b) => b.driveFileId)),
+    () => new Set((library?.books || []).map((b) => b.originalFileId || b.driveFileId)),
     [library?.books]
   );
 

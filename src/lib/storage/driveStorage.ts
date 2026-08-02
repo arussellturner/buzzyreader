@@ -172,8 +172,18 @@ export async function getAllHighlights(
   drive: DriveStorage,
   library: Library
 ): Promise<BookHighlights[]> {
+  const highlightFiles = await drive.listAppFolderFiles(FILES.HIGHLIGHTS_PREFIX);
+  
+  // Extract book IDs from the filenames
+  const bookIds = highlightFiles
+    .map(file => {
+      const match = file.name.match(/^highlights_(.+)\.json$/);
+      return match ? match[1] : null;
+    })
+    .filter((id): id is string => id !== null);
+
   const results = await Promise.allSettled(
-    library.books.map((book) => getHighlights(drive, book.id))
+    bookIds.map((bookId) => getHighlights(drive, bookId))
   );
 
   return results

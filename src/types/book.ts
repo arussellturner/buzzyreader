@@ -1,6 +1,7 @@
 export interface Book {
   id: string; // Generated UUID
-  driveFileId: string; // Google Drive file ID
+  driveFileId: string; // Google Drive file ID (copied app data file)
+  originalFileId?: string; // Original Google Drive file ID (for tracking duplicates)
   title: string;
   author: string;
   coverUrl?: string; // Base64 data URL of cover image

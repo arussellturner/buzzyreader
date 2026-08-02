@@ -13,5 +13,7 @@ export interface Highlight {
 
 export interface BookHighlights {
   bookId: string;
+  bookTitle?: string;
+  bookAuthor?: string;
   highlights: Highlight[];
 }

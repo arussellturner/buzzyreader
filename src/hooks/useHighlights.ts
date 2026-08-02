@@ -17,7 +17,7 @@ export interface UseHighlightsReturn {
   addHighlight: (highlight: Highlight) => void;
   removeHighlight: (highlightId: string) => void;
   updateHighlight: (id: string, updates: Partial<Highlight>) => void;
-  loadHighlights: (accessToken: string, bookId: string) => Promise<void>;
+  loadHighlights: (accessToken: string, bookId: string, bookTitle?: string, bookAuthor?: string) => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -25,18 +25,19 @@ export interface UseHighlightsReturn {
 // ---------------------------------------------------------------------------
 export function useHighlights(): UseHighlightsReturn {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Use refs for stable access in debounced callbacks
+  const accessTokenRef = useRef<string | null>(null);
+  const bookIdRef = useRef<string | null>(null);
+  const bookTitleRef = useRef<string | null>(null);
+  const bookAuthorRef = useRef<string | null>(null);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const highlightsRef = useRef(highlights);
   useEffect(() => {
     highlightsRef.current = highlights;
   }, [highlights]);
-
-  const accessTokenRef = useRef<string | null>(null);
-  const bookIdRef = useRef<string | null>(null);
-
-  // Save timer for debouncing (not exposed — saves happen on each mutation)
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -52,6 +53,8 @@ export function useHighlights(): UseHighlightsReturn {
     (updatedHighlights: Highlight[]) => {
       const token = accessTokenRef.current;
       const bookId = bookIdRef.current;
+      const bookTitle = bookTitleRef.current || undefined;
+      const bookAuthor = bookAuthorRef.current || undefined;
       if (!token || !bookId) return;
 
       // Clear any pending save to coalesce rapid mutations
@@ -64,6 +67,8 @@ export function useHighlights(): UseHighlightsReturn {
           const drive = new DriveStorage(token);
           const bookHighlights: BookHighlights = {
             bookId,
+            bookTitle,
+            bookAuthor,
             highlights: updatedHighlights,
           };
           await saveHighlights(drive, bookId, bookHighlights);
@@ -80,9 +85,11 @@ export function useHighlights(): UseHighlightsReturn {
 
   // ── Load highlights ──────────────────────────────────────────────
   const loadHighlights = useCallback(
-    async (accessToken: string, bookId: string): Promise<void> => {
+    async (accessToken: string, bookId: string, bookTitle?: string, bookAuthor?: string): Promise<void> => {
       accessTokenRef.current = accessToken;
       bookIdRef.current = bookId;
+      if (bookTitle) bookTitleRef.current = bookTitle;
+      if (bookAuthor) bookAuthorRef.current = bookAuthor;
       setLoading(true);
 
       try {

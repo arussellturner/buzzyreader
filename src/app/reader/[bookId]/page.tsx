@@ -83,7 +83,7 @@ export default function ReaderPage() {
         setLoading(true);
         // Load highlights and progress in parallel
         if (sessionObj.data?.accessToken) {
-          loadHighlights(sessionObj.data.accessToken as string, bookId);
+          loadHighlights(sessionObj.data.accessToken as string, bookId, book.title, book.author);
           loadProgress(sessionObj.data.accessToken as string, bookId);
         }
         const data = await driveStorage.getEpubFileContent(book.driveFileId);

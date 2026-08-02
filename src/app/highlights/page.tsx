@@ -161,30 +161,40 @@ export default function HighlightsPage() {
   }, [library]);
 
   const sortedHighlights = useMemo(() => {
-    const sorted = [...filteredHighlights];
+    // 1. Group by title + author
+    const groups = new Map<string, {
+      title: string;
+      author: string;
+      isMissing: boolean;
+      highlights: Highlight[];
+    }>();
+
+    filteredHighlights.forEach(bh => {
+      const isMissing = !library?.books.some(b => b.id === bh.bookId);
+      const title = library?.books.find(b => b.id === bh.bookId)?.title || bh.bookTitle || 'Unknown Book';
+      const author = library?.books.find(b => b.id === bh.bookId)?.author || bh.bookAuthor || 'Unknown Author';
+      const key = `${title}::${author}`;
+
+      if (!groups.has(key)) {
+        groups.set(key, { title, author, isMissing, highlights: [] });
+      }
+      groups.get(key)!.highlights.push(...bh.highlights);
+      
+      // If AT LEAST ONE bookId for this title is not missing, we consider the book as NOT missing
+      if (!isMissing) {
+        groups.get(key)!.isMissing = false;
+      }
+    });
+
+    const sorted = Array.from(groups.values());
+
     if (sortBy === 'title') {
-      sorted.sort((a, b) => {
-        const titleA = getBookTitle(a.bookId).toLowerCase();
-        const titleB = getBookTitle(b.bookId).toLowerCase();
-        return titleA.localeCompare(titleB);
-      });
+      sorted.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
     } else if (sortBy === 'author-first') {
-      sorted.sort((a, b) => {
-        const bookA = library?.books.find(book => book.id === a.bookId);
-        const bookB = library?.books.find(book => book.id === b.bookId);
-        const authorA = (bookA?.author || 'Unknown').toLowerCase();
-        const authorB = (bookB?.author || 'Unknown').toLowerCase();
-        return authorA.localeCompare(authorB);
-      });
+      sorted.sort((a, b) => a.author.toLowerCase().localeCompare(b.author.toLowerCase()));
     } else if (sortBy === 'author-last') {
-      sorted.sort((a, b) => {
-        const bookA = library?.books.find(book => book.id === a.bookId);
-        const bookB = library?.books.find(book => book.id === b.bookId);
-        const getLastName = (author: string) => author.split(' ').pop() || author;
-        const authorA = getLastName(bookA?.author || 'Unknown').toLowerCase();
-        const authorB = getLastName(bookB?.author || 'Unknown').toLowerCase();
-        return authorA.localeCompare(authorB);
-      });
+      const getLastName = (author: string) => author.split(' ').pop() || author;
+      sorted.sort((a, b) => getLastName(a.author).toLowerCase().localeCompare(getLastName(b.author).toLowerCase()));
     } else { // 'recent'
       sorted.sort((a, b) => {
         const recentA = Math.max(...a.highlights.map(h => new Date(h.createdAt || 0).getTime()));
@@ -192,8 +202,9 @@ export default function HighlightsPage() {
         return recentB - recentA;
       });
     }
+
     return sorted;
-  }, [filteredHighlights, sortBy, library, getBookTitle]);
+  }, [filteredHighlights, sortBy, library]);
 
   const saveEdit = async () => {
     if (!editingHighlight || !driveStorage) return;
@@ -382,32 +393,47 @@ export default function HighlightsPage() {
           </div>
         ) : (
           <div className={styles.highlightList}>
-            {sortedHighlights.map((bookGroup) => (
-              <div key={bookGroup.bookId} className={styles.bookSection}>
-                <h2 className={styles.bookTitle}>
-                  {getBookTitle(bookGroup.bookId)}
-                  <span className={styles.countBadge}>
-                    {bookGroup.highlights.length}
-                  </span>
-                </h2>
-                
-                <div className={styles.highlightsGrid}>
-                  {bookGroup.highlights.map(highlight => (
-                    <HighlightCard
-                      key={highlight.id}
-                      highlight={highlight}
-                      bookTitle={getBookTitle(bookGroup.bookId)}
-                      onNavigate={() => router.push(`/reader/${bookGroup.bookId}?cfi=${encodeURIComponent(highlight.cfiRange)}`)}
+            {sortedHighlights.map((group) => {
+              return (
+                <div key={`${group.title}::${group.author}`} className={styles.bookSection}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <h2 className={styles.bookTitle} style={{ margin: 0 }}>
+                      {group.title}
+                      <span className={styles.countBadge}>
+                        {group.highlights.length}
+                      </span>
+                    </h2>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+                        {group.author}
+                      </span>
+                      {group.isMissing && (
+                        <span style={{ fontSize: 12, color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '2px 8px', borderRadius: 12 }}>
+                          No longer in library
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className={styles.highlightsGrid}>
+                    {group.highlights.map(highlight => (
+                      <HighlightCard
+                        key={highlight.id}
+                        highlight={highlight}
+                        bookTitle={group.title}
+                        isBookMissing={group.isMissing}
+                        onNavigate={() => router.push(`/reader/${highlight.bookId}?cfi=${encodeURIComponent(highlight.cfiRange)}`)}
                       onEdit={(h) => {
                         setEditingHighlight(h);
                         setEditNote(h.note || '');
                       }}
-                      onDelete={(id) => handleDelete(id, bookGroup.bookId)}
+                      onDelete={(id) => handleDelete(id, highlight.bookId)}
                     />
                   ))}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>

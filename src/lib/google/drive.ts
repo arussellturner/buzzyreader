@@ -205,6 +205,101 @@ export class DriveStorage {
   }
 
   /**
+   * Copy a file from the user's regular Google Drive to the app data space.
+   * This ensures the app maintains access even if the user deletes the original.
+   * Returns the new file ID.
+   */
+  async copyFileToAppFolder(fileId: string): Promise<string> {
+    const metadata = {
+      parents: ['appDataFolder'],
+    };
+
+    const response = await fetch(`${DRIVE_API_BASE}/files/${fileId}/copy?fields=id`, {
+      method: 'POST',
+      headers: {
+        ...this.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metadata),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new DriveError(
+        `Failed to copy file to app data folder: ${fileId}`,
+        response.status
+      );
+    }
+
+    const result = await response.json();
+    return result.id;
+  }
+
+  /**
+   * Delete a file from Google Drive.
+   * Can be used to delete the appDataFolder copy of an epub.
+   */
+  async deleteFile(fileId: string): Promise<void> {
+    const response = await fetch(`${DRIVE_API_BASE}/files/${fileId}`, {
+      method: 'DELETE',
+      headers: this.headers,
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // File already deleted or doesn't exist. Treat as success.
+        return;
+      }
+      throw new DriveError(
+        `Failed to delete file: ${fileId}`,
+        response.status
+      );
+    }
+  }
+
+  /**
+   * List all files in the appDataFolder with a specific prefix.
+   */
+  async listAppFolderFiles(prefix: string): Promise<DriveFile[]> {
+    const allFiles: DriveFile[] = [];
+    let pageToken: string | undefined;
+
+    do {
+      const queryParts: string[] = [
+        `name contains '${this.escapeQuery(prefix)}'`,
+        'trashed=false'
+      ];
+
+      const params = new URLSearchParams({
+        q: queryParts.join(' and '),
+        fields: 'nextPageToken,files(id,name,mimeType)',
+        pageSize: '100',
+        spaces: 'appDataFolder',
+      });
+
+      if (pageToken) {
+        params.set('pageToken', pageToken);
+      }
+
+      const response = await fetch(
+        `${DRIVE_API_BASE}/files?${params.toString()}`,
+        { headers: this.headers, cache: 'no-store' }
+      );
+
+      if (!response.ok) {
+        throw new DriveError('Failed to list app data files', response.status);
+      }
+
+      const data: DriveFileList = await response.json();
+      allFiles.push(...data.files);
+      pageToken = data.nextPageToken;
+    } while (pageToken);
+
+    return allFiles;
+  }
+
+  /**
    * List all ePub files in the user's Google Drive.
    * Searches across the entire drive for files with the epub MIME type.
    */

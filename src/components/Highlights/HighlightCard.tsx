@@ -7,6 +7,7 @@ import styles from './HighlightCard.module.css';
 interface HighlightCardProps {
   highlight: Highlight;
   bookTitle?: string;
+  isBookMissing?: boolean;
   onNavigate?: (highlight: Highlight) => void;
   onEdit?: (highlight: Highlight) => void;
   onDelete?: (highlightId: string) => void;
@@ -49,6 +50,7 @@ const COLOR_CLASS: Record<HighlightColor, string> = {
 export default function HighlightCard({
   highlight,
   bookTitle,
+  isBookMissing,
   onNavigate,
   onEdit,
   onDelete,
@@ -79,6 +81,10 @@ export default function HighlightCard({
 
   const handleNavigate = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isBookMissing) {
+      alert("Book no longer in your library");
+      return;
+    }
     onNavigate?.(highlight);
     setShowMenu(false);
   };
@@ -126,7 +132,11 @@ export default function HighlightCard({
           <button className={styles.menuItem} onClick={handleCopy}>
             Copy
           </button>
-          <button className={styles.menuItem} onClick={handleNavigate}>
+          <button 
+            className={styles.menuItem} 
+            onClick={handleNavigate}
+            style={isBookMissing ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+          >
             See in book
           </button>
           <button className={styles.menuItem} onClick={handleEdit}>

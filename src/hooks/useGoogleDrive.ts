@@ -105,10 +105,13 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
   const addBook = useCallback(
     async (file: { id: string; name: string }, overrides?: Partial<Book>): Promise<Book> => {
       if (!drive) throw new Error('Not authenticated');
+      // Copy the file to the appDataFolder so we have a safe copy
+      const copiedFileId = await drive.copyFileToAppFolder(file.id);
 
       const newBook: Book = {
         id: crypto.randomUUID(),
-        driveFileId: file.id,
+        driveFileId: copiedFileId,
+        originalFileId: file.id,
         title: overrides?.title || file.name.replace(/\.epub$/i, ''),
         author: overrides?.author || 'Unknown Author',
         coverUrl: overrides?.coverUrl,
@@ -158,6 +161,7 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
       if (!drive) throw new Error('Not authenticated');
 
       const previousLibrary = libraryRef.current;
+      const bookToDelete = previousLibrary?.books.find((b) => b.id === bookId);
 
       // Optimistic update
       setLibrary((prev) => {
@@ -175,6 +179,16 @@ export function useGoogleDrive(): UseGoogleDriveReturn {
           lastSynced: new Date().toISOString(),
         };
         await saveLibrary(drive, updatedLib);
+        
+        // Clean up the copied file from appDataFolder
+        if (bookToDelete && bookToDelete.driveFileId) {
+          try {
+            await drive.deleteFile(bookToDelete.driveFileId);
+          } catch (delErr: any) {
+            console.warn(`Failed to delete EPUB file from Drive: ${delErr.message || delErr}`);
+            // We don't throw here because the library update was successful.
+          }
+        }
       } catch (err) {
         // Rollback on failure
         setLibrary(previousLibrary);
