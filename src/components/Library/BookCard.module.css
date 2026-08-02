@@ -39,6 +39,7 @@
   justify-content: center;
   gap: 12px;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease;
   z-index: 20;
 }
@@ -46,6 +47,7 @@
 .coverWrapper:hover .hoverOverlay,
 .coverWrapper:focus-within .hoverOverlay {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .overlayButton {
