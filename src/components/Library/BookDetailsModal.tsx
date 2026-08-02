@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Book } from '@/types/book';
 import styles from './BookDetailsModal.module.css';
 
+function formatDetailedDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + 
+         date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 interface BookDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -316,6 +322,12 @@ export default function BookDetailsModal({
                 className={styles.textarea}
               />
             </div>
+
+            {book?.lastReadAt && (
+              <div className={styles.metaDataInfo}>
+                <p><strong>Last opened:</strong> {formatDetailedDate(book.lastReadAt)}</p>
+              </div>
+            )}
 
             <div className={styles.dangerZone}>
               <h4>Manage Book</h4>

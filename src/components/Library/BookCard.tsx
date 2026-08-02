@@ -37,11 +37,6 @@ const COVER_GRADIENTS = [
 
 const BOOK_ICONS = ['📖', '📚', '📕', '📗', '📘', '📙', '📓', '📔'];
 
-function formatDetailedDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + 
-         date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
 
 export default function BookCard({ book, progress, onClick, onOpenDetails }: BookCardProps) {
   const router = useRouter();
@@ -75,12 +70,12 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
       {/* Cover */}
       <div 
         className={styles.coverWrapper}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        role="button"
         tabIndex={0}
-        aria-label={`Open ${book.title} by ${book.author}`}
       >
+        <div className={styles.hoverOverlay}>
+          <button className={styles.overlayButton} onClick={handleClick}>Read</button>
+          <button className={styles.overlayButton} onClick={(e) => { e.stopPropagation(); if(onOpenDetails) onOpenDetails(book); }}>Details</button>
+        </div>
         {book.isRead && (
           <div className={styles.readBadge}>
             Read
@@ -101,6 +96,24 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
             <span className={styles.placeholderTitle}>{book.title}</span>
           </div>
         )}
+        
+        {/* Progress Overlay */}
+        <div className={styles.progressOverlay}>
+          <div className={styles.progressTextContainer}>
+             <span className={styles.progressPercent}>{progressPercent}%</span>
+          </div>
+          <div className={styles.progressBarTrack}>
+            <div
+              className={styles.progressBarFill}
+              style={{ width: `${progressPercent}%` }}
+              role="progressbar"
+              aria-valuenow={progressPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`${progressPercent}% read`}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Info */}
@@ -123,31 +136,6 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
       >
         <h3 className={styles.title}>{book.title}</h3>
         <p className={styles.author}>{book.author}</p>
-        
-        {/* Progress percent above bar */}
-        <div className={styles.progressTextContainer}>
-           <span className={styles.progressPercent}>{progressPercent}%</span>
-        </div>
-
-        {/* Progress bar */}
-        <div className={styles.progressBarTrack}>
-          <div
-            className={styles.progressBarFill}
-            style={{ width: `${progressPercent}%` }}
-            role="progressbar"
-            aria-valuenow={progressPercent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${progressPercent}% read`}
-          />
-        </div>
-
-        {/* Meta row */}
-        {book.lastReadAt && (
-          <div className={styles.lastRead}>
-            Last opened: {formatDetailedDate(book.lastReadAt)}
-          </div>
-        )}
       </div>
     </div>
   );
