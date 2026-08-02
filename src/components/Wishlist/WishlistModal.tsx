@@ -258,14 +258,23 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
               </div>
             </div>
 
-            <footer className={styles.footer}>
-              <div className={styles.footerLeft}>
-                {!initialItem && (
-                  <button className={styles.backBtn} onClick={() => setMode('search')}>
-                    Back
-                  </button>
-                )}
-                {initialItem && onDelete && (
+            {initialItem ? (
+              <footer className={styles.stackedFooter}>
+                <button 
+                  className={styles.saveBtn} 
+                  onClick={handleSave} 
+                  disabled={isSaving || isDeleting || !title.trim()}
+                >
+                  {isSaving ? 'Saving...' : 'Save'}
+                </button>
+                <button 
+                  className={`${styles.markReadBtn} ${isRead ? styles.isReadActive : ''}`} 
+                  onClick={handleMarkReadToggle}
+                  disabled={isSaving || isDeleting}
+                >
+                  {isRead ? 'Mark as Unread' : 'Mark as Read'}
+                </button>
+                {onDelete && (
                   <button 
                     className={styles.deleteBtn} 
                     onClick={async () => {
@@ -284,26 +293,25 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
                     {isDeleting ? 'Deleting...' : 'Delete'}
                   </button>
                 )}
-              </div>
-              <div className={styles.footerRight}>
-                {initialItem && (
-                  <button 
-                    className={`${styles.markReadBtn} ${isRead ? styles.isReadActive : ''}`} 
-                    onClick={handleMarkReadToggle}
-                    disabled={isSaving || isDeleting}
-                  >
-                    {isRead ? 'Mark as Unread' : 'Mark as Read'}
+              </footer>
+            ) : (
+              <footer className={styles.footer}>
+                <div className={styles.footerLeft}>
+                  <button className={styles.backBtn} onClick={() => setMode('search')}>
+                    Back
                   </button>
-                )}
-                <button 
-                  className={styles.saveBtn} 
-                  onClick={handleSave} 
-                  disabled={isSaving || isDeleting || !title.trim()}
-                >
-                  {isSaving ? 'Saving...' : (initialItem ? 'Save' : 'Add Book')}
-                </button>
-              </div>
-            </footer>
+                </div>
+                <div className={styles.footerRight}>
+                  <button 
+                    className={styles.saveBtn} 
+                    onClick={handleSave} 
+                    disabled={isSaving || isDeleting || !title.trim()}
+                  >
+                    {isSaving ? 'Saving...' : 'Add Book'}
+                  </button>
+                </div>
+              </footer>
+            )}
           </>
         )}
       </div>

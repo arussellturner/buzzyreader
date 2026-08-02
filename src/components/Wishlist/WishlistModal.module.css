@@ -64,7 +64,7 @@
 .inputGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* More vertical space between label and input */
+  gap: 4px;
 }
 
 .label {
@@ -134,6 +134,18 @@
 
 .saveBtn:hover:not(:disabled) {
   opacity: 0.8;
+}
+
+.stackedFooter {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.stackedFooter button {
+  width: 100%;
 }
 
 @keyframes fadeIn {
