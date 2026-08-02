@@ -4,11 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Book } from '@/types/book';
 import styles from './BookDetailsModal.module.css';
 
-function formatDetailedDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + 
-         date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
+
 
 interface BookDetailsModalProps {
   isOpen: boolean;
@@ -233,7 +229,7 @@ export default function BookDetailsModal({
                 onClick={handleSave}
                 disabled={isSaving}
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? 'Saving...' : 'Save'}
               </button>
             </div>
             <button
@@ -313,11 +309,7 @@ export default function BookDetailsModal({
               )}
             </div>
 
-            {book?.lastReadAt && (
-              <div className={styles.metaDataInfo}>
-                <p><strong>Last opened:</strong> {formatDetailedDate(book.lastReadAt)}</p>
-              </div>
-            )}
+
 
             <div className={styles.manageBookActions}>
               <button
@@ -351,7 +343,7 @@ export default function BookDetailsModal({
                 onClick={handleSave}
                 disabled={!hasChanges || isSaving}
               >
-                {isSaving ? 'Saving...' : 'Save changes'}
+                {isSaving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

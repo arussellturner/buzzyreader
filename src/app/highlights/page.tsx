@@ -13,6 +13,12 @@ import PageNavDropdown from '@/components/UI/PageNavDropdown';
 import styles from './highlights.module.css';
 import libraryStyles from '../library/library.module.css';
 
+type SearchFilter = {
+  type: 'book' | 'author';
+  value: string;
+  label: string;
+};
+
 export default function HighlightsPage() {
   const sessionObj = useSession();
   const session = sessionObj?.data;
@@ -24,6 +30,8 @@ export default function HighlightsPage() {
   const [allHighlights, setAllHighlights] = useState<BookHighlights[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilter, setSearchFilter] = useState<SearchFilter | null>(null);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [editingHighlight, setEditingHighlight] = useState<Highlight | null>(null);
@@ -89,13 +97,64 @@ export default function HighlightsPage() {
     return null;
   }
 
-  const filteredHighlights = allHighlights.map(bh => ({
+  const filteredHighlights = allHighlights.filter(bh => {
+    if (!searchFilter) return true;
+    if (searchFilter.type === 'book') {
+      return bh.bookId === searchFilter.value;
+    }
+    if (searchFilter.type === 'author') {
+      const book = library?.books.find(b => b.id === bh.bookId);
+      return book?.author === searchFilter.value;
+    }
+    return true;
+  }).map(bh => ({
     ...bh,
     highlights: bh.highlights.filter(h => 
       h.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
       (h.note && h.note.toLowerCase().includes(searchQuery.toLowerCase()))
     )
   })).filter(bh => bh.highlights.length > 0);
+
+  const searchSuggestions = useMemo(() => {
+    if (!searchQuery.trim() || !library) return [];
+    const query = searchQuery.toLowerCase();
+    
+    const suggestions: SearchFilter[] = [];
+    
+    // Find matching books
+    library.books.forEach(book => {
+      if (book.title.toLowerCase().includes(query)) {
+        suggestions.push({
+          type: 'book',
+          value: book.id,
+          label: book.title
+        });
+      }
+    });
+
+    // Find matching authors (unique)
+    const matchingAuthors = Array.from(new Set(
+      library.books
+        .map(b => b.author)
+        .filter(author => author.toLowerCase().includes(query))
+    ));
+
+    matchingAuthors.forEach(author => {
+      suggestions.push({
+        type: 'author',
+        value: author,
+        label: author
+      });
+    });
+
+    return suggestions;
+  }, [searchQuery, library]);
+
+  const handleSelectFilter = (filter: SearchFilter) => {
+    setSearchFilter(filter);
+    setSearchQuery('');
+    setShowSearchSuggestions(false);
+  };
 
   const getBookTitle = useCallback((bookId: string) => {
     return library?.books.find(b => b.id === bookId)?.title || 'Unknown Book';
@@ -260,14 +319,49 @@ export default function HighlightsPage() {
               </div>
             </div>
             
-            <div className={libraryStyles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search highlights..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={libraryStyles.searchInput}
-              />
+            <div className={styles.customSearchContainer}>
+              <div className={styles.customSearchBox}>
+                {searchFilter && (
+                  <div className={styles.searchFilterPill}>
+                    <span>{searchFilter.label}</span>
+                    <button className={styles.clearFilterBtn} onClick={() => setSearchFilter(null)}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                <input
+                  type="text"
+                  placeholder={searchFilter ? 'Search within filter...' : 'Search highlights...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchSuggestions(true)}
+                  onBlur={() => {
+                    // Small delay to allow clicking suggestions
+                    setTimeout(() => setShowSearchSuggestions(false), 200);
+                  }}
+                  className={styles.customSearchInput}
+                />
+              </div>
+
+              {showSearchSuggestions && searchSuggestions.length > 0 && (
+                <div className={styles.suggestionsDropdown}>
+                  {searchSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      className={styles.suggestionItem}
+                      onClick={() => handleSelectFilter(suggestion)}
+                    >
+                      <span>{suggestion.label}</span>
+                      <span className={styles.suggestionType}>
+                        {suggestion.type === 'book' ? 'Book' : 'Author'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
