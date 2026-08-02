@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Book } from '@/types/book';
+import AutoResizingTextarea from '@/components/UI/AutoResizingTextarea';
 import styles from './BookDetailsModal.module.css';
 
 
@@ -183,17 +184,18 @@ export default function BookDetailsModal({
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <button
-          className={styles.closeButton}
-          onClick={handleClose}
-          aria-label="Close"
-        >
-          ✕
-        </button>
-
-        <h2 id="modal-title" className={styles.modalTitle}>
-          Book Details
-        </h2>
+        <div className={styles.modalHeader}>
+          <h2 id="modal-title" className={styles.modalTitle}>
+            Book details
+          </h2>
+          <button
+            className={styles.closeButton}
+            onClick={handleClose}
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
 
         {showDeletePrompt ? (
           <div className={styles.unsavedPrompt}>
@@ -244,35 +246,33 @@ export default function BookDetailsModal({
           <div className={styles.formContent}>
             <div className={styles.formGroup}>
               <label htmlFor="book-title">Title</label>
-              <input
+              <AutoResizingTextarea
                 id="book-title"
-                type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Book Title"
-                className={styles.input}
+                className={styles.textarea}
               />
             </div>
 
             <div className={styles.formGroup}>
               <label htmlFor="book-author">Author</label>
-              <input
+              <AutoResizingTextarea
                 id="book-author"
-                type="text"
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder="Author Name"
-                className={styles.input}
+                className={styles.textarea}
               />
             </div>
 
             <div className={styles.formGroup}>
               <label htmlFor="book-notes">My notes</label>
-              <textarea
+              <AutoResizingTextarea
                 id="book-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add your thoughts or notes about this book..."
+                placeholder="Add your notes..."
                 className={styles.textarea}
               />
             </div>
@@ -337,15 +337,18 @@ export default function BookDetailsModal({
               </button>
             </div>
 
-            <div className={styles.actions}>
-              <button
-                className={styles.btnPrimary}
-                onClick={handleSave}
-                disabled={!hasChanges || isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save'}
-              </button>
-            </div>
+          </div>
+        )}
+        
+        {(!showDeletePrompt && !showUnsavedPrompt) && (
+          <div className={styles.actions}>
+            <button
+              className={styles.btnPrimary}
+              onClick={handleSave}
+              disabled={!hasChanges || isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
           </div>
         )}
       </div>

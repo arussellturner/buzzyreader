@@ -74,13 +74,21 @@
 
 .customSearchInput {
   flex: 1;
-  border: none;
+  border: none !important;
   background: transparent;
   color: var(--text-primary);
   font-size: 15px;
-  outline: none;
+  outline: none !important;
   min-width: 0;
   padding: 4px 0;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+}
+
+.customSearchInput:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .searchFilterPill {

@@ -53,25 +53,13 @@ export default function BookCard({ book, progress, onClick, onOpenDetails }: Boo
     }
   }, [book, onClick, router]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleClick();
-      }
-    },
-    [handleClick]
-  );
 
   return (
     <div
       className={styles.card}
     >
       {/* Cover */}
-      <div 
-        className={styles.coverWrapper}
-        tabIndex={0}
-      >
+      <div className={styles.coverWrapper}>
         <div className={styles.hoverOverlay}>
           <button className={styles.overlayButton} onClick={handleClick}>Read</button>
           <button className={styles.overlayButton} onClick={(e) => { e.stopPropagation(); if(onOpenDetails) onOpenDetails(book); }}>Details</button>

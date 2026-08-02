@@ -14,13 +14,23 @@
 }
 
 .card:hover {
-  background-color: var(--bg-elevated);
+  background-color: rgba(128, 128, 128, 0.1);
 }
 
-/* Color variants - optional subtle tint on the border if needed, but the user requested neutral so we'll just keep them all pointing to border-color for now, or just remove the overrides */
-.yellow, .green, .blue, .pink {
-  /* Using neutral theme border instead of bright highlight colors */
-  border-left-color: var(--text-tertiary);
+.yellow {
+  border-left-color: #eab308;
+}
+
+.green {
+  border-left-color: #22c55e;
+}
+
+.blue {
+  border-left-color: #3b82f6;
+}
+
+.pink {
+  border-left-color: #ec4899;
 }
 
 .text {

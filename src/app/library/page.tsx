@@ -29,13 +29,22 @@ export default function LibraryPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailsBook, setDetailsBook] = useState<Book | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recentRead');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [progressMap, setProgressMap] = useState<Record<string, ReadingProgress>>({});
 
-  const books = useMemo(() => {
-    const libraryBooks = library?.books || [];
-    return [...libraryBooks].sort((a, b) => {
+  const sortedBooks = useMemo(() => {
+    let filtered = library?.books || [];
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(b => 
+        (b.title || '').toLowerCase().includes(q) || 
+        (b.author && b.author.toLowerCase().includes(q))
+      );
+    }
+    
+    return [...filtered].sort((a, b) => {
       switch (sortOption) {
         case 'title':
           return (a.title || '').localeCompare(b.title || '');
@@ -55,10 +64,10 @@ export default function LibraryPage() {
           return bAdded - aAdded; // Descending
       }
     });
-  }, [library?.books, sortOption]);
+  }, [library?.books, sortOption, searchQuery]);
 
-  const unreadBooks = useMemo(() => books.filter((b) => !b.isRead), [books]);
-  const readBooks = useMemo(() => books.filter((b) => b.isRead), [books]);
+  const unreadBooks = useMemo(() => sortedBooks.filter((b) => !b.isRead), [sortedBooks]);
+  const readBooks = useMemo(() => sortedBooks.filter((b) => b.isRead), [sortedBooks]);
 
   // Protected route: redirect to / if not signed in
   useEffect(() => {
@@ -68,27 +77,27 @@ export default function LibraryPage() {
   }, [status, router]);
 
   const existingDriveFileIds = useMemo(
-    () => new Set(books.map((b) => b.driveFileId)),
-    [books]
+    () => new Set((library?.books || []).map((b) => b.driveFileId)),
+    [library?.books]
   );
 
   const fetchProgresses = useCallback(async () => {
-    if (!driveStorage || books.length === 0) return;
+    if (!driveStorage || !library?.books || library.books.length === 0) return;
     try {
-      const promises = books.map(book => getReadingProgress(driveStorage, book.id));
+      const promises = library.books.map(book => getReadingProgress(driveStorage, book.id));
       const results = await Promise.allSettled(promises);
       
       const newMap: Record<string, ReadingProgress> = {};
       results.forEach((res, i) => {
         if (res.status === 'fulfilled' && res.value) {
-          newMap[books[i].id] = res.value;
+          newMap[library.books[i].id] = res.value;
         }
       });
       setProgressMap(newMap);
     } catch (err) {
       console.error(err);
     }
-  }, [driveStorage, books]);
+  }, [driveStorage, library?.books]);
 
   // Fetch progresses whenever books or driveStorage changes
   useEffect(() => {
@@ -151,7 +160,6 @@ export default function LibraryPage() {
       percentage: 0,
       lastRead: new Date().toISOString()
     });
-    // Actually progress doesn't update the book object, but it's good enough.
   }, [driveStorage]);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -174,7 +182,6 @@ export default function LibraryPage() {
     };
   }, []);
 
-  // Get user initials for avatar placeholder
   const userInitials = useMemo(() => {
     if (!session?.user?.name) return '?';
     return session.user.name
@@ -185,7 +192,6 @@ export default function LibraryPage() {
       .toUpperCase();
   }, [session?.user?.name]);
 
-  // Show nothing while checking auth
   if (status === 'loading') {
     return (
       <div className={styles.libraryPage}>
@@ -206,7 +212,6 @@ export default function LibraryPage() {
     );
   }
 
-  // Don't render if not signed in (redirect will happen)
   if (status === 'unauthenticated') {
     return null;
   }
@@ -215,7 +220,6 @@ export default function LibraryPage() {
 
   return (
     <div className={styles.libraryPage}>
-      {/* ── Sticky Header ── */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <a href="/library" className={styles.logoSection}>
@@ -270,9 +274,7 @@ export default function LibraryPage() {
         </div>
       </header>
 
-      {/* ── Main content ── */}
       <main className={styles.content}>
-        {/* Sub Nav / Toolbar */}
         <div className={styles.toolbar}>
           <div className={styles.toolbarTopRow}>
             <PageNavDropdown activePage="library" />
@@ -304,10 +306,20 @@ export default function LibraryPage() {
                 </svg>
               </div>
             </div>
+            <div className={styles.customSearchContainer}>
+              <div className={styles.customSearchBox}>
+                <input
+                  type="text"
+                  placeholder="Search books by title or author..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.customSearchInput}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Loading skeleton */}
         {isLoading && (
           <div className={styles.skeletonGrid}>
             {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
@@ -322,8 +334,7 @@ export default function LibraryPage() {
           </div>
         )}
 
-        {/* Empty state */}
-        {!isLoading && books.length === 0 && (
+        {!isLoading && (library?.books || []).length === 0 && (
           <div className={styles.emptyState}>
             <div className={styles.emptyIllustration} aria-hidden="true">
               📚
@@ -345,9 +356,11 @@ export default function LibraryPage() {
           </div>
         )}
 
-        {/* Book grids */}
-        {!isLoading && books.length > 0 && (
+        {!isLoading && (library?.books || []).length > 0 && (
           <>
+            {searchQuery.trim() !== '' && sortedBooks.length === 0 && (
+              <p className={styles.emptyText}>No books match your search.</p>
+            )}
             {unreadBooks.length > 0 && (
               <div className={styles.bookGrid}>
                 {unreadBooks.map((book) => (

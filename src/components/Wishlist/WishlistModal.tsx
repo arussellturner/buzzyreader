@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { WishlistItem } from '@/types/wishlist';
+import AutoResizingTextarea from '@/components/UI/AutoResizingTextarea';
 import styles from './WishlistModal.module.css';
 
 interface WishlistModalProps {
@@ -223,9 +224,8 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
                 <div className={styles.titleAuthorGroup}>
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Title</label>
-                    <input 
-                      type="text" 
-                      className={styles.input} 
+                    <AutoResizingTextarea 
+                      className={styles.textarea} 
                       value={title} 
                       onChange={e => setTitle(e.target.value)} 
                       placeholder="Book Title"
@@ -235,9 +235,8 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
 
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Author</label>
-                    <input 
-                      type="text" 
-                      className={styles.input} 
+                    <AutoResizingTextarea 
+                      className={styles.textarea} 
                       value={author} 
                       onChange={e => setAuthor(e.target.value)} 
                       placeholder="Author Name"
@@ -248,12 +247,11 @@ export default function WishlistModal({ isOpen, onClose, onSave, initialItem, on
 
               <div className={styles.inputGroup}>
                 <label className={styles.label}>How did you hear about this?</label>
-                <textarea 
+                <AutoResizingTextarea 
                   className={styles.textarea} 
                   value={sourceNotes} 
                   onChange={e => setSourceNotes(e.target.value)} 
-                  placeholder="e.g. Recommended by a friend, heard on a podcast..."
-                  rows={4}
+                  placeholder="e.g. Recommended by Sarah, saw on TikTok..."
                 />
               </div>
             </div>

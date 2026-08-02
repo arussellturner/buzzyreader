@@ -209,14 +209,16 @@ export default function WishlistPage() {
                 </span>
               </div>
             </div>
-            <div className={libraryStyles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search wishlist..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={libraryStyles.searchInput}
-              />
+            <div className={libraryStyles.customSearchContainer}>
+              <div className={libraryStyles.customSearchBox}>
+                <input
+                  type="text"
+                  placeholder="Search wishlist..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={libraryStyles.customSearchInput}
+                />
+              </div>
             </div>
           </div>
         </div>
