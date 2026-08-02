@@ -271,26 +271,27 @@ export default function BookDetailsModal({
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="book-cover">Cover Image URL (Optional)</label>
-              <div className={styles.coverInputGroup}>
-                <input
-                  id="book-cover"
-                  type="text"
-                  value={coverUrl}
-                  onChange={(e) => setCoverUrl(e.target.value)}
-                  placeholder="https://..."
-                  className={styles.input}
-                />
-                <button 
-                  type="button"
-                  className={styles.btnSecondary}
-                  onClick={searchCoverArt}
-                  disabled={isSearchingCover || !title}
-                  title="Search OpenLibrary for cover art"
-                >
-                  {isSearchingCover ? 'Searching...' : 'Find Cover'}
-                </button>
-              </div>
+              <label htmlFor="book-notes">My notes</label>
+              <textarea
+                id="book-notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add your thoughts or notes about this book..."
+                className={styles.textarea}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <button 
+                type="button"
+                className={styles.btnSecondary}
+                onClick={searchCoverArt}
+                disabled={isSearchingCover || !title}
+                title="Search OpenLibrary for cover art"
+                style={{ width: '100%', marginTop: '8px' }}
+              >
+                {isSearchingCover ? 'Searching...' : 'Find cover'}
+              </button>
               
               {coverSuggestions.length > 0 && (
                 <div className={styles.coverSuggestions}>
@@ -310,17 +311,6 @@ export default function BookDetailsModal({
                   </div>
                 </div>
               )}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="book-notes">My Notes</label>
-              <textarea
-                id="book-notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add your thoughts or notes about this book..."
-                className={styles.textarea}
-              />
             </div>
 
             {book?.lastReadAt && (
