@@ -329,33 +329,30 @@ export default function BookDetailsModal({
               </div>
             )}
 
-            <div className={styles.dangerZone}>
-              <h4>Manage Book</h4>
-              <div className={styles.manageBookActions}>
-                <button
-                  className={styles.btnGhost}
-                  onClick={handleToggleRead}
-                  disabled={isSaving}
-                  type="button"
-                >
-                  {isRead ? 'Mark as unread' : 'Mark as read'}
-                </button>
-                <button
-                  className={styles.btnGhost}
-                  onClick={handleResetProgress}
-                  type="button"
-                >
-                  Reset reading progress
-                </button>
-                <button
-                  className={styles.btnDanger}
-                  onClick={handleDeleteClick}
-                  disabled={isDeleting || isSaving}
-                  type="button"
-                >
-                  Delete book
-                </button>
-              </div>
+            <div className={styles.manageBookActions}>
+              <button
+                className={styles.btnSuccess}
+                onClick={handleToggleRead}
+                disabled={isSaving}
+                type="button"
+              >
+                {isRead ? 'Mark as unread' : 'Mark as read'}
+              </button>
+              <button
+                className={styles.btnDarkGrey}
+                onClick={handleResetProgress}
+                type="button"
+              >
+                Reset reading progress
+              </button>
+              <button
+                className={styles.btnDanger}
+                onClick={handleDeleteClick}
+                disabled={isDeleting || isSaving}
+                type="button"
+              >
+                Delete book
+              </button>
             </div>
 
             <div className={styles.actions}>
