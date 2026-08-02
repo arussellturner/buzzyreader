@@ -33,6 +33,7 @@ export default function LibraryPage() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [progressMap, setProgressMap] = useState<Record<string, ReadingProgress>>({});
+  const [readSortOption, setReadSortOption] = useState<'dateRead' | 'authorFirst' | 'authorLast' | 'title'>('dateRead');
 
   const sortedBooks = useMemo(() => {
     let filtered = library?.books || [];
@@ -69,8 +70,25 @@ export default function LibraryPage() {
   }, [library?.books, preferences.librarySortOption, searchQuery]);
 
   const unreadBooks = useMemo(() => sortedBooks.filter((b) => !b.isRead), [sortedBooks]);
-  const readBooks = useMemo(() => sortedBooks.filter((b) => b.isRead), [sortedBooks]);
-
+  const readBooks = useMemo(() => {
+    const arr = sortedBooks.filter((b) => b.isRead);
+    return arr.sort((a, b) => {
+      switch (readSortOption) {
+        case 'title':
+          return (a.title || '').localeCompare(b.title || '');
+        case 'authorFirst':
+          return (a.author || '').localeCompare(b.author || '');
+        case 'authorLast':
+          const getLastWord = (str: string) => str.trim().split(' ').pop() || '';
+          return getLastWord(a.author || '').localeCompare(getLastWord(b.author || ''));
+        case 'dateRead':
+        default:
+          const aRead = a.finishedAt ? new Date(a.finishedAt).getTime() : (a.lastReadAt ? new Date(a.lastReadAt).getTime() : 0);
+          const bRead = b.finishedAt ? new Date(b.finishedAt).getTime() : (b.lastReadAt ? new Date(b.lastReadAt).getTime() : 0);
+          return bRead - aRead; // Descending
+      }
+    });
+  }, [sortedBooks, readSortOption]);
   // Protected route: redirect to / if not signed in
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -379,7 +397,32 @@ export default function LibraryPage() {
 
             {readBooks.length > 0 && (
               <div className={styles.readSection}>
-                <h2 className={styles.readSectionTitle}>Read</h2>
+                <div className={styles.readSectionHeader}>
+                  <h2 className={styles.readSectionTitle}>Read</h2>
+                  <div className={styles.readSortContainer}>
+                    <label htmlFor="readSort" className={styles.sortLabel}>
+                      Sort by:
+                    </label>
+                    <div className={styles.selectWrapper}>
+                      <select
+                        id="readSort"
+                        className={styles.sortSelect}
+                        value={readSortOption}
+                        onChange={(e) => setReadSortOption(e.target.value as any)}
+                      >
+                        <option value="dateRead">Date read</option>
+                        <option value="authorFirst">Author (first name)</option>
+                        <option value="authorLast">Author (last name)</option>
+                        <option value="title">Title</option>
+                      </select>
+                      <span className={styles.selectIcon} aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                </div>
                 <div className={styles.bookGrid}>
                   {readBooks.map((book) => (
                     <BookCard

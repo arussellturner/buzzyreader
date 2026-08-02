@@ -9,6 +9,7 @@ export interface Book {
   totalLocations?: number;
   notes?: string; // User notes
   isRead?: boolean; // User marked as read
+  finishedAt?: string; // ISO date string when marked as read
 }
 
 export interface Library {

@@ -138,10 +138,6 @@
   display: none;
 }
 
-.unsavedPrompt {
-  padding: 0 16px 16px;
-  text-align: center;
-}
 
 .manageBookActions {
   display: flex;
@@ -168,6 +164,28 @@
 }
 
 .btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnDangerSolid {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnDangerSolid:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.btnDangerSolid:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -263,8 +281,9 @@
 .unsavedPrompt {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
-  padding: 24px 0;
+  padding: 32px 16px;
   text-align: center;
 }
 
@@ -355,5 +374,6 @@
 @media (max-width: 600px) {
   .promptActions {
     flex-direction: column;
+    padding: 0 32px;
   }
 }

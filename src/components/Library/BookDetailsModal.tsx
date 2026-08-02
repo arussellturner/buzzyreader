@@ -77,6 +77,7 @@ export default function BookDetailsModal({
     if (!book) return;
     setIsSaving(true);
     try {
+      const isNewlyRead = isRead && !book.isRead;
       await onSave({
         ...book,
         title,
@@ -84,6 +85,7 @@ export default function BookDetailsModal({
         coverUrl,
         notes,
         isRead,
+        finishedAt: isNewlyRead ? new Date().toISOString() : (isRead ? book.finishedAt : undefined),
       });
       onClose();
     } catch (err) {
@@ -98,13 +100,15 @@ export default function BookDetailsModal({
     if (!book) return;
     setIsSaving(true);
     try {
+      const newIsRead = !isRead;
       await onSave({
         ...book,
         title,
         author,
         coverUrl,
         notes,
-        isRead: !isRead,
+        isRead: newIsRead,
+        finishedAt: newIsRead ? new Date().toISOString() : undefined,
       });
       onClose();
     } catch (err) {
@@ -184,18 +188,20 @@ export default function BookDetailsModal({
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <div className={styles.modalHeader}>
-          <h2 id="modal-title" className={styles.modalTitle}>
-            Book details
-          </h2>
-          <button
-            className={styles.closeButton}
-            onClick={handleClose}
-            aria-label="Close"
-          >
-            &times;
-          </button>
-        </div>
+        {!showUnsavedPrompt && (
+          <div className={styles.modalHeader}>
+            <h2 id="modal-title" className={styles.modalTitle}>
+              Book details
+            </h2>
+            <button
+              className={styles.closeButton}
+              onClick={handleClose}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         {showDeletePrompt ? (
           <div className={styles.unsavedPrompt}>
@@ -220,11 +226,10 @@ export default function BookDetailsModal({
           </div>
         ) : showUnsavedPrompt ? (
           <div className={styles.unsavedPrompt}>
-            <h3>Unsaved Changes</h3>
-            <p>You have unsaved changes. What would you like to do?</p>
+            <h3>Save book details?</h3>
             <div className={styles.promptActions}>
-              <button className={styles.btnSecondary} onClick={handleForceClose}>
-                Don't Save
+              <button className={styles.btnDangerSolid} onClick={handleForceClose}>
+                Discard changes
               </button>
               <button
                 className={styles.btnPrimary}
@@ -237,9 +242,9 @@ export default function BookDetailsModal({
             <button
               className={styles.btnGhost}
               onClick={() => setShowUnsavedPrompt(false)}
-              style={{ marginTop: '12px', width: '100%' }}
+              style={{ marginTop: '32px' }}
             >
-              Keep Editing
+              Keep editing
             </button>
           </div>
         ) : (
