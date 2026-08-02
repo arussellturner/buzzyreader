@@ -229,38 +229,42 @@ export default function HighlightsPage() {
 
       {/* Main Content */}
       <main className={libraryStyles.content}>
-        <div className={styles.highlightsHeader}>
-          <div className={styles.headerTopRow}>
+        <div className={libraryStyles.toolbar}>
+          <div className={libraryStyles.toolbarTopRow}>
             <PageNavDropdown activePage="highlights" />
           </div>
-          <div className={libraryStyles.sortOptions}>
-            <span className={libraryStyles.sortLabel}>Sort by:</span>
-            <div className={libraryStyles.selectWrapper}>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className={libraryStyles.sortSelect}
-              >
-                <option value="recent">Recent</option>
-                <option value="title">Book Title</option>
-                <option value="author-first">Author (First Name)</option>
-                <option value="author-last">Author (Last Name)</option>
-              </select>
-              <span className={libraryStyles.selectIcon} aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </span>
+          
+          <div className={libraryStyles.controlsRow}>
+            <div className={libraryStyles.sortOptions}>
+              <span className={libraryStyles.sortLabel}>Sort by:</span>
+              <div className={libraryStyles.selectWrapper}>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={libraryStyles.sortSelect}
+                >
+                  <option value="recent">Recent</option>
+                  <option value="title">Book Title</option>
+                  <option value="author-first">Author (First Name)</option>
+                  <option value="author-last">Author (Last Name)</option>
+                </select>
+                <span className={libraryStyles.selectIcon} aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+              </div>
             </div>
-          </div>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              placeholder="Search highlights..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
+            
+            <div className={libraryStyles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Search highlights..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={libraryStyles.searchInput}
+              />
+            </div>
           </div>
         </div>
 

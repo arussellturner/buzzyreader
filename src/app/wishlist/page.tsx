@@ -165,11 +165,11 @@ export default function WishlistPage() {
       </header>
 
       <main className={libraryStyles.content}>
-        <div className={styles.wishlistHeader}>
-          <div className={styles.headerTopRow}>
+        <div className={libraryStyles.toolbar}>
+          <div className={libraryStyles.toolbarTopRow}>
             <PageNavDropdown activePage="wishlist" />
             <button 
-              className={styles.addButton} 
+              className={libraryStyles.addButton} 
               onClick={() => {
                 setSelectedItem(null);
                 setIsModalOpen(true);
@@ -184,7 +184,7 @@ export default function WishlistPage() {
             </button>
           </div>
 
-          <div className={styles.controlsRow}>
+          <div className={libraryStyles.controlsRow}>
             <div className={libraryStyles.sortOptions}>
               <span className={libraryStyles.sortLabel}>Sort by:</span>
               <div className={libraryStyles.selectWrapper}>
@@ -205,13 +205,13 @@ export default function WishlistPage() {
                 </span>
               </div>
             </div>
-            <div className={styles.searchContainer}>
+            <div className={libraryStyles.searchContainer}>
               <input
                 type="text"
                 placeholder="Search wishlist..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
+                className={libraryStyles.searchInput}
               />
             </div>
           </div>
